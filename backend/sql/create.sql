@@ -46,7 +46,8 @@ CREATE TABLE "public"."applications" (
     "user_id" bigint NOT NULL,
     "is_accepted" boolean NOT NULL,
     "volunteer_rating" integer,
-    "help_seeker_rating" integer
+    "help_seeker_rating" integer,
+    "applied_at" timestamp NOT NULL
 );
 
 -- Foreign key constraints
