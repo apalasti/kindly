@@ -27,6 +27,7 @@ import { passwordStrength, type Options } from "check-password-strength";
 import { Logo } from "../components/ui/logo";
 import { getBackgroundStyle, getAccentColor } from "../theme/backgrounds";
 import { ActorTypeSwitch } from "../components/ui/actor-type-switch";
+import { PageLayout } from "../components/layout/PageLayout";
 
 export const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +40,7 @@ export const RegisterPage = () => {
     formState: { errors },
     watch,
     control,
+    setValue,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     mode: "onTouched",
@@ -95,6 +97,7 @@ export const RegisterPage = () => {
 
   // Get dynamic styles from theme configuration
   const accentColor = getAccentColor(isVolunteer);
+  const accentColorShade = getAccentColor(isVolunteer, true);
   const backgroundStyle = getBackgroundStyle(isVolunteer);
 
   // Password strength using check-password-strength
@@ -115,10 +118,8 @@ export const RegisterPage = () => {
   }, [passwordValue, strengthOptions]);
 
   return (
-    <Box
-      minH="100vh"
-      style={backgroundStyle}
-      transition="all 0.6s ease-in-out"
+    <PageLayout
+      backgroundStyle={backgroundStyle}
       py={12}
       display="flex"
       alignItems="center"
@@ -149,7 +150,7 @@ export const RegisterPage = () => {
                 color="primary.500"
                 textAlign="center"
               >
-                I want to register as:
+                Register as:
               </Text>
               <HStack gap={6} justify="center" align="center" w="full" py={2}>
                 <Stack
@@ -157,6 +158,11 @@ export const RegisterPage = () => {
                   opacity={!isVolunteer ? 1 : 0.5}
                   transition="all 0.3s ease"
                   align="center"
+                  cursor={isVolunteer ? "pointer" : "default"}
+                  onClick={() => {
+                    if (isVolunteer) setValue("is_volunteer", false);
+                  }}
+                  _hover={{ opacity: !isVolunteer ? 1 : 0.7 }}
                 >
                   <Icon
                     as={FaHandHoldingHeart as ElementType}
@@ -184,6 +190,11 @@ export const RegisterPage = () => {
                   opacity={isVolunteer ? 1 : 0.5}
                   transition="all 0.3s ease"
                   align="center"
+                  cursor={!isVolunteer ? "pointer" : "default"}
+                  onClick={() => {
+                    if (!isVolunteer) setValue("is_volunteer", true);
+                  }}
+                  _hover={{ opacity: isVolunteer ? 1 : 0.7 }}
                 >
                   <Icon
                     as={FaHandsHelping as unknown as ElementType}
@@ -346,6 +357,7 @@ export const RegisterPage = () => {
                 bg={accentColor}
                 color="white"
                 _hover={{
+                  bg: accentColorShade,
                   transform: "translateY(-2px)",
                   boxShadow: "lg",
                 }}
@@ -376,6 +388,6 @@ export const RegisterPage = () => {
           </Box>
         </Stack>
       </Container>
-    </Box>
+    </PageLayout>
   );
 };

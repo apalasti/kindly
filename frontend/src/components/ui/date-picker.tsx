@@ -1,4 +1,10 @@
-import { forwardRef, useState, useRef, type ElementType } from "react";
+import {
+  forwardRef,
+  useState,
+  useRef,
+  useEffect,
+  type ElementType,
+} from "react";
 import { DayPicker } from "react-day-picker";
 import {
   Input,
@@ -30,6 +36,28 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
   ) => {
     const [isOpen, setIsOpen] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+    const popoverRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      if (isOpen && popoverRef.current) {
+        // Small delay to ensure the popover is fully rendered
+        setTimeout(() => {
+          if (popoverRef.current) {
+            const popoverRect = popoverRef.current.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+            const popoverCenter = popoverRect.top + popoverRect.height / 2;
+            const viewportCenter = viewportHeight / 2;
+            const scrollOffset = popoverCenter - viewportCenter;
+
+            // Smooth scroll to center the popover
+            window.scrollBy({
+              top: scrollOffset,
+              behavior: "smooth",
+            });
+          }
+        }, 50);
+      }
+    }, [isOpen]);
 
     const formatDate = (date: Date | null) => {
       if (!date) return "";
@@ -106,7 +134,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
             </HStack>
           </PopoverTrigger>
 
-          <PopoverContent width="auto" zIndex={1500}>
+          <PopoverContent width="auto" zIndex={1500} ref={popoverRef}>
             <PopoverBody p={0}>
               <DayPicker
                 mode="single"

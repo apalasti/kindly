@@ -1,8 +1,9 @@
 import React from "react";
-import logoBlue from "../../assets/images/logo-blue.svg";
-import logoOrange from "../../assets/images/logo-orange.svg";
+import logoTeal from "../../assets/images/logo-teal.svg";
+import logoCoral from "../../assets/images/logo-coral.svg";
+import logoGradient from "../../assets/images/logo-gradient.svg";
 
-export type ActorType = "volunteer" | "help-seeker";
+export type ActorType = "volunteer" | "help-seeker" | "both";
 
 export interface LogoIconProps {
   actorType?: ActorType;
@@ -38,7 +39,12 @@ export const LogoIcon: React.FC<LogoIconProps> = ({
   fit = "contain",
   alt,
 }) => {
-  const logoSrc = actorType === "volunteer" ? logoBlue : logoOrange;
+  const logoSrc =
+    actorType === "volunteer"
+      ? logoTeal
+      : actorType === "help-seeker"
+      ? logoCoral
+      : logoGradient;
   const height = sizeToHeight(size);
 
   return (

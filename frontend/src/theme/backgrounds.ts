@@ -20,13 +20,34 @@ export const backgroundStyles = {
       radial-gradient(circle at 50% 50%, rgba(254, 243, 240, 0.2) 0%, transparent 60%)
     `,
   },
+  both: {
+    background: "linear-gradient(135deg, #fffcfb 0%, #f9ffff 100%)", // gradient from coral-tinted to teal-tinted
+    backgroundImage: `
+      radial-gradient(circle at 10% 15%, rgba(238, 157, 131, 0.1) 0%, transparent 35%),
+      radial-gradient(circle at 90% 20%, rgba(102, 178, 176, 0.1) 0%, transparent 35%),
+      radial-gradient(circle at 20% 80%, rgba(102, 178, 176, 0.12) 0%, transparent 40%),
+      radial-gradient(circle at 80% 75%, rgba(238, 157, 131, 0.12) 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(244, 254, 193, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 35% 40%, rgba(252, 217, 208, 0.1) 0%, transparent 35%),
+      radial-gradient(circle at 65% 60%, rgba(230, 245, 244, 0.1) 0%, transparent 35%)
+    `,
+  },
 };
 
-// Accent colors for different user types
-export const accentColors = {
-  volunteer: "teal.300",
-  helpSeeker: "coral.500",
-};
+export const accentColorScale = {
+  volunteer: {
+    300: "teal.300",
+    400: "teal.400",
+    500: "teal.500",
+    600: "teal.600",
+  },
+  helpSeeker: {
+    300: "coral.300",
+    400: "coral.400",
+    500: "coral.500",
+    600: "coral.600",
+  },
+} as const;
 
 // Get background style based on user type
 export const getBackgroundStyle = (isVolunteer: boolean) => {
@@ -34,6 +55,16 @@ export const getBackgroundStyle = (isVolunteer: boolean) => {
 };
 
 // Get accent color based on user type
-export const getAccentColor = (isVolunteer: boolean) => {
-  return isVolunteer ? accentColors.volunteer : accentColors.helpSeeker;
+export const getAccentColor = (
+  isVolunteer: boolean,
+  shade: boolean = false
+) => {
+  if (shade) {
+    return isVolunteer
+      ? accentColorScale.volunteer[400]
+      : accentColorScale.helpSeeker[600];
+  }
+  return isVolunteer
+    ? accentColorScale.volunteer[300]
+    : accentColorScale.helpSeeker[500];
 };

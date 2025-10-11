@@ -51,6 +51,51 @@ export const authService = {
   },
 
   login: async (data: LoginRequest): Promise<AuthResponse> => {
+    // ============================================
+    // MOCK RESPONSE - Remove this block when backend is ready
+    // ============================================
+    if (USE_MOCK) {
+      await mockDelay(800);
+
+      // Simulate different scenarios based on email/password
+      if (data.email === "error@test.com") {
+        throw new Error("Network error. Please try again later.");
+      }
+
+      if (
+        data.email === "test@example.com" &&
+        data.password === "password123"
+      ) {
+        // Successful login
+        const mockResponse: AuthResponse = {
+          success: true,
+          data: {
+            user: {
+              id: 1,
+              name: "John Doe",
+              email: data.email,
+              date_of_birth: "1990-01-01",
+              about_me: "I'm here to help and make a difference!",
+              is_volunteer: true,
+              created_at: "2024-01-01T00:00:00.000Z",
+              updated_at: new Date().toISOString(),
+            },
+            token: "mock_jwt_token_" + Math.random().toString(36).substring(7),
+          },
+          message: "Welcome back!",
+        };
+
+        localStorage.setItem("auth_token", mockResponse.data.token);
+        return mockResponse;
+      } else {
+        // Invalid credentials
+        throw new Error("Invalid email or password. Please try again.");
+      }
+    }
+    // ============================================
+    // END MOCK RESPONSE
+    // ============================================
+
     const response = await api.post<AuthResponse>("/auth/login", data);
     if (response.data.success && response.data.data.token) {
       localStorage.setItem("auth_token", response.data.data.token);
