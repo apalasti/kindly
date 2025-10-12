@@ -1,15 +1,16 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy import (TIMESTAMP, Boolean, ForeignKey, Integer, Numeric,
                         String, text)
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+from .request_type import RequestType
 
 
-class Request(Base):
+class HelpRequest(Base):
     __tablename__ = "request"
     
     id: Mapped[Optional[int]] = mapped_column(Integer, primary_key=True)
@@ -22,6 +23,14 @@ class Request(Base):
     reward: Mapped[int] = mapped_column(Integer, nullable=False)
     creator_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
     is_completed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
+    request_types: Mapped[List["RequestType"]] = relationship(
+        secondary="type_of", back_populates="requests"
+    )
+    applications: Mapped[List["User"]] = relationship(  # pyright: ignore[reportUndefinedVariable]
+        secondary="application", back_populates="applications"
+    )
+
     created_at: Mapped[Optional[datetime]] = mapped_column(
         TIMESTAMP(timezone=True),
         nullable=False,

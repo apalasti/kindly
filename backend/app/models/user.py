@@ -1,10 +1,11 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy import TIMESTAMP, Boolean, Float, Integer, String, text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
+from .help_request import HelpRequest
 
 
 class User(Base):
@@ -18,6 +19,11 @@ class User(Base):
     about_me: Mapped[str] = mapped_column(String, nullable=False)
     is_volunteer: Mapped[bool] = mapped_column(Boolean, nullable=False)
     avg_rating: Mapped[float] = mapped_column(Float, default=0.0)
+
+    applications: Mapped[List["HelpRequest"]] = relationship(
+        secondary="application", back_populates="applications"
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True),
         nullable=False,

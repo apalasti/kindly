@@ -54,7 +54,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(hours=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -74,3 +74,26 @@ async def get_user_data_from_token(token: Annotated[str, Depends(oauth2_scheme)]
 
 
 UserDataDep = Annotated[UserData, Depends(get_user_data_from_token)]
+
+
+async def verify_help_seeker(user_data: UserDataDep):
+    if user_data.is_volunteer:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user_data
+
+
+async def verify_volunteer(user_data: UserDataDep):
+    if not user_data.is_volunteer:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user_data
+
+VolunteerDep = Annotated[UserData, Depends(get_user_data_from_token)]
+HelpSeekerDep = Annotated[UserData, Depends(get_user_data_from_token)]

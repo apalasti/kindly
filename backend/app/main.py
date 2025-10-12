@@ -5,7 +5,7 @@ from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.responses import JSONResponse
 
 from .db import create_db_and_tables
-from .routers import auth, common
+from .routers import auth, common, help_seeker
 
 
 @asynccontextmanager
@@ -17,6 +17,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(common.router, prefix="/api/v1")
+app.include_router(help_seeker.router, prefix="/api/v1")
 
 
 @app.exception_handler(RequestValidationError)
@@ -28,7 +29,7 @@ async def validation_exception_handler(request, exc: RequestValidationError):
                 "code": "VALIDATION_ERROR",
                 "message": "Invalid request",
                 "details": [
-                    {"field": ".".join(e["loc"][1:]), "message": e["msg"]}
+                    {"field": ".".join(e["loc"]), "message": e["msg"]}
                     for e in exc.errors()
                 ],
             },
@@ -40,6 +41,7 @@ async def validation_exception_handler(request, exc: RequestValidationError):
 @app.exception_handler(HTTPException)
 async def validation_exception_handler(request, exc: HTTPException):
     error_codes = {
+        400: "BAD_REQUEST",
         401: "UNAUTHORIZED",
         403: "FORBIDDEN",
         404: "NOT_FOUND",
