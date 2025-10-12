@@ -1,0 +1,202 @@
+import { useNavigate } from "react-router-dom";
+import {
+  HStack,
+  Box,
+  Icon,
+  Heading,
+  Container,
+  Portal,
+  Text,
+} from "@chakra-ui/react";
+import { Avatar } from "@chakra-ui/react/avatar";
+import { Menu } from "@chakra-ui/react/menu";
+import { FaUser, FaSignOutAlt } from "react-icons/fa";
+import { Logo } from "../ui/logo";
+import { authService } from "../../services/auth.service";
+import { toaster } from "../ui/toaster";
+import type { ElementType } from "react";
+import { useRef, useState } from "react";
+
+interface AppHeaderProps {
+  title: string;
+  isVolunteer?: boolean;
+}
+
+// Color palette for avatar backgrounds
+const colorPalette = ["red", "blue", "green", "yellow", "purple", "orange"];
+
+const pickPalette = (name: string) => {
+  const index = name.charCodeAt(0) % colorPalette.length;
+  return colorPalette[index];
+};
+
+export const AppHeader = ({ title, isVolunteer = false }: AppHeaderProps) => {
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearHoverTimer = () => {
+    if (hoverTimer.current) {
+      clearTimeout(hoverTimer.current);
+      hoverTimer.current = null;
+    }
+  };
+
+  const openMenu = () => {
+    clearHoverTimer();
+    setMenuOpen(true);
+  };
+
+  const closeMenuWithDelay = (delay = 120) => {
+    clearHoverTimer();
+    hoverTimer.current = setTimeout(() => setMenuOpen(false), delay);
+  };
+
+  // Mock user data - in real app, this would come from auth context
+  const currentUser = {
+    name: "John Doe",
+    id: 1,
+  };
+
+  // Extract first name for the greeting
+  const firstName = currentUser.name.split(" ")[0];
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      toaster.create({
+        title: "Logged out successfully",
+        type: "success",
+        duration: 3000,
+      });
+      navigate("/login");
+    } catch {
+      toaster.create({
+        title: "Logout failed",
+        description: "Please try again",
+        type: "error",
+        duration: 5000,
+      });
+    }
+  };
+
+  const handleProfileClick = () => {
+    navigate(`/profile/${currentUser.id}`);
+  };
+
+  return (
+    <Box position="sticky" top={0} zIndex={10} py={4} bg="transparent" pb={10}>
+      <Container maxW="container.xl" mx="auto">
+        <Box bg="white" borderRadius="full" boxShadow="lg" px={8} py={5}>
+          <HStack justify="space-between" align="center">
+            {/* Logo - Left side */}
+            <Box
+              cursor="pointer"
+              onClick={() => navigate("/requests")}
+              transition="transform 0.2s"
+              position="relative"
+              top="2px"
+              _hover={{ transform: "scale(1.05)" }}
+            >
+              <Logo
+                actorType={isVolunteer ? "volunteer" : "help-seeker"}
+                size="1.3rem"
+              />
+            </Box>
+
+            {/* Page Title - Center */}
+            <Heading
+              size="lg"
+              color="gray.800"
+              position="absolute"
+              left="50%"
+              transform="translateX(-50%)"
+              pointerEvents="none"
+              textAlign="center"
+            >
+              {title}
+            </Heading>
+
+            {/* User Greeting + Menu - Right side */}
+            <HStack align="center" gap={5}>
+              <Text color="gray.700">
+                Welcome,{" "}
+                <Text as="span" fontWeight="bold">
+                  {firstName}
+                </Text>
+                !{" "}
+              </Text>
+              <Menu.Root
+                positioning={{ placement: "bottom-end" }}
+                open={menuOpen}
+                onOpenChange={(e: { open: boolean }) => setMenuOpen(e.open)}
+              >
+                <Menu.Trigger asChild>
+                  <Box
+                    cursor="pointer"
+                    borderRadius="full"
+                    transition="box-shadow 0.2s, background-color 0.2s"
+                    _hover={{
+                      boxShadow: "sm",
+                    }}
+                    onMouseEnter={openMenu}
+                    onMouseLeave={() => closeMenuWithDelay()}
+                    onClick={() => setMenuOpen((v) => !v)}
+                  >
+                    <Avatar.Root colorPalette={pickPalette(currentUser.name)}>
+                      <Avatar.Fallback name={currentUser.name} />
+                    </Avatar.Root>
+                  </Box>
+                </Menu.Trigger>
+                <Portal>
+                  <Menu.Positioner>
+                    <Menu.Content
+                      minW="200px"
+                      p={4}
+                      boxShadow={"lg"}
+                      display="flex"
+                      flexDir="column"
+                      gap={3}
+                      onMouseEnter={clearHoverTimer}
+                      onMouseLeave={() => closeMenuWithDelay()}
+                    >
+                      <Menu.Item
+                        value="profile"
+                        onClick={() => {
+                          handleProfileClick();
+                          setMenuOpen(false);
+                        }}
+                        cursor="pointer"
+                        py={3}
+                        px={3}
+                        _hover={{ bg: "gray.50" }}
+                      >
+                        <Icon as={FaUser as ElementType} mr={3} />
+                        My Profile
+                      </Menu.Item>
+                      <Menu.Item
+                        value="logout"
+                        onClick={() => {
+                          handleLogout();
+                          setMenuOpen(false);
+                        }}
+                        cursor="pointer"
+                        color="red.500"
+                        py={3}
+                        px={3}
+                        _hover={{ bg: "red.50" }}
+                      >
+                        <Icon as={FaSignOutAlt as ElementType} mr={3} />
+                        Logout
+                      </Menu.Item>
+                    </Menu.Content>
+                  </Menu.Positioner>
+                </Portal>
+              </Menu.Root>
+            </HStack>
+          </HStack>
+        </Box>
+      </Container>
+    </Box>
+  );
+};
