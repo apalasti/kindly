@@ -1,4 +1,11 @@
-import { HStack, IconButton, Text, Box, Icon } from "@chakra-ui/react";
+import {
+  HStack,
+  IconButton,
+  Text,
+  Box,
+  Icon,
+  ButtonGroup,
+} from "@chakra-ui/react";
 import { Pagination } from "@chakra-ui/react/pagination";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import type { ElementType } from "react";
@@ -7,6 +14,7 @@ interface RequestsPaginationProps {
   currentPage: number;
   totalPages: number;
   totalItems: number;
+  itemsPerPage: number;
   onPageChange: (page: number) => void;
   isVolunteer: boolean;
 }
@@ -15,6 +23,7 @@ export const RequestsPagination = ({
   currentPage,
   totalPages,
   totalItems,
+  itemsPerPage,
   onPageChange,
   isVolunteer,
 }: RequestsPaginationProps) => {
@@ -22,7 +31,6 @@ export const RequestsPagination = ({
     return null;
   }
 
-  const itemsPerPage = 20;
   const startItem = Math.min((currentPage - 1) * itemsPerPage + 1, totalItems);
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -39,12 +47,17 @@ export const RequestsPagination = ({
           count={totalItems}
           pageSize={itemsPerPage}
           page={currentPage}
+          siblingCount={1}
           onPageChange={(e) => onPageChange(e.page)}
         >
-          <HStack gap={2}>
+          <ButtonGroup
+            variant="ghost"
+            size="sm"
+            colorPalette={isVolunteer ? "teal" : "coral"}
+          >
             <Pagination.PrevTrigger asChild>
               <IconButton
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 colorPalette={isVolunteer ? "teal" : "coral"}
               >
@@ -56,29 +69,25 @@ export const RequestsPagination = ({
               render={(page) => (
                 <IconButton
                   key={page.value}
-                  variant={
-                    page.type === "page" && page.value === currentPage
-                      ? "solid"
-                      : "outline"
-                  }
-                  size="sm"
+                  variant={{ base: "ghost", _selected: "solid" }}
                   colorPalette={isVolunteer ? "teal" : "coral"}
+                  size="sm"
                 >
-                  {page.type === "ellipsis" ? "..." : page.value}
+                  {page.value}
                 </IconButton>
               )}
             />
 
             <Pagination.NextTrigger asChild>
               <IconButton
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 colorPalette={isVolunteer ? "teal" : "coral"}
               >
                 <Icon as={LuChevronRight as ElementType} />
               </IconButton>
             </Pagination.NextTrigger>
-          </HStack>
+          </ButtonGroup>
         </Pagination.Root>
       </HStack>
     </Box>

@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Stack, Text, Box, Separator, Wrap, Portal } from "@chakra-ui/react";
 import { Tag } from "@chakra-ui/react/tag";
-import { Checkbox } from "@chakra-ui/react/checkbox";
+import { RadioGroup } from "@chakra-ui/react/radio-group";
 import { Combobox } from "@chakra-ui/react/combobox";
 import { Slider } from "@chakra-ui/react/slider";
 import { createListCollection } from "@chakra-ui/react/collection";
@@ -55,9 +55,24 @@ export const RequestFilters = ({
   );
   const [typeSearchValue, setTypeSearchValue] = useState("");
 
-  const allChecked = statusOptions.every((option) => option.checked);
-  const indeterminate =
-    statusOptions.some((option) => option.checked) && !allChecked;
+  const handleStatusRadioChange = (value: string) => {
+    if (value === "all") {
+      setStatusOptions((current) =>
+        current.map((o) => ({ ...o, checked: true }))
+      );
+    } else {
+      setStatusOptions((current) =>
+        current.map((o) => ({ ...o, checked: o.value === value }))
+      );
+    }
+
+    const newFilters = {
+      ...filters,
+      status: (value as Filters["status"]) || "all",
+      page: 1,
+    };
+    onFiltersChange(newFilters);
+  };
 
   // Filter type options based on search
   const filteredTypeOptions = useMemo(
@@ -79,55 +94,7 @@ export const RequestFilters = ({
     [filteredTypeOptions]
   );
 
-  const handleAllStatusChange = (e: { checked: boolean | "indeterminate" }) => {
-    setStatusOptions((current) =>
-      current.map((option) => ({ ...option, checked: !!e.checked }))
-    );
-
-    const newFilters = {
-      ...filters,
-      status: "all" as Filters["status"],
-      page: 1,
-    };
-    onFiltersChange(newFilters);
-  };
-
-  const handleStatusChange = (
-    index: number,
-    e: { checked: boolean | "indeterminate" }
-  ) => {
-    const isChecked = !!e.checked;
-
-    setStatusOptions((current) => {
-      const newValues = [...current];
-      newValues[index] = { ...newValues[index], checked: isChecked };
-      return newValues;
-    });
-
-    const newStatusOptions = [...statusOptions];
-    newStatusOptions[index] = {
-      ...newStatusOptions[index],
-      checked: isChecked,
-    };
-
-    const checkedOptions = newStatusOptions.filter((opt) => opt.checked);
-    let newStatus: Filters["status"];
-
-    if (checkedOptions.length === 0) {
-      newStatus = "all";
-    } else if (checkedOptions.length === newStatusOptions.length) {
-      newStatus = "all";
-    } else {
-      newStatus = checkedOptions[0].value as Filters["status"];
-    }
-
-    const newFilters = {
-      ...filters,
-      status: newStatus,
-      page: 1,
-    };
-    onFiltersChange(newFilters);
-  };
+  // Deprecated checkbox handlers removed in favor of radio approach
 
   // Handle type change
   const handleTypeChange = (details: { value: string[] }) => {
@@ -168,10 +135,16 @@ export const RequestFilters = ({
       };
       onFiltersChange(newFilters);
     } else if (filterType === "status" && value) {
-      const index = statusOptions.findIndex((opt) => opt.value === value);
-      if (index !== -1) {
-        handleStatusChange(index, { checked: false });
-      }
+      // With radio, removing a specific status reverts to "all"
+      setStatusOptions((current) =>
+        current.map((o) => ({ ...o, checked: true }))
+      );
+      const newFilters = {
+        ...filters,
+        status: "all" as Filters["status"],
+        page: 1,
+      };
+      onFiltersChange(newFilters);
     } else if (filterType === "type" && value) {
       const newTypes = selectedTypes.filter((t) => t !== value);
       setSelectedTypes(newTypes);
@@ -282,68 +255,61 @@ export const RequestFilters = ({
         </Stack>
 
         {/* Price Range Filter */}
-        <Stack gap={3}>
-          <Text fontSize="sm" fontWeight="semibold" color="gray.700">
-            Price Range
-          </Text>
-          <Slider.Root
-            value={priceRange}
-            onValueChange={handlePriceChange}
-            onValueChangeEnd={handlePriceChangeEnd}
-            min={0}
-            max={500}
-            step={5}
-            colorPalette={colorPalette}
-          >
-            <Slider.Control>
-              <Slider.Track>
-                <Slider.Range />
-              </Slider.Track>
-              <Slider.Thumb index={0} />
-              <Slider.Thumb index={1} />
-            </Slider.Control>
-            <Slider.ValueText>
-              ${priceRange[0]} - ${priceRange[1]}
-            </Slider.ValueText>
-          </Slider.Root>
-        </Stack>
+        {isVolunteer && (
+          <Stack gap={3}>
+            <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+              Price Range
+            </Text>
+            <Slider.Root
+              value={priceRange}
+              onValueChange={handlePriceChange}
+              onValueChangeEnd={handlePriceChangeEnd}
+              min={0}
+              max={500}
+              step={5}
+              colorPalette={colorPalette}
+            >
+              <Slider.Control>
+                <Slider.Track>
+                  <Slider.Range />
+                </Slider.Track>
+                <Slider.Thumb index={0} />
+                <Slider.Thumb index={1} />
+              </Slider.Control>
+              <Slider.ValueText>
+                ${priceRange[0]} - ${priceRange[1]}
+              </Slider.ValueText>
+            </Slider.Root>
+          </Stack>
+        )}
 
         {/* Status Filter */}
         <Stack gap={3}>
           <Text fontSize="sm" fontWeight="semibold" color="gray.700">
             Status
           </Text>
-          <Stack gap={2} align="flex-start">
-            {/* Parent "All Requests" checkbox */}
-            <Checkbox.Root
-              checked={indeterminate ? "indeterminate" : allChecked}
-              onCheckedChange={handleAllStatusChange}
-              variant="solid"
-              colorPalette={colorPalette}
-            >
-              <Checkbox.HiddenInput />
-              <Checkbox.Control>
-                <Checkbox.Indicator />
-              </Checkbox.Control>
-              <Checkbox.Label>All Requests</Checkbox.Label>
-            </Checkbox.Root>
-
-            {/* Child status checkboxes */}
-            {statusOptions.map((option, index) => (
-              <Checkbox.Root
-                key={option.value}
-                ms="6"
-                checked={option.checked}
-                onCheckedChange={(e) => handleStatusChange(index, e)}
-                variant="solid"
-                colorPalette={colorPalette}
-              >
-                <Checkbox.HiddenInput />
-                <Checkbox.Control />
-                <Checkbox.Label>{option.label}</Checkbox.Label>
-              </Checkbox.Root>
-            ))}
-          </Stack>
+          <RadioGroup.Root
+            value={filters.status || "all"}
+            onValueChange={(e: { value: string | null }) =>
+              handleStatusRadioChange(e.value ?? "all")
+            }
+            colorPalette={colorPalette}
+          >
+            <Stack gap={2} align="flex-start">
+              <RadioGroup.Item value="all">
+                <RadioGroup.ItemHiddenInput />
+                <RadioGroup.ItemIndicator />
+                <RadioGroup.ItemText>All</RadioGroup.ItemText>
+              </RadioGroup.Item>
+              {statusOptions.map((option) => (
+                <RadioGroup.Item key={option.value} value={option.value}>
+                  <RadioGroup.ItemHiddenInput />
+                  <RadioGroup.ItemIndicator />
+                  <RadioGroup.ItemText>{option.label}</RadioGroup.ItemText>
+                </RadioGroup.Item>
+              ))}
+            </Stack>
+          </RadioGroup.Root>
         </Stack>
 
         {/* Type Filter (Volunteers only) */}

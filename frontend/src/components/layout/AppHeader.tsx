@@ -167,8 +167,8 @@ export const AppHeader = ({ title, isVolunteer = false }: AppHeaderProps) => {
                           setMenuOpen(false);
                         }}
                         cursor="pointer"
-                        py={4}
-                        px={4}
+                        py={3}
+                        px={3}
                         _hover={{ bg: "gray.50" }}
                       >
                         <Icon as={FaUser as ElementType} mr={3} />
@@ -182,8 +182,8 @@ export const AppHeader = ({ title, isVolunteer = false }: AppHeaderProps) => {
                         }}
                         cursor="pointer"
                         color="red.500"
-                        py={4}
-                        px={4}
+                        py={3}
+                        px={3}
                         _hover={{ bg: "red.50" }}
                       >
                         <Icon as={FaSignOutAlt as ElementType} mr={3} />

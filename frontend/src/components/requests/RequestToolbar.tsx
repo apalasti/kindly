@@ -2,9 +2,10 @@ import { HStack, Button, Icon, Box, Text, Portal } from "@chakra-ui/react";
 import { Tabs } from "@chakra-ui/react/tabs";
 import { Select } from "@chakra-ui/react/select";
 import { createListCollection } from "@chakra-ui/react/collection";
-import { FaList, FaMap } from "react-icons/fa";
+import { FaList, FaMap, FaPlusCircle } from "react-icons/fa";
 import type { RequestFilters } from "../../types";
 import type { ElementType } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface RequestToolbarProps {
   filters: RequestFilters;
@@ -21,6 +22,7 @@ export const RequestToolbar = ({
   viewMode,
   onViewModeChange,
 }: RequestToolbarProps) => {
+  const navigate = useNavigate();
   const handleSortChange = (sort: string) => {
     const newFilters = {
       ...filters,
@@ -72,7 +74,6 @@ export const RequestToolbar = ({
               </Tabs.Trigger>
               <Tabs.Trigger
                 value="map"
-                title="Map view coming soon"
                 px="4"
                 py="2"
                 minW="110px"
@@ -86,7 +87,21 @@ export const RequestToolbar = ({
             </Tabs.List>
           </Tabs.Root>
         )}
-
+        {!isVolunteer && (
+          <Button
+            as="button"
+            bg="coral.600"
+            onClick={() => navigate("/requests/new")}
+            gap={2}
+            p={2}
+            mx="auto"
+            _hover={{ boxShadow: "md", bg: "coral.800" }}
+            transition="all 0.3s ease"
+          >
+            <Icon as={FaPlusCircle as ElementType} />
+            Create Request
+          </Button>
+        )}
         {/* Sort Options */}
         <HStack gap={3} flex={1} justify="flex-end" minW="250px" align="center">
           <Text color="gray.700" fontWeight="medium">

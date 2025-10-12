@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -32,19 +32,21 @@ export const RequestsPage = () => {
   // For now, we'll check if the token contains "volunteer" to determine user type
   //  TODO
   const isVolunteer =
-    localStorage.getItem("auth_token")?.includes("volunteer") ?? true;
+    localStorage.getItem("auth_token")?.includes("volunteer") ?? false;
+
+  const pageLimit = 10;
 
   const [filters, setFilters] = useState<Filters>({
     status: "all",
     page: 1,
-    limit: 20,
+    limit: pageLimit,
     sort: isVolunteer ? "start" : "created_at",
     order: isVolunteer ? "asc" : "desc",
   });
 
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 20,
+    limit: pageLimit,
     total: 0,
     totalPages: 0,
   });
@@ -55,11 +57,6 @@ export const RequestsPage = () => {
       fetchRequestTypes();
     }
   }, [isVolunteer]);
-
-  // Fetch requests when filters change
-  useEffect(() => {
-    fetchRequests();
-  }, [filters, isVolunteer]);
 
   const fetchRequestTypes = async () => {
     try {
@@ -72,7 +69,7 @@ export const RequestsPage = () => {
     }
   };
 
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
@@ -91,7 +88,11 @@ export const RequestsPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [filters, isVolunteer]);
+
+  useEffect(() => {
+    fetchRequests();
+  }, [fetchRequests]);
 
   const handleFiltersChange = (newFilters: Filters) => {
     setFilters(newFilters);
@@ -195,15 +196,16 @@ export const RequestsPage = () => {
                   </SimpleGrid>
 
                   {/* Pagination */}
-                  {pagination.totalPages > 1 && (
-                    <RequestsPagination
-                      currentPage={pagination.page}
-                      totalPages={pagination.totalPages}
-                      totalItems={pagination.total}
-                      onPageChange={handlePageChange}
-                      isVolunteer={isVolunteer}
-                    />
-                  )}
+                  {/* {pagination.totalPages > 1 && ( */}
+                  <RequestsPagination
+                    currentPage={pagination.page}
+                    totalPages={pagination.totalPages}
+                    totalItems={pagination.total}
+                    itemsPerPage={pagination.limit}
+                    onPageChange={handlePageChange}
+                    isVolunteer={isVolunteer}
+                  />
+                  {/* )} */}
                 </>
               )}
             </Stack>

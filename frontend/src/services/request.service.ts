@@ -81,6 +81,832 @@ const generateMockRequests = (): Request[] => {
         now.getTime() + 1 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000
       ).toISOString(),
       reward: 35,
+      creator_id: 1,
+      creator: {
+        id: 2,
+        name: "Mary Smith",
+        email: "mary@example.com",
+        date_of_birth: "1945-08-20",
+        about_me: "Living independently but need occasional assistance",
+        is_volunteer: false,
+        avg_rating: 4.8,
+        created_at: "2024-01-10T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[1]],
+      applications_count: 5,
+      accepted_volunteer: {
+        id: 10,
+        name: "Bob Wilson",
+        email: "bob@example.com",
+        date_of_birth: "1985-03-10",
+        about_me: "Happy to help!",
+        is_volunteer: true,
+        avg_rating: 4.7,
+        created_at: "2024-01-10T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      has_applied: true,
+      created_at: new Date(
+        now.getTime() - 3 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 2 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 3,
+      name: "Fix leaky kitchen faucet",
+      description:
+        "My kitchen faucet has been dripping for weeks. Need someone with basic plumbing skills to help fix it.",
+      longitude: -122.4294,
+      latitude: 37.7649,
+      start: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(
+        now.getTime() + 3 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000
+      ).toISOString(),
+      reward: 50,
+      creator_id: 1,
+      creator: {
+        id: 1,
+        name: "John Doe",
+        email: "john@example.com",
+        date_of_birth: "1950-05-15",
+        about_me: "Retired teacher needing occasional help",
+        is_volunteer: false,
+        avg_rating: 4.5,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: true,
+      request_types: [mockRequestTypes[2]],
+      applications_count: 2,
+      accepted_volunteer: {
+        id: 11,
+        name: "Alice Johnson",
+        email: "alice@example.com",
+        date_of_birth: "1990-07-22",
+        about_me: "Handy with tools!",
+        is_volunteer: true,
+        avg_rating: 4.9,
+        created_at: "2024-01-10T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 10 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 1 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 4,
+      name: "Move furniture to new apartment",
+      description:
+        "Moving to a new apartment in the same building. Need help carrying heavy furniture.",
+      longitude: -122.4194,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(
+        now.getTime() + 5 * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000
+      ).toISOString(),
+      reward: 75,
+      creator_id: 3,
+      creator: {
+        id: 3,
+        name: "Robert Brown",
+        email: "robert@example.com",
+        date_of_birth: "1955-12-01",
+        about_me: "Recently retired, staying active",
+        is_volunteer: false,
+        avg_rating: 4.3,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[3]],
+      applications_count: 8,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 2 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 2 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 5,
+      name: "Walk my dog while I recover",
+      description:
+        "Recovering from surgery and can't walk my golden retriever for the next week. Need daily walks.",
+      longitude: -122.4094,
+      latitude: 37.7849,
+      start: new Date(now.getTime()).toISOString(),
+      end: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 15,
+      creator_id: 2,
+      creator: {
+        id: 2,
+        name: "Mary Smith",
+        email: "mary@example.com",
+        date_of_birth: "1945-08-20",
+        about_me: "Living independently but need occasional assistance",
+        is_volunteer: false,
+        avg_rating: 4.8,
+        created_at: "2024-01-10T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [
+        mockRequestTypes[4],
+        mockRequestTypes[4],
+        mockRequestTypes[4],
+        mockRequestTypes[4],
+        mockRequestTypes[4],
+        mockRequestTypes[4],
+        mockRequestTypes[4],
+      ],
+      applications_count: 6,
+      accepted_volunteer: null,
+      has_applied: true,
+      created_at: new Date(
+        now.getTime() - 1 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 1 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 6,
+      name: "Help with garden maintenance",
+      description:
+        "My garden needs weeding and general maintenance. Looking for someone who enjoys gardening.",
+      longitude: -122.4294,
+      latitude: 37.7549,
+      start: new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(
+        now.getTime() + 4 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000
+      ).toISOString(),
+      reward: 40,
+      creator_id: 1,
+      creator: {
+        id: 1,
+        name: "John Doe",
+        email: "john@example.com",
+        date_of_birth: "1950-05-15",
+        about_me: "Retired teacher needing occasional help",
+        is_volunteer: false,
+        avg_rating: 4.5,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: true,
+      request_types: [mockRequestTypes[5]],
+      applications_count: 4,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 15 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 3 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 7,
+      name: "Computer setup assistance",
+      description:
+        "Just got a new computer and need help setting it up and transferring files from my old one.",
+      longitude: -122.4194,
+      latitude: 37.7649,
+      start: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(
+        now.getTime() + 2 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000
+      ).toISOString(),
+      reward: 30,
+      creator_id: 4,
+      creator: {
+        id: 4,
+        name: "Susan Davis",
+        email: "susan@example.com",
+        date_of_birth: "1948-03-25",
+        about_me: "Learning new technology!",
+        is_volunteer: false,
+        avg_rating: 4.6,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[6]],
+      applications_count: 2,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 4 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 4 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 8,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 9,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 10,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 11,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 12,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 13,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 14,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 15,
+      name: "Help with garden maintenance",
+      description:
+        "My garden needs weeding and general maintenance. Looking for someone who enjoys gardening.",
+      longitude: -122.4294,
+      latitude: 37.7549,
+      start: new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(
+        now.getTime() + 4 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000
+      ).toISOString(),
+      reward: 40,
+      creator_id: 1,
+      creator: {
+        id: 1,
+        name: "John Doe",
+        email: "john@example.com",
+        date_of_birth: "1950-05-15",
+        about_me: "Retired teacher needing occasional help",
+        is_volunteer: false,
+        avg_rating: 4.5,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: true,
+      request_types: [mockRequestTypes[5]],
+      applications_count: 4,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 15 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 3 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 16,
+      name: "Computer setup assistance",
+      description:
+        "Just got a new computer and need help setting it up and transferring files from my old one.",
+      longitude: -122.4194,
+      latitude: 37.7649,
+      start: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(
+        now.getTime() + 2 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000
+      ).toISOString(),
+      reward: 30,
+      creator_id: 4,
+      creator: {
+        id: 4,
+        name: "Susan Davis",
+        email: "susan@example.com",
+        date_of_birth: "1948-03-25",
+        about_me: "Learning new technology!",
+        is_volunteer: false,
+        avg_rating: 4.6,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[6]],
+      applications_count: 2,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 4 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 4 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 17,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 18,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 19,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 20,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 21,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 22,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 23,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 1,
+      name: "Need help with grocery shopping",
+      description:
+        "I need someone to help me carry groceries from the store to my apartment on the 3rd floor.",
+      longitude: -122.4194,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(
+        now.getTime() + 2 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000
+      ).toISOString(),
+      reward: 20,
+      creator_id: 1,
+      creator: {
+        id: 1,
+        name: "John Doe",
+        email: "john@example.com",
+        date_of_birth: "1950-05-15",
+        about_me: "Retired teacher needing occasional help",
+        is_volunteer: false,
+        avg_rating: 4.5,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[0], mockRequestTypes[3]],
+      applications_count: 3,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 5 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 5 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 2,
+      name: "Doctor's appointment transportation",
+      description:
+        "Need a ride to my doctor's appointment downtown and back home. The appointment should take about an hour.",
+      longitude: -122.4084,
+      latitude: 37.7849,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(
+        now.getTime() + 1 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000
+      ).toISOString(),
+      reward: 35,
       creator_id: 2,
       creator: {
         id: 2,
@@ -337,6 +1163,520 @@ const generateMockRequests = (): Request[] => {
         now.getTime() - 6 * 24 * 60 * 60 * 1000
       ).toISOString(),
     },
+    {
+      id: 9,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 10,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 11,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 12,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 13,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 14,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 15,
+      name: "Help with garden maintenance",
+      description:
+        "My garden needs weeding and general maintenance. Looking for someone who enjoys gardening.",
+      longitude: -122.4294,
+      latitude: 37.7549,
+      start: new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(
+        now.getTime() + 4 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000
+      ).toISOString(),
+      reward: 40,
+      creator_id: 1,
+      creator: {
+        id: 1,
+        name: "John Doe",
+        email: "john@example.com",
+        date_of_birth: "1950-05-15",
+        about_me: "Retired teacher needing occasional help",
+        is_volunteer: false,
+        avg_rating: 4.5,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: true,
+      request_types: [mockRequestTypes[5]],
+      applications_count: 4,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 15 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 3 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 16,
+      name: "Computer setup assistance",
+      description:
+        "Just got a new computer and need help setting it up and transferring files from my old one.",
+      longitude: -122.4194,
+      latitude: 37.7649,
+      start: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(
+        now.getTime() + 2 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000
+      ).toISOString(),
+      reward: 30,
+      creator_id: 4,
+      creator: {
+        id: 4,
+        name: "Susan Davis",
+        email: "susan@example.com",
+        date_of_birth: "1948-03-25",
+        about_me: "Learning new technology!",
+        is_volunteer: false,
+        avg_rating: 4.6,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[6]],
+      applications_count: 2,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 4 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 4 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 17,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 18,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 19,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 20,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 21,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 22,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
+    {
+      id: 23,
+      name: "Companion for weekly coffee chat",
+      description:
+        "Looking for someone to have coffee and chat once a week. I enjoy discussing books and current events.",
+      longitude: -122.4094,
+      latitude: 37.7749,
+      start: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      reward: 0,
+      creator_id: 5,
+      creator: {
+        id: 5,
+        name: "George Wilson",
+        email: "george@example.com",
+        date_of_birth: "1940-11-10",
+        about_me: "Retired professor, love good conversations",
+        is_volunteer: false,
+        avg_rating: 5.0,
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-20T14:45:00Z",
+      },
+      is_completed: false,
+      request_types: [mockRequestTypes[7]],
+      applications_count: 10,
+      accepted_volunteer: null,
+      has_applied: false,
+      created_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updated_at: new Date(
+        now.getTime() - 6 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+    },
   ];
 
   return requests;
@@ -352,7 +1692,7 @@ const getCurrentUser = () => {
   // Mock user data based on token
   return {
     id: 1,
-    is_volunteer: token.includes("volunteer") || Math.random() > 0.5,
+    is_volunteer: token.includes("volunteer") ?? false,
   };
 };
 
@@ -380,10 +1720,9 @@ export const requestService = {
     if (USE_MOCK) {
       await mockDelay(600);
 
-      const currentUser = getCurrentUser();
-      let filtered = mockRequests.filter(
-        (r) => r.creator_id === currentUser?.id
-      );
+      let filtered = mockRequests.filter((r) => r.creator_id === 1);
+
+      console.log("Filters applied:", filters);
 
       // Apply status filter
       if (filters.status && filters.status !== "all") {
@@ -393,6 +1732,8 @@ export const requestService = {
           filtered = filtered.filter((r) => !r.is_completed);
         }
       }
+
+      console.log("Filtered requests:", filtered);
 
       // Apply sorting
       const sortField = filters.sort || "created_at";
