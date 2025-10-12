@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import Integer, ForeignKey
+from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import Integer, Boolean, TIMESTAMP, ForeignKey, text
+from sqlalchemy import TIMESTAMP, Boolean, ForeignKey, Integer, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
