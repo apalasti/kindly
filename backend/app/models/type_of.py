@@ -1,9 +1,14 @@
 from typing import Optional
 
-from sqlmodel import Field, ForeignKey, SQLModel
+from sqlalchemy import Integer, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
+
+from .base import Base
 
 
-class TypeOf(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    request_id: int = Field(foreign_key="request.id", nullable=False)
-    request_type_id: int = Field(foreign_key="request_type.id", nullable=False)
+class TypeOf(Base):
+    __tablename__ = "type_of"
+    
+    id: Mapped[Optional[int]] = mapped_column(Integer, primary_key=True)
+    request_id: Mapped[int] = mapped_column(Integer, ForeignKey("request.id"), nullable=False)
+    request_type_id: Mapped[int] = mapped_column(Integer, ForeignKey("request_type.id"), nullable=False)

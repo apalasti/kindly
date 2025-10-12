@@ -1,29 +1,34 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlmodel import TIMESTAMP, Column, Field, SQLModel, text
+from sqlalchemy import Integer, String, Boolean, Float, TIMESTAMP, text
+from sqlalchemy.orm import Mapped, mapped_column
+
+from .base import Base
 
 
-class BaseUser(SQLModel):
-    name: str = Field(nullable=False)
-    email: str = Field(nullable=False)
-    password: str = Field(nullable=False)
-    date_of_birth: str = Field(nullable=False)
-    about_me: str = Field(nullable=False)
-    is_volunteer: bool = Field(nullable=False)
+class BaseUser:
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    email: Mapped[str] = mapped_column(String, nullable=False)
+    password: Mapped[str] = mapped_column(String, nullable=False)
+    date_of_birth: Mapped[str] = mapped_column(String, nullable=False)
+    about_me: Mapped[str] = mapped_column(String, nullable=False)
+    is_volunteer: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
 
-class User(BaseUser, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    avg_rating: float = Field(default=0.0)
-    created_datetime: Optional[datetime] = Field(sa_column=Column(
+class User(Base, BaseUser):
+    __tablename__ = "user"
+    
+    id: Mapped[Optional[int]] = mapped_column(Integer, primary_key=True)
+    avg_rating: Mapped[float] = mapped_column(Float, default=0.0)
+    created_datetime: Mapped[Optional[datetime]] = mapped_column(
         TIMESTAMP(timezone=True),
         nullable=False,
         server_default=text("CURRENT_TIMESTAMP"),
-    ))
-    updated_datetime: Optional[datetime] = Field(sa_column=Column(
+    )
+    updated_datetime: Mapped[Optional[datetime]] = mapped_column(
         TIMESTAMP(timezone=True),
         nullable=False,
         server_default=text("CURRENT_TIMESTAMP"),
-        server_onupdate=text("CURRENT_TIMESTAMP"),
-    ))
+        onupdate=text("CURRENT_TIMESTAMP"),
+    )

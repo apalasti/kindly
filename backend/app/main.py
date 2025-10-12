@@ -7,7 +7,7 @@ from .db import create_db_and_tables
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    create_db_and_tables()
+    await create_db_and_tables()
     yield
 
 

@@ -3,21 +3,24 @@ from typing import Annotated
 
 from dotenv import load_dotenv
 from fastapi import Depends
-from sqlmodel import Session, SQLModel, create_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession
 
-import app.models
+from .models.base import Base
+
 
 load_dotenv()
-engine = create_engine(os.environ.get("DB_URL"), echo=bool(os.environ.get("DEBUG", False)))
+engine = create_async_engine(os.environ.get("DB_URL"), echo=bool(os.environ.get("DEBUG", False)))
+async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
+async def create_db_and_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
-def get_session():
-    with Session(engine) as session:
+async def get_session():
+    async with async_session() as session:
         yield session
 
 
-SessionDep = Annotated[Session, Depends(get_session)]
+SessionDep = Annotated[AsyncSession, Depends(get_session)]
