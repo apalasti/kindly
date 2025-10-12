@@ -1,7 +1,7 @@
 import datetime
 import os
 from datetime import timedelta, timezone, datetime
-from typing import Annotated, Dict
+from typing import Annotated
 
 import jwt
 from dotenv import load_dotenv
@@ -9,6 +9,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
+from pydantic.dataclasses import dataclass
+
+from ..models import User
 
 load_dotenv()
 ALGORITHM = "HS256"
@@ -16,6 +19,26 @@ SECRET_KEY = os.getenv("JWT_SECRET")
 
 password_hash = PasswordHash.recommended()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
+
+
+@dataclass()
+class UserData:
+    id: int
+    name: str
+    email: str
+    is_volunteer: bool
+
+    @classmethod
+    def from_user(cls, user: User):
+        return cls(user.id, user.name, user.email, user.is_volunteer)
+
+    def create_token(self):
+        return create_access_token({
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "is_volunteer": self.is_volunteer,
+        })
 
 
 def verify_password(plain_password, hashed_password):
@@ -40,7 +63,8 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 async def get_user_data_from_token(token: Annotated[str, Depends(oauth2_scheme)]):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
+        payload.pop("exp")
+        return UserData(**payload)
     except InvalidTokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -49,4 +73,4 @@ async def get_user_data_from_token(token: Annotated[str, Depends(oauth2_scheme)]
         )
 
 
-UserDataDep = Annotated[Dict, Depends(get_user_data_from_token)]
+UserDataDep = Annotated[UserData, Depends(get_user_data_from_token)]

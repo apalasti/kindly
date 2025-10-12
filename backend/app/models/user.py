@@ -18,14 +18,27 @@ class User(Base):
     about_me: Mapped[str] = mapped_column(String, nullable=False)
     is_volunteer: Mapped[bool] = mapped_column(Boolean, nullable=False)
     avg_rating: Mapped[float] = mapped_column(Float, default=0.0)
-    created_datetime: Mapped[Optional[datetime]] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True),
         nullable=False,
         server_default=text("CURRENT_TIMESTAMP"),
     )
-    updated_datetime: Mapped[Optional[datetime]] = mapped_column(
+    updated_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True),
         nullable=False,
         server_default=text("CURRENT_TIMESTAMP"),
         onupdate=text("CURRENT_TIMESTAMP"),
     )
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "date_of_birth": self.date_of_birth,
+            "about_me": self.about_me,
+            "is_volunteer": self.is_volunteer,
+            "avg_rating": self.avg_rating,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }

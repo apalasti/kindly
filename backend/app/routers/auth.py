@@ -1,7 +1,7 @@
 from datetime import date
 
 from fastapi import APIRouter
-from fastapi.exceptions import HTTPException, RequestValidationError
+from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -30,16 +30,6 @@ class RegisterBody(BaseModel):
     is_volunteer: bool
 
 
-def create_token_from_user(user: User):
-    encoded = {
-        "id": user.id,
-        "name": user.name,
-        "email": user.email,
-        "is_volunteer": user.is_volunteer,
-    }
-    return auth.create_access_token(encoded), encoded 
-
-
 @router.post("/login")
 async def login(session: SessionDep, body: LoginBody):
     user = (
@@ -51,12 +41,12 @@ async def login(session: SessionDep, body: LoginBody):
             detail="Invalid email or password"
         )
 
-    token, contents = create_token_from_user(user)
+    user_data = auth.UserData.from_user(user)
     return {
         "success": True,
         "data": {
-            "user": contents,
-            "token": token,
+            "user": user_data,
+            "token": user_data.create_token(),
         },
     }
 
@@ -81,12 +71,12 @@ async def register(session: SessionDep, body: RegisterBody):
         )
 
     await session.refresh(user)
-    token, contents = create_token_from_user(user)
+    user_data = auth.UserData.from_user(user)
     return {
         "success": True,
         "data": {
-            "user": contents,
-            "token": token,
+            "user": user_data,
+            "token": user_data.create_token(),
         },
         "message": "User registered successfully"
     }
