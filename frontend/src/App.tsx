@@ -1,14 +1,36 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { RegisterPage } from "./pages/RegisterPage";
 import { LoginPage } from "./pages/LoginPage";
+import { RequestsPage } from "./pages/RequestsPage";
+// TODO: Import page components as they are created
+// import { RequestDetailsPage } from "./pages/RequestDetailsPage";
+// import { CreateRequestPage } from "./pages/CreateRequestPage";
+// import { EditRequestPage } from "./pages/EditRequestPage";
+// import { ProfilePage } from "./pages/ProfilePage";
+// import { EditProfilePage } from "./pages/EditProfilePage";
 
 function App() {
   return (
     <Routes>
+      {/* Public routes */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/dashboard" element={<div>Dashboard (Coming Soon)</div>} />
+
+      {/* Protected routes - Main dashboard */}
+      <Route path="/requests" element={<RequestsPage />} />
+
+      {/* Request management routes */}
+      {/* <Route path="/requests/new" element={<CreateRequestPage />} /> */}
+      {/* <Route path="/requests/:id" element={<RequestDetailsPage />} /> */}
+      {/* <Route path="/requests/:id/edit" element={<EditRequestPage />} /> */}
+
+      {/* Profile routes */}
+      {/* <Route path="/profile/:id" element={<ProfilePage />} /> */}
+      {/* <Route path="/profile/:id/edit" element={<EditProfilePage />} /> */}
+
+      {/* Fallback for unknown routes */}
+      <Route path="*" element={<Navigate to="/requests" replace />} />
     </Routes>
   );
 }
