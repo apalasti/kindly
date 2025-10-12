@@ -1822,6 +1822,32 @@ export const requestService = {
 
       let filtered = [...mockRequests];
 
+      // Apply location filter (radius-based)
+      if (filters.location_lat && filters.location_lng && filters.radius) {
+        const centerLat = filters.location_lat;
+        const centerLng = filters.location_lng;
+        const radiusKm = filters.radius;
+
+        filtered = filtered.filter((r) => {
+          if (!r.latitude || !r.longitude) return false;
+
+          // Calculate distance using Haversine formula
+          const R = 6371; // Earth's radius in km
+          const dLat = ((r.latitude - centerLat) * Math.PI) / 180;
+          const dLon = ((r.longitude - centerLng) * Math.PI) / 180;
+          const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((centerLat * Math.PI) / 180) *
+              Math.cos((r.latitude * Math.PI) / 180) *
+              Math.sin(dLon / 2) *
+              Math.sin(dLon / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          const distance = R * c;
+
+          return distance <= radiusKm;
+        });
+      }
+
       // Apply status filter
       if (filters.status && filters.status !== "all") {
         if (filters.status === "completed") {
@@ -1838,6 +1864,14 @@ export const requestService = {
         filtered = filtered.filter((r) =>
           r.request_types.some((t) => t.id === filters.type)
         );
+      }
+
+      // Apply reward filters
+      if (filters.min_reward !== undefined) {
+        filtered = filtered.filter((r) => r.reward >= filters.min_reward!);
+      }
+      if (filters.max_reward !== undefined) {
+        filtered = filtered.filter((r) => r.reward <= filters.max_reward!);
       }
 
       // Apply sorting

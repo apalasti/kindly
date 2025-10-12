@@ -16,6 +16,7 @@ import { RequestCard } from "../components/requests/RequestCard";
 import { RequestFilters } from "../components/requests/RequestFilters";
 import { RequestToolbar } from "../components/requests/RequestToolbar";
 import { RequestsPagination } from "../components/requests/RequestsPagination";
+import { RequestMapView } from "../components/requests/RequestMapView";
 import { requestService } from "../services/request.service";
 import { getBackgroundStyle } from "../theme/backgrounds";
 import type { Request, RequestFilters as Filters, RequestType } from "../types";
@@ -23,8 +24,10 @@ import type { Request, RequestFilters as Filters, RequestType } from "../types";
 export const RequestsPage = () => {
   const navigate = useNavigate();
   const [requests, setRequests] = useState<Request[]>([]);
+  const [mapRequests, setMapRequests] = useState<Request[]>([]);
   const [requestTypes, setRequestTypes] = useState<RequestType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMapLoading, setIsMapLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
 
@@ -32,7 +35,7 @@ export const RequestsPage = () => {
   // For now, we'll check if the token contains "volunteer" to determine user type
   //  TODO
   const isVolunteer =
-    localStorage.getItem("auth_token")?.includes("volunteer") ?? false;
+    localStorage.getItem("auth_token")?.includes("volunteer") ?? true;
 
   const pageLimit = 10;
 
@@ -42,6 +45,15 @@ export const RequestsPage = () => {
     limit: pageLimit,
     sort: isVolunteer ? "start" : "created_at",
     order: isVolunteer ? "asc" : "desc",
+  });
+
+  const [mapFilters, setMapFilters] = useState<Filters>({
+    status: filters.status,
+    type: filters.type,
+    min_reward: filters.min_reward,
+    max_reward: filters.max_reward,
+    // Location params will be set by the map component
+    limit: 100, // Higher limit for map view
   });
 
   const [pagination, setPagination] = useState({
@@ -94,8 +106,38 @@ export const RequestsPage = () => {
     fetchRequests();
   }, [fetchRequests]);
 
+  // Fetch requests for map view based on location
+  const fetchMapRequests = useCallback(
+    async (locationFilters: Filters) => {
+      setIsMapLoading(true);
+
+      try {
+        const response = isVolunteer
+          ? await requestService.browseRequests(locationFilters)
+          : await requestService.getMyRequests(locationFilters);
+
+        if (response.success) {
+          setMapRequests(response.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch map requests:", err);
+      } finally {
+        setIsMapLoading(false);
+      }
+    },
+    [isVolunteer]
+  );
+
   const handleFiltersChange = (newFilters: Filters) => {
     setFilters(newFilters);
+    // Update map filters with non-location filters
+    setMapFilters((prev) => ({
+      ...prev,
+      status: newFilters.status,
+      type: newFilters.type,
+      min_reward: newFilters.min_reward,
+      max_reward: newFilters.max_reward,
+    }));
   };
 
   const handlePageChange = (page: number) => {
@@ -144,68 +186,81 @@ export const RequestsPage = () => {
                 onViewModeChange={setViewMode}
               />
 
-              {/* Content */}
-              {isLoading ? (
-                <Center py={12}>
-                  <Stack align="center" gap={4}>
-                    <Spinner
-                      size="xl"
-                      color={isVolunteer ? "teal.500" : "coral.500"}
-                    />
-                    <Text color="gray.600">Loading requests...</Text>
-                  </Stack>
-                </Center>
-              ) : error ? (
-                <Center py={12}>
-                  <Stack align="center" gap={4}>
-                    <Text color="red.500" fontSize="lg">
-                      {error}
-                    </Text>
-                    <Text color="gray.600">Please try again later.</Text>
-                  </Stack>
-                </Center>
-              ) : requests.length === 0 ? (
-                <Center py={12}>
-                  <Stack align="center" gap={4}>
-                    <Text color="gray.600" fontSize="lg">
-                      No requests found
-                    </Text>
-                    <Text color="gray.500" fontSize="sm">
-                      {filters.status === "all"
-                        ? "There are no requests to display."
-                        : `There are no ${filters.status} requests.`}
-                    </Text>
-                  </Stack>
-                </Center>
-              ) : (
-                <>
-                  {/* Request Cards Grid */}
-                  <SimpleGrid
-                    columns={{ base: 1, md: 2, xl: 3 }}
-                    gap={6}
-                    w="full"
-                  >
-                    {requests.map((request) => (
-                      <RequestCard
-                        key={request.id}
-                        request={request}
-                        isVolunteer={isVolunteer}
-                        onClick={() => handleRequestClick(request.id)}
-                      />
-                    ))}
-                  </SimpleGrid>
+              {/* Map View - Always mounted to persist map instance */}
+              <Box display={viewMode === "map" ? "block" : "none"}>
+                <RequestMapView
+                  requests={mapRequests}
+                  isVolunteer={isVolunteer}
+                  onRequestClick={handleRequestClick}
+                  isLoading={isMapLoading}
+                  uiFilters={mapFilters}
+                  onLocationChange={fetchMapRequests}
+                />
+              </Box>
 
-                  {/* Pagination */}
-                  {/* {pagination.totalPages > 1 && ( */}
-                  <RequestsPagination
-                    currentPage={pagination.page}
-                    totalPages={pagination.totalPages}
-                    totalItems={pagination.total}
-                    itemsPerPage={pagination.limit}
-                    onPageChange={handlePageChange}
-                    isVolunteer={isVolunteer}
-                  />
-                  {/* )} */}
+              {/* List View */}
+              {viewMode === "list" && (
+                <>
+                  {/* List-specific content states */}
+                  {isLoading ? (
+                    <Center py={12}>
+                      <Stack align="center" gap={4}>
+                        <Spinner
+                          size="xl"
+                          color={isVolunteer ? "teal.500" : "coral.500"}
+                        />
+                        <Text color="gray.600">Loading requests...</Text>
+                      </Stack>
+                    </Center>
+                  ) : error ? (
+                    <Center py={12}>
+                      <Stack align="center" gap={4}>
+                        <Text color="red.500" fontSize="lg">
+                          {error}
+                        </Text>
+                        <Text color="gray.600">Please try again later.</Text>
+                      </Stack>
+                    </Center>
+                  ) : requests.length === 0 ? (
+                    <Center py={12}>
+                      <Stack align="center" gap={4}>
+                        <Text color="gray.600" fontSize="lg">
+                          No requests found
+                        </Text>
+                        <Text color="gray.500" fontSize="sm">
+                          {filters.status === "all"
+                            ? "There are no requests to display."
+                            : `There are no ${filters.status} requests.`}
+                        </Text>
+                      </Stack>
+                    </Center>
+                  ) : (
+                    <>
+                      <SimpleGrid
+                        columns={{ base: 1, md: 2, xl: 3 }}
+                        gap={6}
+                        w="full"
+                      >
+                        {requests.map((request) => (
+                          <RequestCard
+                            key={request.id}
+                            request={request}
+                            isVolunteer={isVolunteer}
+                            onClick={() => handleRequestClick(request.id)}
+                          />
+                        ))}
+                      </SimpleGrid>
+
+                      <RequestsPagination
+                        currentPage={pagination.page}
+                        totalPages={pagination.totalPages}
+                        totalItems={pagination.total}
+                        itemsPerPage={pagination.limit}
+                        onPageChange={handlePageChange}
+                        isVolunteer={isVolunteer}
+                      />
+                    </>
+                  )}
                 </>
               )}
             </Stack>

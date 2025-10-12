@@ -102,54 +102,67 @@ export const RequestToolbar = ({
             Create Request
           </Button>
         )}
-        {/* Sort Options */}
-        <HStack gap={3} flex={1} justify="flex-end" minW="250px" align="center">
-          <Text color="gray.700" fontWeight="medium">
-            Sort by:
-          </Text>
-          <Select.Root
-            collection={createListCollection({
-              items: sortOptions,
-            })}
-            value={[filters.sort || (isVolunteer ? "start" : "created_at")]}
-            onValueChange={(e) => handleSortChange(e.value[0])}
-            size="sm"
-            width="auto"
+        {/* Sort Options - Hidden in map view */}
+        {viewMode === "list" && (
+          <HStack
+            gap={3}
+            flex={1}
+            justify="flex-end"
+            minW="250px"
+            align="center"
           >
-            <Select.HiddenSelect />
-            <Select.Control borderColor="gray.200">
-              <Select.Trigger minW="180px" p={2}>
-                <Select.ValueText />
-              </Select.Trigger>
-              <Select.IndicatorGroup px={2} py={1}>
-                <Select.Indicator />
-              </Select.IndicatorGroup>
-            </Select.Control>
-            <Portal>
-              <Select.Positioner>
-                <Select.Content>
-                  {sortOptions.map((option) => (
-                    <Select.Item key={option.value} item={option} px={3} py={2}>
-                      {option.label}
-                      <Select.ItemIndicator />
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select.Positioner>
-            </Portal>
-          </Select.Root>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleOrderChange}
-            colorScheme={isVolunteer ? "teal" : "coral"}
-            minW="fit-content"
-            px={4}
-            py={2}
-          >
-            {filters.order === "asc" ? "↑" : "↓"}
-          </Button>
-        </HStack>
+            <Text color="gray.700" fontWeight="medium">
+              Sort by:
+            </Text>
+            <Select.Root
+              collection={createListCollection({
+                items: sortOptions,
+              })}
+              value={[filters.sort || (isVolunteer ? "start" : "created_at")]}
+              onValueChange={(e) => handleSortChange(e.value[0])}
+              size="sm"
+              width="auto"
+            >
+              <Select.HiddenSelect />
+              <Select.Control borderColor="gray.200">
+                <Select.Trigger minW="180px" p={2}>
+                  <Select.ValueText />
+                </Select.Trigger>
+                <Select.IndicatorGroup px={2} py={1}>
+                  <Select.Indicator />
+                </Select.IndicatorGroup>
+              </Select.Control>
+              <Portal>
+                <Select.Positioner>
+                  <Select.Content>
+                    {sortOptions.map((option) => (
+                      <Select.Item
+                        key={option.value}
+                        item={option}
+                        px={3}
+                        py={2}
+                      >
+                        {option.label}
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Portal>
+            </Select.Root>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleOrderChange}
+              colorScheme={isVolunteer ? "teal" : "coral"}
+              minW="fit-content"
+              px={4}
+              py={2}
+            >
+              {filters.order === "asc" ? "↑" : "↓"}
+            </Button>
+          </HStack>
+        )}
       </HStack>
     </Box>
   );
