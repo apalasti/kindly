@@ -29,7 +29,7 @@ async def validation_exception_handler(request, exc: RequestValidationError):
                 "code": "VALIDATION_ERROR",
                 "message": "Invalid request",
                 "details": [
-                    {"field": ".".join(e["loc"]), "message": e["msg"]}
+                    {"field": e["loc"], "message": e["msg"]}
                     for e in exc.errors()
                 ],
             },

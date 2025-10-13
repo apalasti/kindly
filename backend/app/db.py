@@ -8,7 +8,11 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from .models.base import Base
 
 load_dotenv()
-engine = create_async_engine(os.environ.get("DB_URL"), echo=bool(os.environ.get("DEBUG", False)))
+engine = create_async_engine(
+    os.environ.get("DB_URL"),
+    echo=bool(os.environ.get("DEBUG", False)),
+    plugins=["geoalchemy2"],
+)
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 

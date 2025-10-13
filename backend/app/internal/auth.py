@@ -95,5 +95,5 @@ async def verify_volunteer(user_data: UserDataDep):
         )
     return user_data
 
-VolunteerDep = Annotated[UserData, Depends(get_user_data_from_token)]
-HelpSeekerDep = Annotated[UserData, Depends(get_user_data_from_token)]
+VolunteerDep = Annotated[UserData, Depends(verify_volunteer)]
+HelpSeekerDep = Annotated[UserData, Depends(verify_help_seeker)]

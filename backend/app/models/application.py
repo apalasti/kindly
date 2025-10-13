@@ -3,15 +3,20 @@ from typing import Optional
 
 from sqlalchemy import TIMESTAMP, Boolean, ForeignKey, Integer, text
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.schema import UniqueConstraint
 
 from .base import Base
 
 
 class Application(Base):
     __tablename__ = "application"
+    __table_args__ = (
+        UniqueConstraint("request_id", "user_id"),
+    )
     
-    request_id: Mapped[int] = mapped_column(Integer, ForeignKey("request.id"), primary_key=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    request_id: Mapped[int] = mapped_column(Integer, ForeignKey("request.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
     is_accepted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     volunteer_rating: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     help_seeker_rating: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)

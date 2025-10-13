@@ -9,7 +9,7 @@ from sqlalchemy.sql import Select, func, select
 
 class PaginationParams(BaseModel):
     page: int = Field(default=1, gt=0)
-    limit: Literal[1, 10, 20, 40] = Field(default=20)
+    limit: Literal[10, 20, 40] = Field(default=20)
 
     async def paginate(self, session: AsyncSession, query: Select) -> tuple[list, dict]:
         result, total = await asyncio.gather(
@@ -19,7 +19,7 @@ class PaginationParams(BaseModel):
         total = total.scalar_one()
         return {
             "success": True,
-            "data": list(result.scalars().all()),
+            "data": [row._asdict() for row in result.all()],
             "pagination": {
                 "page": self.page,
                 "limit": self.limit,

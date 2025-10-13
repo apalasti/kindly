@@ -2,12 +2,13 @@ from datetime import datetime
 from typing import Literal
 from fastapi import HTTPException
 from fastapi.routing import APIRouter
+from geoalchemy2.functions import ST_Point
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql import select, func, asc, desc
 
 from ..db import SessionDep
-from ..models import HelpRequest, RequestType, Application, User
+from ..models import Request, RequestType, Application, User
 from ..internal.auth import HelpSeekerDep
 from ..internal.pagination import PaginationParams
 
@@ -34,11 +35,12 @@ class CreateRequestBody(BaseModel):
 async def create_request(
     session: SessionDep, user_data: HelpSeekerDep, body: CreateRequestBody
 ):
-    request = HelpRequest(
+    request = Request(
         name=body.name,
         description=body.description,
         longitude=body.longitude,
         latitude=body.latitude,
+        location=ST_Point(body.latitude, body.longitude),
         start=body.start,
         end=body.end,
         reward=body.reward,
@@ -73,17 +75,17 @@ async def get_requests(
 ):
     query = (
         select(
-            HelpRequest,
+            Request,
             func.count(Application.user_id).label("applications_count"),
             func.max(Application.is_accepted).label("has_accepted_volunteer"),
         )
-        .where(HelpRequest.creator_id == user_data.id)
+        .where(Request.creator_id == user_data.id)
         .where(
-            (HelpRequest.is_completed == False) if body.status == "open" else
-            (HelpRequest.is_completed == True) if body.status == "completed" else
+            (Request.is_completed == False) if body.status == "open" else
+            (Request.is_completed == True) if body.status == "completed" else
             True
         )
-        .group_by(HelpRequest)
+        .group_by(Request)
         .order_by(asc(body.sort) if body.order == "asc" else desc(body.sort))
     )
     return await body.paginate(session, query)
@@ -95,10 +97,10 @@ async def get_requests(
 ):
     request = (
         await session.execute(
-            select(HelpRequest)
-            .options(joinedload(HelpRequest.request_types))
-            .filter(HelpRequest.id == request_id)
-            .filter(HelpRequest.creator_id == user_data.id)
+            select(Request)
+            .options(joinedload(Request.request_types))
+            .filter(Request.id == request_id)
+            .filter(Request.creator_id == user_data.id)
         )
     ).unique().scalar_one_or_none()
     if request is None:
@@ -118,10 +120,12 @@ async def update_request(
 ):
     request = (
         await session.execute(
-            select(HelpRequest)
-            .options(joinedload(HelpRequest.request_types))
-            .filter(HelpRequest.id == request_id)
-            .filter(HelpRequest.creator_id == user_data.id)
+            select(Request)
+            .options(joinedload(Request.request_types))
+            .filter(Request.id == request_id)
+            .filter(Request.creator_id == user_data.id)
+            .join(Application, Request.id == Application.request_id, isouter=True)
+            .filter(Application.id == None)
         )
     ).unique().scalar_one_or_none()
     if request is None:
@@ -135,6 +139,7 @@ async def update_request(
     request.reward = body.reward
     request.latitude = body.latitude
     request.longitude = body.longitude
+    request.location = ST_Point(body.latitude, body.longitude)
 
     # Update request types
     if body.request_type_ids:
@@ -157,9 +162,11 @@ async def delete_request(
 ):
     request = (
         await session.execute(
-            select(HelpRequest)
-            .filter(HelpRequest.id == request_id)
-            .filter(HelpRequest.creator_id == user_data.id)
+            select(Request)
+            .filter(Request.id == request_id)
+            .filter(Request.creator_id == user_data.id)
+            .join(Application, Request.id == Application.request_id, isouter=True)
+            .filter(Application.id == None)
         )
     ).scalar_one_or_none()
     if request is None:
@@ -182,9 +189,9 @@ async def complete_request(
 ):
     request = (
         await session.execute(
-            select(HelpRequest)
-            .filter(HelpRequest.id == request_id)
-            .filter(HelpRequest.creator_id == user_data.id)
+            select(Request)
+            .filter(Request.id == request_id)
+            .filter(Request.creator_id == user_data.id)
         )
     ).scalar_one_or_none()
     if request is None:
@@ -211,10 +218,10 @@ async def get_request_applications(
     applications = (
         await session.execute(
             select(Application, User)
-            .join(HelpRequest, HelpRequest.id == Application.request_id)
+            .join(Request, Request.id == Application.request_id)
             .join(User, User.id == Application.user_id)
             .filter(Application.request_id == request_id)
-            .filter(HelpRequest.creator_id == user_data.id)
+            .filter(Request.creator_id == user_data.id)
         )
     ).all()
 
@@ -245,9 +252,9 @@ async def accept_application(
     application = (
         await session.execute(
             select(Application)
-            .join(HelpRequest, HelpRequest.id == Application.request_id)
+            .join(Request, Request.id == Application.request_id)
             .filter(Application.request_id == request_id)
-            .filter(HelpRequest.creator_id == user_data.id)
+            .filter(Request.creator_id == user_data.id)
             .filter(Application.user_id == user_id)
         )
     ).scalar_one_or_none()
@@ -283,9 +290,9 @@ async def rate_volunteer(
     application = (
         await session.execute(
             select(Application)
-            .join(HelpRequest)
-            .filter(HelpRequest.id == request_id)
-            .filter(HelpRequest.creator_id == user_data.id)
+            .join(Request)
+            .filter(Request.id == request_id)
+            .filter(Request.creator_id == user_data.id)
             .filter(Application.is_accepted)
         )
     ).scalar_one_or_none()

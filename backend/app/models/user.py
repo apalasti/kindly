@@ -5,12 +5,12 @@ from sqlalchemy import TIMESTAMP, Boolean, Float, Integer, String, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from .help_request import HelpRequest
+from .request import Request
 
 
 class User(Base):
     __tablename__ = "user"
-    
+
     id: Mapped[Optional[int]] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     email: Mapped[str] = mapped_column(String, nullable=False, unique=True)
@@ -20,7 +20,10 @@ class User(Base):
     is_volunteer: Mapped[bool] = mapped_column(Boolean, nullable=False)
     avg_rating: Mapped[float] = mapped_column(Float, default=0.0)
 
-    applications: Mapped[List["HelpRequest"]] = relationship(
+    requests: Mapped[List["Request"]] = relationship(
+        "Request", back_populates="creator"
+    )
+    applications: Mapped[List["Request"]] = relationship(
         secondary="application", back_populates="applications"
     )
 
