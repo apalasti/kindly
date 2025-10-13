@@ -1,19 +1,18 @@
 from typing import Literal, Optional
-from fastapi.routing import APIRouter
+
 from fastapi import HTTPException, status
+from fastapi.routing import APIRouter
+from geoalchemy2.functions import ST_DWithin, ST_Point
 from pydantic import BaseModel, Field
 from sqlalchemy import Integer
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import defer, joinedload
-from sqlalchemy.sql import func, select, asc, desc
-from geoalchemy2.functions import ST_DWithin, ST_Point
-
+from sqlalchemy.sql import asc, desc, func, select
 
 from ..db import SessionDep
-from ..models import Request, RequestType, Application, User
 from ..internal.auth import VolunteerDep
 from ..internal.pagination import PaginationParams
-
+from ..models import Application, Request, RequestType, User
 
 router = APIRouter(
     prefix="/volunteer/requests"

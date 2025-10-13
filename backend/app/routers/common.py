@@ -1,13 +1,13 @@
-from fastapi.routing import APIRouter
-from sqlalchemy.sql import select
-from pydantic import BaseModel
 from datetime import date
+
 from fastapi import HTTPException
+from fastapi.routing import APIRouter
+from pydantic import BaseModel
+from sqlalchemy.sql import select
 
 from ..db import SessionDep
-from ..models import User, RequestType
 from ..internal.auth import UserDataDep
-
+from ..models import RequestType, User
 
 router = APIRouter(
     prefix="/common",

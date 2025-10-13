@@ -1,12 +1,12 @@
-from enum import Enum
 from datetime import datetime
 from decimal import Decimal
+from enum import Enum
 from typing import List
 
+from geoalchemy2 import Geography
 from sqlalchemy import (TIMESTAMP, Boolean, ForeignKey, Integer, Numeric,
                         String, text)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from geoalchemy2 import Geography
 
 from .base import Base
 
