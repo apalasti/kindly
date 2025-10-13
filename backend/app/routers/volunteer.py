@@ -191,7 +191,7 @@ class RateSeekerBody(BaseModel):
     rating: int = Field(..., ge=1, le=5, description="Rating must be between 1 and 5")
 
 
-@router.delete("/{request_id}/rate-seeker")
+@router.post("/{request_id}/rate-seeker")
 async def rate_seeker(session: SessionDep, user_data: VolunteerDep, request_id: int, body: RateSeekerBody):
     application = (
         await session.execute(

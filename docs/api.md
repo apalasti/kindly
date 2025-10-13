@@ -320,7 +320,7 @@ Can only view own
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
 | POST | `/api/v1/help-seeker/requests/:id/rate-volunteer` | Rate volunteer after completion | Yes (Help Seeker) |
-
+TODO: Ezt lehet at kene beszelni!
 #### POST `/api/v1/help-seeker/requests/:id/rate-volunteer`
 **Request Body:**
 ```json

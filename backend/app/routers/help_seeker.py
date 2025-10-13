@@ -6,8 +6,9 @@ from fastapi.routing import APIRouter
 from geoalchemy2.functions import ST_Point
 from pydantic import BaseModel, Field
 from sqlalchemy.exc import MultipleResultsFound
-from sqlalchemy.orm import joinedload
-from sqlalchemy.sql import asc, desc, func, select
+from sqlalchemy.orm import defer, joinedload
+from sqlalchemy.sql import asc, column, desc, func, select, text
+from sqlalchemy.types import Boolean, Integer
 
 from ..db import SessionDep
 from ..internal.auth import HelpSeekerDep
@@ -101,7 +102,7 @@ async def update_request(
         )
     ).unique().scalar_one_or_none()
     if request is None:
-        raise HTTPException(status_code=404, detail="Request not found")
+        raise HTTPException(status_code=404, detail="Request not found or can't be updated")
 
     # Update request fields
     request.name = body.name
@@ -142,7 +143,7 @@ async def delete_request(
         )
     ).scalar_one_or_none()
     if request is None:
-        raise HTTPException(status_code=404, detail="Request not found")
+        raise HTTPException(status_code=404, detail="Request not found or can't be deleted")
 
     await session.delete(request)
     await session.commit()
@@ -165,15 +166,18 @@ async def get_requests(
 ):
     query = (
         select(
-            Request,
+            *(col for col in Request.__table__.columns if col.key not in {"location"}),
             func.count(Application.user_id).label("applications_count"),
-            func.max(Application.is_accepted).label("has_accepted_volunteer"),
+            func.cast(func.max(
+                func.coalesce(func.cast(Application.is_accepted, Integer), 0)
+            ), Boolean).label("has_accepted_volunteer"),
         )
+        .join(Application, isouter=True)
         .where(Request.creator_id == user_data.id)
         .where(
-            (Request.is_completed == False) if body.status == "open" else
-            (Request.is_completed == True) if body.status == "completed" else
-            True
+            (Request.is_completed == False)
+            if body.status == "open"
+            else (Request.is_completed == True) if body.status == "completed" else True
         )
         .group_by(Request)
         .order_by(asc(body.sort) if body.order == "asc" else desc(body.sort))
@@ -224,7 +228,7 @@ async def get_request_applications(
             .filter(Application.request_id == request_id)
             .filter(Request.creator_id == user_data.id)
         )
-    ).scalars()
+    ).scalars().all()
     return {
         "success": True,
         "data": applications,
@@ -238,7 +242,7 @@ async def accept_application(
     request_id: int,
     user_id: int
 ):
-    # TODO: Shouldn't we accept the application id rather then the user id?
+    # TODO: Shouldn't we accept the application id rather then the user id?
     try:
         application = (
             await session.execute(
@@ -252,10 +256,18 @@ async def accept_application(
             )
         ).scalar_one_or_none()
     except MultipleResultsFound as e:
-        raise HTTPException(status_code=400, detail="Already accepted an application for this request")
+        raise HTTPException(
+            status_code=400, detail="Already accepted an application for this request"
+        )
 
     if application is None:
         raise HTTPException(status_code=404, detail="Application not found")
+
+    if application.is_accepted:
+        raise HTTPException(
+            status_code=404,
+            detail="This application is already accepted for this request.",
+        )
 
     application.is_accepted = True
     await session.commit()
@@ -290,12 +302,13 @@ async def rate_volunteer(
             .filter(Request.id == request_id)
             .filter(Request.creator_id == user_data.id)
             .filter(Application.is_accepted)
+            .filter(Request.is_completed == True)
         )
     ).scalar_one_or_none()
     if application is None:
         raise HTTPException(
             status_code=404,
-            detail="Volunteer application could not be found for help request"
+            detail="Volunteer application not found or can't be updated"
         )
 
     if application.volunteer_rating is not None:
