@@ -5,7 +5,7 @@ import { RequestsPage } from "./pages/RequestsPage";
 import { RequestDetailsPage } from "./pages/RequestDetailsPage";
 import { RequestEditPage } from "./pages/RequestEditPage";
 // TODO: Import page components as they are created
-// import { CreateRequestPage } from "./pages/CreateRequestPage";
+import { CreateRequestPage } from "./pages/CreateRequestPage";
 // import { ProfilePage } from "./pages/ProfilePage";
 // import { EditProfilePage } from "./pages/EditProfilePage";
 
@@ -21,7 +21,7 @@ function App() {
       <Route path="/requests" element={<RequestsPage />} />
 
       {/* Request management routes */}
-      {/* <Route path="/requests/new" element={<CreateRequestPage />} /> */}
+      <Route path="/requests/new" element={<CreateRequestPage />} />
       <Route path="/requests/:id" element={<RequestDetailsPage />} />
       <Route path="/requests/:id/edit" element={<RequestEditPage />} />
 

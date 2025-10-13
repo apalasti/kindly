@@ -76,3 +76,10 @@ export interface UpdateRequestData {
   reward?: number;
   request_type_ids?: number[];
 }
+
+export interface SuggestedRequestType {
+  id: number;
+  name: string;
+  confidence: number;
+  reasoning?: string;
+}

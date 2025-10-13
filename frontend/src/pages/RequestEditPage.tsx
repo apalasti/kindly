@@ -1,105 +1,39 @@
 import { useState, useEffect, type ElementType } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
   Box,
   Button,
   Container,
-  Input,
-  Textarea,
   Stack,
   Text,
   HStack,
-  Icon,
-  Separator,
-  SimpleGrid,
-  Badge,
   Center,
   Spinner,
-  VStack,
-  Wrap,
+  Icon,
 } from "@chakra-ui/react";
-import { Field } from "@chakra-ui/react/field";
 import { Dialog } from "@chakra-ui/react/dialog";
-import { FaSave, FaTrash, FaMagic } from "react-icons/fa";
+import { FaSave, FaTrash } from "react-icons/fa";
 import { AppLayout } from "../layouts/AppLayout";
 import { requestService } from "../services/request.service";
 import { toaster } from "../components/ui/toaster";
-import { MapboxLocationPicker } from "../components/ui/mapbox-location-picker";
-import { TypeSelector } from "../components/ui/type-selector";
-import { DateTimePicker } from "../components/ui/date-time-picker";
+import { RequestForm } from "../components/requests/RequestForm";
+import type { RequestFormValues } from "../components/requests/RequestForm";
 import type { Request, RequestType, UpdateRequestData } from "../types";
 // removed duplicate ElementType import (declared in first import)
 
-// Validation schema
-const editRequestSchema = z
-  .object({
-    name: z.string().min(1, "Name is required").max(200, "Name is too long"),
-    description: z
-      .string()
-      .min(1, "Description is required")
-      .max(1000, "Description is too long"),
-    location_address: z.string().min(1, "Location is required"),
-    location_coordinates: z.object({
-      longitude: z.number(),
-      latitude: z.number(),
-    }),
-    start: z.date().refine((date) => date > new Date(), {
-      message: "Start date must be in the future",
-    }),
-    end: z.date(),
-    reward: z.number().min(0, "Reward must be 0 or positive"),
-    request_type_ids: z
-      .array(z.number())
-      .min(1, "At least one type is required"),
-  })
-  .refine((data) => data.end > data.start, {
-    message: "End date must be after start date",
-    path: ["end"],
-  });
-
-type EditRequestFormData = z.infer<typeof editRequestSchema>;
-
-interface AIGeneratedType {
-  id: number;
-  name: string;
-  confidence: number;
-}
+// Reuse RequestForm for validation and UI
 
 export const RequestEditPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isGeneratingTypes, setIsGeneratingTypes] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [request, setRequest] = useState<Request | null>(null);
   const [requestTypes, setRequestTypes] = useState<RequestType[]>([]);
-  const [aiGeneratedTypes, setAiGeneratedTypes] = useState<AIGeneratedType[]>(
-    []
-  );
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-    watch,
-    setValue,
-    reset,
-  } = useForm<EditRequestFormData>({
-    resolver: zodResolver(editRequestSchema),
-    mode: "onBlur",
-    reValidateMode: "onChange",
-    shouldFocusError: true,
-  });
-
-  const watchedName = watch("name");
-  const watchedDescription = watch("description");
-  const watchedTypes = watch("request_type_ids") || [];
+  const [initialValues, setInitialValues] =
+    useState<Partial<RequestFormValues> | null>(null);
 
   // Check if user can edit
 
@@ -141,8 +75,8 @@ export const RequestEditPage = () => {
         const typesResponse = await requestService.getRequestTypes();
         setRequestTypes(typesResponse.data);
 
-        // Set form values
-        reset({
+        // Prepare initial values for RequestForm
+        setInitialValues({
           name: requestData.name,
           description: requestData.description,
           location_address: requestData.location_address || "",
@@ -170,75 +104,18 @@ export const RequestEditPage = () => {
     };
 
     loadData();
-  }, [id, navigate, reset]);
+  }, [id, navigate]);
 
-  // Type collection handled inside TypeSelector
-
-  // Generate AI types
-  const handleGenerateTypes = async () => {
-    if (!watchedName || !watchedDescription) return;
-
-    setIsGeneratingTypes(true);
-    try {
-      const response = await requestService.suggestRequestTypes({
-        name: watchedName,
-        description: watchedDescription,
-      });
-
-      setAiGeneratedTypes(response.data);
-
-      const types = response.data.map((t: AIGeneratedType) => t.id);
-
-      if (types.length > 0) {
-        setValue("request_type_ids", types);
-      }
-
-      toaster.create({
-        title: "Types generated",
-        description: `Found ${response.data.length} matching types`,
-        type: "success",
-        duration: 3000,
-      });
-    } catch (error) {
-      console.error("Error generating types:", error);
-      toaster.create({
-        title: "Generation failed",
-        description: "Could not generate types. Please select manually.",
-        type: "error",
-        duration: 5000,
-      });
-    } finally {
-      setIsGeneratingTypes(false);
-    }
-  };
-
-  // Handle form submission
-  const onSubmit = async (data: EditRequestFormData) => {
+  const onSubmit = async (payload: UpdateRequestData) => {
     if (!id) return;
-
-    setIsSaving(true);
     try {
-      const updateData: UpdateRequestData = {
-        name: data.name,
-        description: data.description,
-        longitude: data.location_coordinates.longitude,
-        latitude: data.location_coordinates.latitude,
-        location_address: data.location_address,
-        start: data.start.toISOString(),
-        end: data.end.toISOString(),
-        reward: data.reward,
-        request_type_ids: data.request_type_ids,
-      };
-
-      await requestService.updateRequest(parseInt(id), updateData);
-
+      await requestService.updateRequest(parseInt(id), payload);
       toaster.create({
         title: "Request updated",
         description: "Your request has been updated successfully",
         type: "success",
         duration: 5000,
       });
-
       navigate(`/requests/${id}`);
     } catch (error) {
       console.error("Error updating request:", error);
@@ -249,7 +126,7 @@ export const RequestEditPage = () => {
         duration: 5000,
       });
     } finally {
-      setIsSaving(false);
+      // no-op
     }
   };
 
@@ -310,8 +187,6 @@ export const RequestEditPage = () => {
     >
       <Container maxW="container.xl" mx="auto">
         <Box
-          as="form"
-          onSubmit={handleSubmit(onSubmit)}
           bg="white"
           p={8}
           borderRadius="2xl"
@@ -321,244 +196,35 @@ export const RequestEditPage = () => {
           mx="auto"
         >
           <Stack gap={6}>
-            {/* Card Header */}
             <HStack justify="flex-start" align="center">
               <Text fontSize="2xl" fontWeight="bold" color="gray.800">
                 Edit Request
               </Text>
             </HStack>
-            {/* Name */}
-            <Field.Root invalid={!!errors.name}>
-              <Field.Label>Request Name</Field.Label>
-              <Input
-                {...register("name")}
-                placeholder="Enter a descriptive name for your request"
-                size="md"
-                px={5}
-                py={4}
+            {initialValues && (
+              <RequestForm
+                mode="edit"
+                initialValues={initialValues}
+                requestTypes={requestTypes}
+                submitLabel="Save Changes"
+                cancelLabel="Cancel"
+                onSubmit={(p) => onSubmit(p as UpdateRequestData)}
+                submitIcon={FaSave as ElementType}
+                onCancel={() => navigate(`/requests/${id}`)}
+                leftAction={
+                  <Button
+                    onClick={() => setShowDeleteDialog(true)}
+                    bg="red.500"
+                    _hover={{ bg: "red.600" }}
+                    color="white"
+                    px={5}
+                    py={4}
+                  >
+                    <Icon as={FaTrash as ElementType} mr={2} /> Delete Request
+                  </Button>
+                }
               />
-              {errors.name && (
-                <Field.ErrorText>{errors.name.message}</Field.ErrorText>
-              )}
-            </Field.Root>
-
-            {/* Description */}
-            <Field.Root invalid={!!errors.description}>
-              <Field.Label>Description</Field.Label>
-              <Textarea
-                {...register("description")}
-                placeholder="Provide details about what you need help with"
-                rows={4}
-                minHeight={"100px"}
-                maxHeight={"200px"}
-                size="md"
-                px={5}
-                py={4}
-              />
-              {errors.description && (
-                <Field.ErrorText>{errors.description.message}</Field.ErrorText>
-              )}
-            </Field.Root>
-
-            <Separator />
-
-            {/* Request Types */}
-            <Field.Root invalid={!!errors.request_type_ids}>
-              <Field.Label mb={4}>
-                <HStack justify="space-between">
-                  <VStack align="start" gap={3}>
-                    <Text>Request Types</Text>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={handleGenerateTypes}
-                      loading={isGeneratingTypes}
-                      disabled={!watchedName || !watchedDescription}
-                      px={4}
-                      py={2}
-                    >
-                      <Icon as={FaMagic as ElementType} mr={2} />
-                      Generate with AI
-                    </Button>
-                  </VStack>
-                </HStack>
-              </Field.Label>
-
-              {/* AI Generated Suggestions */}
-              {aiGeneratedTypes.length > 0 && (
-                <Box p={4} bg="gray.100" borderRadius="lg" mb={4}>
-                  <VStack align="start" gap={2}>
-                    <Text fontSize="sm" fontWeight="semibold">
-                      AI Suggestions:
-                    </Text>
-                    <Wrap gap={2}>
-                      {aiGeneratedTypes.map((type) => (
-                        <Badge
-                          key={type.id}
-                          px={2}
-                          py={1.5}
-                          borderRadius="md"
-                          bg="transparent"
-                        >
-                          {type.name}
-                          <Text as="span" fontWeight="semibold" ml={1}>
-                            ({Math.round(type.confidence * 100)}%)
-                          </Text>
-                        </Badge>
-                      ))}
-                    </Wrap>
-                  </VStack>
-                </Box>
-              )}
-
-              {/* Type Selection - shared style */}
-              <TypeSelector
-                items={requestTypes}
-                value={watchedTypes}
-                onChange={(ids) => setValue("request_type_ids", ids)}
-                placeholder="Select types..."
-              />
-
-              {errors.request_type_ids && (
-                <Field.ErrorText>
-                  {errors.request_type_ids.message}
-                </Field.ErrorText>
-              )}
-            </Field.Root>
-
-            <Separator />
-
-            {/* Location */}
-            <Field.Root invalid={!!errors.location_address}>
-              <Field.Label>Location</Field.Label>
-              <Controller
-                name="location_address"
-                control={control}
-                render={({ field }) => (
-                  <MapboxLocationPicker
-                    value={field.value}
-                    onChange={(address, coordinates) => {
-                      field.onChange(address);
-                      setValue("location_coordinates", coordinates);
-                    }}
-                    placeholder="Search for an address"
-                    initialCoordinates={watch("location_coordinates")}
-                  />
-                )}
-              />
-              {errors.location_address && (
-                <Field.ErrorText>
-                  {errors.location_address.message}
-                </Field.ErrorText>
-              )}
-            </Field.Root>
-
-            <Separator />
-
-            {/* Schedule */}
-            <SimpleGrid columns={2} gap={4}>
-              <Field.Root invalid={!!errors.start}>
-                <Field.Label>Start Date & Time</Field.Label>
-                <Controller
-                  name="start"
-                  control={control}
-                  render={({ field }) => (
-                    <DateTimePicker
-                      selected={field.value}
-                      onChange={field.onChange}
-                      minDate={new Date()}
-                      placeholderText="Select start date and time"
-                    />
-                  )}
-                />
-                {errors.start && (
-                  <Field.ErrorText>{errors.start.message}</Field.ErrorText>
-                )}
-              </Field.Root>
-
-              <Field.Root invalid={!!errors.end}>
-                <Field.Label>End Date & Time</Field.Label>
-                <Controller
-                  name="end"
-                  control={control}
-                  render={({ field }) => (
-                    <DateTimePicker
-                      selected={field.value}
-                      onChange={field.onChange}
-                      minDate={watch("start") || new Date()}
-                      placeholderText="Select end date and time"
-                    />
-                  )}
-                />
-                {errors.end && (
-                  <Field.ErrorText>{errors.end.message}</Field.ErrorText>
-                )}
-              </Field.Root>
-            </SimpleGrid>
-
-            <Separator />
-
-            {/* Reward */}
-            <Field.Root invalid={!!errors.reward}>
-              <Field.Label>Reward ($)</Field.Label>
-              <Input
-                type="number"
-                min="0"
-                step="1"
-                inputMode="numeric"
-                placeholder="Enter amount"
-                size="md"
-                px={5}
-                py={4}
-                w="full"
-                maxW="200px"
-                {...register("reward", {
-                  valueAsNumber: true,
-                  setValueAs: (v) => (v === "" || v === null ? 0 : parseInt(v)),
-                })}
-              />
-              {errors.reward && (
-                <Field.ErrorText>{errors.reward.message}</Field.ErrorText>
-              )}
-            </Field.Root>
-
-            {/* Action Row: Delete left, Cancel/Save right */}
-            <HStack justify="space-between" align="center" pt={4} w="full">
-              <Button
-                onClick={() => setShowDeleteDialog(true)}
-                bg="red.500"
-                _hover={{ bg: "red.600" }}
-                color="white"
-                px={5}
-                py={4}
-              >
-                <Icon as={FaTrash as ElementType} mr={2} />
-                Delete Request
-              </Button>
-              <HStack gap={4}>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate(`/requests/${id}`)}
-                  px={5}
-                  py={4}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  bg="coral.600"
-                  _hover={{ bg: "coral.700" }}
-                  loading={isSaving}
-                  px={5}
-                  py={4}
-                >
-                  <Icon as={FaSave as ElementType} mr={2} />
-                  Save Changes
-                </Button>
-              </HStack>
-            </HStack>
+            )}
           </Stack>
         </Box>
 

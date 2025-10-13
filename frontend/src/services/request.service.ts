@@ -7,6 +7,7 @@ import type {
   UpdateRequestData,
   RequestApplication,
 } from "../types";
+import type { SuggestedRequestType } from "../types";
 import type { ApiResponse, PaginatedResponse } from "../types";
 
 // ============================================
@@ -2173,7 +2174,7 @@ export const requestService = {
   suggestRequestTypes: async (data: {
     name: string;
     description: string;
-  }): Promise<ApiResponse<any[]>> => {
+  }): Promise<ApiResponse<SuggestedRequestType[]>> => {
     if (USE_MOCK) {
       await mockDelay(1000);
 
@@ -2300,7 +2301,7 @@ export const requestService = {
       };
     }
 
-    const response = await api.post<ApiResponse<any[]>>(
+    const response = await api.post<ApiResponse<SuggestedRequestType[]>>(
       "/help-seeker/requests/suggest-type",
       data
     );
