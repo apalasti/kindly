@@ -1,10 +1,4 @@
-import {
-  forwardRef,
-  useState,
-  useRef,
-  useEffect,
-  type ElementType,
-} from "react";
+import { forwardRef, useState, useRef, type ElementType } from "react";
 import { DayPicker } from "react-day-picker";
 import {
   Input,
@@ -13,11 +7,13 @@ import {
   HStack,
   Icon,
   Box,
+  Portal,
 } from "@chakra-ui/react";
 import {
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
+  PopoverPositioner,
 } from "@chakra-ui/react/popover";
 import { LuCalendar, LuX } from "react-icons/lu";
 import "react-day-picker/style.css";
@@ -37,27 +33,6 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
     const [isOpen, setIsOpen] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const popoverRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-      if (isOpen && popoverRef.current) {
-        // Small delay to ensure the popover is fully rendered
-        setTimeout(() => {
-          if (popoverRef.current) {
-            const popoverRect = popoverRef.current.getBoundingClientRect();
-            const viewportHeight = window.innerHeight;
-            const popoverCenter = popoverRect.top + popoverRect.height / 2;
-            const viewportCenter = viewportHeight / 2;
-            const scrollOffset = popoverCenter - viewportCenter;
-
-            // Smooth scroll to center the popover
-            window.scrollBy({
-              top: scrollOffset,
-              behavior: "smooth",
-            });
-          }
-        }, 50);
-      }
-    }, [isOpen]);
 
     const formatDate = (date: Date | null) => {
       if (!date) return "";
@@ -85,8 +60,34 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
     return (
       <Box ref={ref} w="full">
         <Popover.Root
+          positioning={{ strategy: "fixed" }}
           open={isOpen}
-          onOpenChange={(details) => setIsOpen(details.open)}
+          onOpenChange={(details) => {
+            setIsOpen(details.open);
+            if (details.open) {
+              // After popover mounts, ensure the entire popover is visible in viewport
+              setTimeout(() => {
+                const el = popoverRef.current || inputRef.current;
+                if (!el) return;
+                // First, center it
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+                // Then adjust to ensure full visibility with a small margin
+                const rect = el.getBoundingClientRect();
+                const margin = 24; // px cushion from edges
+                const viewportBottom = window.innerHeight - margin;
+                const viewportTop = margin;
+                let scrollDelta = 0;
+                if (rect.top < viewportTop) {
+                  scrollDelta = rect.top - viewportTop; // negative -> scroll up
+                } else if (rect.bottom > viewportBottom) {
+                  scrollDelta = rect.bottom - viewportBottom; // positive -> scroll down
+                }
+                if (scrollDelta !== 0) {
+                  window.scrollBy({ top: scrollDelta, behavior: "smooth" });
+                }
+              }, 50);
+            }
+          }}
         >
           <PopoverTrigger asChild>
             <HStack gap={0} w="full" position="relative">
@@ -134,20 +135,31 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
             </HStack>
           </PopoverTrigger>
 
-          <PopoverContent width="auto" zIndex={1500} ref={popoverRef}>
-            <PopoverBody p={0}>
-              <DayPicker
-                mode="single"
-                selected={selected ?? undefined}
-                onSelect={handleSelect}
-                disabled={{ after: new Date() }}
-                captionLayout="dropdown"
-                defaultMonth={selected || new Date(currentYear - 25, 0)}
-                startMonth={new Date(fromYear, 0)}
-                endMonth={new Date(toYear, 11)}
-              />
-            </PopoverBody>
-          </PopoverContent>
+          <Portal>
+            <PopoverPositioner>
+              <PopoverContent
+                width="auto"
+                maxW="95vw"
+                maxH="80vh"
+                overflowY="auto"
+                zIndex={1500}
+                ref={popoverRef}
+              >
+                <PopoverBody p={0}>
+                  <DayPicker
+                    mode="single"
+                    selected={selected ?? undefined}
+                    onSelect={handleSelect}
+                    disabled={{ after: new Date() }}
+                    captionLayout="dropdown"
+                    defaultMonth={selected || new Date(currentYear - 25, 0)}
+                    startMonth={new Date(fromYear, 0)}
+                    endMonth={new Date(toYear, 11)}
+                  />
+                </PopoverBody>
+              </PopoverContent>
+            </PopoverPositioner>
+          </Portal>
         </Popover.Root>
       </Box>
     );

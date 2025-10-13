@@ -4,6 +4,7 @@ import type {
   RequestType,
   RequestFilters,
   CreateRequestData,
+  UpdateRequestData,
   RequestApplication,
 } from "../types";
 import type { ApiResponse, PaginatedResponse } from "../types";
@@ -287,7 +288,7 @@ const generateMockRequests = (): Request[] => {
         mockRequestTypes[4],
         mockRequestTypes[4],
       ],
-      applications_count: 6,
+      applications_count: 0,
       accepted_volunteer: null,
       has_applied: true,
       created_at: new Date(
@@ -2101,6 +2102,207 @@ export const requestService = {
 
     const response = await api.get<ApiResponse<RequestApplication[]>>(
       `/help-seeker/requests/${requestId}/applications`
+    );
+    return response.data;
+  },
+
+  // Update request
+  updateRequest: async (
+    id: number,
+    data: UpdateRequestData
+  ): Promise<ApiResponse<Request>> => {
+    if (USE_MOCK) {
+      await mockDelay(800);
+      const requestIndex = mockRequests.findIndex((r) => r.id === id);
+      if (requestIndex === -1) {
+        throw new Error("Request not found");
+      }
+
+      const updatedRequest = {
+        ...mockRequests[requestIndex],
+        ...data,
+        request_types: data.request_type_ids
+          ? data.request_type_ids.map(
+              (id) => mockRequestTypes.find((t) => t.id === id)!
+            )
+          : mockRequests[requestIndex].request_types,
+        updated_at: new Date().toISOString(),
+      };
+
+      mockRequests[requestIndex] = updatedRequest;
+
+      return {
+        success: true,
+        data: updatedRequest,
+        message: "Request updated successfully",
+      };
+    }
+
+    const response = await api.put<ApiResponse<Request>>(
+      `/help-seeker/requests/${id}`,
+      data
+    );
+    return response.data;
+  },
+
+  // Delete request
+  deleteRequest: async (id: number): Promise<ApiResponse<void>> => {
+    if (USE_MOCK) {
+      await mockDelay(800);
+      const requestIndex = mockRequests.findIndex((r) => r.id === id);
+      if (requestIndex === -1) {
+        throw new Error("Request not found");
+      }
+
+      mockRequests.splice(requestIndex, 1);
+
+      return {
+        success: true,
+        data: undefined,
+        message: "Request deleted successfully",
+      };
+    }
+
+    const response = await api.delete<ApiResponse<void>>(
+      `/help-seeker/requests/${id}`
+    );
+    return response.data;
+  },
+
+  // Suggest request types based on AI
+  suggestRequestTypes: async (data: {
+    name: string;
+    description: string;
+  }): Promise<ApiResponse<any[]>> => {
+    if (USE_MOCK) {
+      await mockDelay(1000);
+
+      // Mock AI suggestions based on keywords
+      const text = `${data.name} ${data.description}`.toLowerCase();
+      const suggestions = [];
+
+      if (text.includes("grocery") || text.includes("shopping")) {
+        suggestions.push({
+          id: 1,
+          name: "Grocery Shopping",
+          confidence: 0.95,
+          reasoning: "Request mentions grocery shopping",
+        });
+      }
+
+      if (
+        text.includes("transport") ||
+        text.includes("ride") ||
+        text.includes("drive")
+      ) {
+        suggestions.push({
+          id: 2,
+          name: "Transportation",
+          confidence: 0.85,
+          reasoning: "Request involves transportation",
+        });
+      }
+
+      if (
+        text.includes("repair") ||
+        text.includes("fix") ||
+        text.includes("broken")
+      ) {
+        suggestions.push({
+          id: 3,
+          name: "Home Repair",
+          confidence: 0.8,
+          reasoning: "Request mentions repairs",
+        });
+      }
+
+      if (
+        text.includes("heavy") ||
+        text.includes("lift") ||
+        text.includes("move") ||
+        text.includes("furniture")
+      ) {
+        suggestions.push({
+          id: 4,
+          name: "Heavy Lifting",
+          confidence: 0.75,
+          reasoning: "Request involves heavy lifting",
+        });
+      }
+
+      if (
+        text.includes("pet") ||
+        text.includes("dog") ||
+        text.includes("cat") ||
+        text.includes("walk")
+      ) {
+        suggestions.push({
+          id: 5,
+          name: "Pet Care",
+          confidence: 0.9,
+          reasoning: "Request mentions pet care",
+        });
+        suggestions.push({
+          id: 6,
+          name: "Gardening",
+          confidence: 0.85,
+          reasoning: "Request involves gardening",
+        });
+      }
+
+      if (
+        text.includes("garden") ||
+        text.includes("plant") ||
+        text.includes("yard")
+      ) {
+        suggestions.push({
+          id: 6,
+          name: "Gardening",
+          confidence: 0.85,
+          reasoning: "Request involves gardening",
+        });
+      }
+
+      if (
+        text.includes("computer") ||
+        text.includes("tech") ||
+        text.includes("phone") ||
+        text.includes("internet")
+      ) {
+        suggestions.push({
+          id: 7,
+          name: "Technology Help",
+          confidence: 0.8,
+          reasoning: "Request involves technology",
+        });
+      }
+
+      if (
+        text.includes("companion") ||
+        text.includes("chat") ||
+        text.includes("talk") ||
+        text.includes("visit")
+      ) {
+        suggestions.push({
+          id: 8,
+          name: "Companionship",
+          confidence: 0.9,
+          reasoning: "Request involves companionship",
+        });
+      }
+
+      // Sort by confidence
+      suggestions.sort((a, b) => b.confidence - a.confidence);
+
+      return {
+        success: true,
+        data: suggestions.slice(0, 3), // Return top 3 suggestions
+      };
+    }
+
+    const response = await api.post<ApiResponse<any[]>>(
+      "/help-seeker/requests/suggest-type",
+      data
     );
     return response.data;
   },

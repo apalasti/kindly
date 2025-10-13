@@ -35,7 +35,7 @@ export const RequestsPage = () => {
   // const isVolunteer =
   //   localStorage.getItem("auth_token")?.includes("volunteer");
 
-  const isVolunteer = false;
+  const isVolunteer = true;
 
   const pageLimit = 10;
 

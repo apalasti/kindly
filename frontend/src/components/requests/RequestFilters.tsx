@@ -1,11 +1,10 @@
-import { useState, useMemo } from "react";
-import { Stack, Text, Box, Separator, Wrap, Portal } from "@chakra-ui/react";
+import { useState } from "react";
+import { Stack, Text, Box, Separator, Wrap } from "@chakra-ui/react";
 import { Tag } from "@chakra-ui/react/tag";
 import { RadioGroup } from "@chakra-ui/react/radio-group";
-import { Combobox } from "@chakra-ui/react/combobox";
 import { Slider } from "@chakra-ui/react/slider";
-import { createListCollection } from "@chakra-ui/react/collection";
 import type { RequestFilters as Filters, RequestType } from "../../types";
+import { TypeSelector } from "../ui/type-selector";
 
 interface RequestFiltersProps {
   filters: Filters;
@@ -53,7 +52,7 @@ export const RequestFilters = ({
   const [selectedTypes, setSelectedTypes] = useState<string[]>(
     filters.type ? [String(filters.type)] : []
   );
-  const [typeSearchValue, setTypeSearchValue] = useState("");
+  // Type search and filtering handled within TypeSelector
 
   const handleStatusRadioChange = (value: string) => {
     if (value === "all") {
@@ -75,24 +74,9 @@ export const RequestFilters = ({
   };
 
   // Filter type options based on search
-  const filteredTypeOptions = useMemo(
-    () =>
-      requestTypes.filter((item) =>
-        item.name.toLowerCase().includes(typeSearchValue.toLowerCase())
-      ),
-    [typeSearchValue, requestTypes]
-  );
+  // Type search handled within TypeSelector
 
-  const typeCollection = useMemo(
-    () =>
-      createListCollection({
-        items: filteredTypeOptions.map((t) => ({
-          value: String(t.id),
-          label: t.name,
-        })),
-      }),
-    [filteredTypeOptions]
-  );
+  // collection handled within TypeSelector
 
   // Deprecated checkbox handlers removed in favor of radio approach
 
@@ -318,51 +302,17 @@ export const RequestFilters = ({
             <Text fontSize="sm" fontWeight="semibold" color="gray.700">
               Type
             </Text>
-            <Combobox.Root
-              multiple
-              closeOnSelect
-              value={selectedTypes}
-              collection={typeCollection}
-              onValueChange={handleTypeChange}
-              onInputValueChange={(details) =>
-                setTypeSearchValue(details.inputValue)
+            <TypeSelector
+              items={requestTypes}
+              value={selectedTypes.map(Number)}
+              onChange={(ids) =>
+                handleTypeChange({ value: ids.map((id) => String(id)) })
               }
-            >
-              <Combobox.Control borderColor="gray.200">
-                <Combobox.Input placeholder="Select types..." p={2} />
-                <Combobox.IndicatorGroup px={2} py={1}>
-                  <Combobox.Trigger />
-                </Combobox.IndicatorGroup>
-              </Combobox.Control>
-
-              <Portal>
-                <Combobox.Positioner>
-                  <Combobox.Content p={2}>
-                    <Combobox.ItemGroup>
-                      <Combobox.ItemGroupLabel px={2} py={1}>
-                        Types
-                      </Combobox.ItemGroupLabel>
-                      {filteredTypeOptions.map((item) => (
-                        <Combobox.Item
-                          key={item.id}
-                          item={{ value: String(item.id), label: item.name }}
-                          px={3}
-                          py={2}
-                          borderRadius="md"
-                          _hover={{ bg: "gray.50" }}
-                        >
-                          {item.name}
-                          <Combobox.ItemIndicator />
-                        </Combobox.Item>
-                      ))}
-                      <Combobox.Empty px={3} py={2}>
-                        No types found
-                      </Combobox.Empty>
-                    </Combobox.ItemGroup>
-                  </Combobox.Content>
-                </Combobox.Positioner>
-              </Portal>
-            </Combobox.Root>
+              placeholder="Select types..."
+              allowMultiple
+              hideSelectedTagList
+              width="100%"
+            />
           </Stack>
         )}
       </Stack>

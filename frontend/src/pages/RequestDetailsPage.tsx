@@ -15,7 +15,7 @@ export const RequestDetailsPage = () => {
 
   // Mock user data - in real app, this would come from auth context
   const isVolunteer = false;
-  const currentUserId = 5;
+  const currentUserId = 2;
 
   useEffect(() => {
     const fetchRequestDetails = async () => {

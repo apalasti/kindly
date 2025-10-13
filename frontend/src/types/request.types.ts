@@ -58,10 +58,21 @@ export interface CreateRequestData {
   description: string;
   longitude: number;
   latitude: number;
+  location_address?: string;
   start: string;
   end: string;
   reward: number;
   request_type_ids: number[];
 }
 
-export type UpdateRequestData = Partial<CreateRequestData>;
+export interface UpdateRequestData {
+  name?: string;
+  description?: string;
+  longitude?: number;
+  latitude?: number;
+  location_address?: string;
+  start?: string;
+  end?: string;
+  reward?: number;
+  request_type_ids?: number[];
+}
