@@ -80,7 +80,7 @@ async def verify_help_seeker(user_data: UserDataDep):
     if user_data.is_volunteer:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
+            detail="Only help seekers can access this resource",
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user_data
@@ -90,7 +90,7 @@ async def verify_volunteer(user_data: UserDataDep):
     if not user_data.is_volunteer:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
+            detail="Only volunteers can access this resource",
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user_data

@@ -29,5 +29,5 @@ class Application(Base):
     volunteer_rating: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     help_seeker_rating: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
-    volunteer: Mapped["User"] = relationship("User")
-    request: Mapped["Request"] = relationship("Request")
+    volunteer: Mapped["User"] = relationship("User", viewonly=True)
+    request: Mapped["Request"] = relationship("Request", viewonly=True)

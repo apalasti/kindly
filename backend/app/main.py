@@ -5,7 +5,7 @@ from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.responses import JSONResponse
 
 from .db import create_db_and_tables
-from .routers import auth, common, help_seeker
+from .routers import auth, common, help_seeker, volunteer
 
 
 @asynccontextmanager
@@ -13,11 +13,13 @@ async def lifespan(app: FastAPI):
     await create_db_and_tables()
     yield
 
+API_ROUTES_PREFIX = "/api/v1"
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(auth.router, prefix="/api/v1")
-app.include_router(common.router, prefix="/api/v1")
-app.include_router(help_seeker.router, prefix="/api/v1")
+app.include_router(auth.router, prefix=API_ROUTES_PREFIX)
+app.include_router(common.router, prefix=API_ROUTES_PREFIX)
+app.include_router(help_seeker.router, prefix=API_ROUTES_PREFIX)
+app.include_router(volunteer.router, prefix=API_ROUTES_PREFIX)
 
 
 @app.exception_handler(RequestValidationError)

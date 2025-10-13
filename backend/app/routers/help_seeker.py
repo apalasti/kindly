@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from fastapi.routing import APIRouter
 from geoalchemy2.functions import ST_Point
 from pydantic import BaseModel, Field
+from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql import select, func, asc, desc
 
@@ -218,7 +219,7 @@ async def get_request_applications(
     applications = (
         await session.execute(
             select(Application)
-            .options(joinedload(User).load_only(User.id, User.name, User.avg_rating))
+            .options(joinedload(Application.volunteer).load_only(User.id, User.name, User.avg_rating))
             .join(Request, Request.id == Application.request_id)
             .filter(Application.request_id == request_id)
             .filter(Request.creator_id == user_data.id)
@@ -237,23 +238,24 @@ async def accept_application(
     request_id: int,
     user_id: int
 ):
-    # TODO: Shouldn't we acept the application id rather then the user id?
-    # TODO: Check if this returns more than one row
-    application = (
-        await session.execute(
-            select(Application)
-            .options(joinedload(Request))
-            .filter(Request.creator_id == user_data.id)
-            .filter(Application.request_id == request_id)
-            .filter(
-                (Application.user_id == user_id) | (Application.is_accepted == True)
+    # TODO: Shouldn't we accept the application id rather then the user id?
+    try:
+        application = (
+            await session.execute(
+                select(Application)
+                .options(joinedload(Application.request))
+                .filter(Request.creator_id == user_data.id)
+                .filter(Application.request_id == request_id)
+                .filter(
+                    (Application.user_id == user_id) | (Application.is_accepted == True)
+                )
             )
-        )
-    ).scalar_one_or_none()
+        ).scalar_one_or_none()
+    except MultipleResultsFound as e:
+        raise HTTPException(status_code=400, detail="Already accepted an application for this request")
+
     if application is None:
         raise HTTPException(status_code=404, detail="Application not found")
-    if application.is_accepted:
-        raise HTTPException(status_code=400, detail="Application already accepted")
 
     application.is_accepted = True
     await session.commit()

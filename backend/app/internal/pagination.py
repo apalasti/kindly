@@ -19,7 +19,7 @@ class PaginationParams(BaseModel):
         total = total.scalar_one()
         return {
             "success": True,
-            "data": [row._asdict() for row in result.all()],
+            "data": [row for row in result.scalars().all()],
             "pagination": {
                 "page": self.page,
                 "limit": self.limit,
