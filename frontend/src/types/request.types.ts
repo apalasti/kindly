@@ -11,6 +11,7 @@ export interface Request {
   description: string;
   longitude: number;
   latitude: number;
+  location_address?: string; // Address string for display
   start: string;
   end: string;
   reward: number;
@@ -19,6 +20,7 @@ export interface Request {
   is_completed: boolean;
   request_types: RequestType[];
   applications_count: number;
+  applications?: RequestApplication[]; // Full list for creators
   accepted_volunteer?: User | null;
   has_applied?: boolean; // For volunteer view
   created_at: string;

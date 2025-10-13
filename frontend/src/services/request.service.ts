@@ -40,6 +40,7 @@ const generateMockRequests = (): Request[] => {
         "I need someone to help me carry groceries from the store to my apartment on the 3rd floor.",
       longitude: -122.4194,
       latitude: 37.7749,
+      location_address: "123 Market St, San Francisco, CA 94103",
       start: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString(),
       end: new Date(
         now.getTime() + 2 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000
@@ -60,6 +61,63 @@ const generateMockRequests = (): Request[] => {
       is_completed: false,
       request_types: [mockRequestTypes[0], mockRequestTypes[3]],
       applications_count: 3,
+      applications: [
+        {
+          user: {
+            id: 10,
+            name: "Bob Wilson",
+            avg_rating: 4.7,
+          },
+          is_accepted: false,
+          applied_at: new Date(
+            Date.now() - 2 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+        },
+        {
+          user: {
+            id: 11,
+            name: "Alice Johnson",
+            avg_rating: 4.9,
+          },
+          is_accepted: false,
+          applied_at: new Date(
+            Date.now() - 1 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+        },
+        {
+          user: {
+            id: 12,
+            name: "Charlie Brown",
+            avg_rating: 4.6,
+          },
+          is_accepted: false,
+          applied_at: new Date(
+            Date.now() - 3 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+        },
+        {
+          user: {
+            id: 13,
+            name: "Janet Lee",
+            avg_rating: 4.6,
+          },
+          is_accepted: false,
+          applied_at: new Date(
+            Date.now() - 3 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+        },
+        {
+          user: {
+            id: 14,
+            name: "Bruce Wayne",
+            avg_rating: 4.6,
+          },
+          is_accepted: false,
+          applied_at: new Date(
+            Date.now() - 3 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+        },
+      ],
       accepted_volunteer: null,
       has_applied: false,
       created_at: new Date(
@@ -1929,9 +1987,73 @@ export const requestService = {
       if (!request) {
         throw new Error("Request not found");
       }
+
+      // Include applications for help-seekers (creators)
+      const requestWithApplications = { ...request };
+      if (!isVolunteer) {
+        const mockApplications: RequestApplication[] = [
+          {
+            user: {
+              id: 10,
+              name: "Bob Wilson",
+              avg_rating: 4.7,
+            },
+            is_accepted: false,
+            applied_at: new Date(
+              Date.now() - 2 * 24 * 60 * 60 * 1000
+            ).toISOString(),
+          },
+          {
+            user: {
+              id: 11,
+              name: "Alice Johnson",
+              avg_rating: 4.9,
+            },
+            is_accepted: false,
+            applied_at: new Date(
+              Date.now() - 1 * 24 * 60 * 60 * 1000
+            ).toISOString(),
+          },
+          {
+            user: {
+              id: 12,
+              name: "Charlie Brown",
+              avg_rating: 4.6,
+            },
+            is_accepted: false,
+            applied_at: new Date(
+              Date.now() - 3 * 24 * 60 * 60 * 1000
+            ).toISOString(),
+          },
+          {
+            user: {
+              id: 13,
+              name: "Janet Lee",
+              avg_rating: 4.6,
+            },
+            is_accepted: false,
+            applied_at: new Date(
+              Date.now() - 3 * 24 * 60 * 60 * 1000
+            ).toISOString(),
+          },
+          {
+            user: {
+              id: 14,
+              name: "Bruce Wayne",
+              avg_rating: 4.6,
+            },
+            is_accepted: false,
+            applied_at: new Date(
+              Date.now() - 3 * 24 * 60 * 60 * 1000
+            ).toISOString(),
+          },
+        ];
+        requestWithApplications.applications = mockApplications;
+      }
+
       return {
         success: true,
-        data: request,
+        data: requestWithApplications,
       };
     }
 

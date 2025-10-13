@@ -1,4 +1,5 @@
 import { Box, HStack, Stack, Text, Badge, Icon } from "@chakra-ui/react";
+import { Avatar } from "@chakra-ui/react/avatar";
 import {
   FaUsers,
   FaCalendarAlt,
@@ -9,6 +10,14 @@ import {
 } from "react-icons/fa";
 import type { Request } from "../../types";
 import type { ElementType } from "react";
+
+// Color palette for avatar backgrounds
+const colorPalette = ["red", "blue", "green", "yellow", "purple", "orange"];
+
+const pickPalette = (name: string) => {
+  const index = name.charCodeAt(0) % colorPalette.length;
+  return colorPalette[index];
+};
 
 interface RequestCardProps {
   request: Request;
@@ -70,6 +79,8 @@ export const RequestCard = ({
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
   };
+
+  const displayedAvatars = 2;
 
   return (
     <Box
@@ -162,7 +173,7 @@ export const RequestCard = ({
             <Text>{formatDate(request.start)}</Text>
           </HStack>
 
-          {/* Reward (for volunteers) or Applications count (for help seekers) */}
+          {/* Reward (for volunteers) or Avatar group (for help seekers) */}
           {isVolunteer ? (
             <HStack gap={3}>
               {request.reward > 0 && (
@@ -175,14 +186,33 @@ export const RequestCard = ({
                 <Text>{request.applications_count}</Text>
               </HStack>
             </HStack>
+          ) : request.applications && request.applications.length > 0 ? (
+            <HStack gap={0} spaceX="-2">
+              {request.applications
+                .slice(0, displayedAvatars)
+                .map((application) => (
+                  <Avatar.Root
+                    key={application.user.id}
+                    size="sm"
+                    colorPalette={pickPalette(application.user.name)}
+                    borderWidth="2px"
+                    borderColor="white"
+                  >
+                    <Avatar.Fallback name={application.user.name} />
+                  </Avatar.Root>
+                ))}
+              {request.applications.length > displayedAvatars && (
+                <Avatar.Root size="sm" variant="solid" bg="coral.700">
+                  <Avatar.Fallback>
+                    +{request.applications.length - displayedAvatars}
+                  </Avatar.Fallback>
+                </Avatar.Root>
+              )}
+            </HStack>
           ) : (
             <HStack gap={1} color="gray.500" fontSize="sm">
               <Icon as={FaUsers as ElementType} boxSize={3} />
-              {request.accepted_volunteer ? (
-                <Text>{request.accepted_volunteer.name}</Text>
-              ) : (
-                <Text>{request.applications_count}</Text>
-              )}
+              <Text>No applicants</Text>
             </HStack>
           )}
         </HStack>

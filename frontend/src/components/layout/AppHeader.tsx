@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { Avatar } from "@chakra-ui/react/avatar";
 import { Menu } from "@chakra-ui/react/menu";
-import { FaUser, FaSignOutAlt } from "react-icons/fa";
+import { FaUser, FaSignOutAlt, FaArrowLeft } from "react-icons/fa";
 import { Logo } from "../ui/logo";
 import { authService } from "../../services/auth.service";
 import { toaster } from "../ui/toaster";
@@ -18,8 +18,11 @@ import type { ElementType } from "react";
 import { useRef, useState } from "react";
 
 interface AppHeaderProps {
-  title: string;
+  title?: string;
   isVolunteer?: boolean;
+  variant?: "default" | "navigation";
+  onBack?: () => void;
+  logoSize?: string;
 }
 
 // Color palette for avatar backgrounds
@@ -30,7 +33,13 @@ const pickPalette = (name: string) => {
   return colorPalette[index];
 };
 
-export const AppHeader = ({ title, isVolunteer = false }: AppHeaderProps) => {
+export const AppHeader = ({
+  title,
+  isVolunteer = false,
+  variant = "default",
+  onBack,
+  logoSize = "1.3rem",
+}: AppHeaderProps) => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -89,33 +98,71 @@ export const AppHeader = ({ title, isVolunteer = false }: AppHeaderProps) => {
       <Container maxW="container.xl" mx="auto">
         <Box bg="white" borderRadius="full" boxShadow="lg" px={8} py={5}>
           <HStack justify="space-between" align="center">
-            {/* Logo - Left side */}
-            <Box
-              cursor="pointer"
-              onClick={() => navigate("/requests")}
-              transition="transform 0.2s"
-              position="relative"
-              top="2px"
-              _hover={{ transform: "scale(1.05)" }}
-            >
-              <Logo
-                actorType={isVolunteer ? "volunteer" : "help-seeker"}
-                size="1.3rem"
-              />
-            </Box>
+            {variant === "navigation" ? (
+              <Box>
+                <Box
+                  as="button"
+                  aria-label="Back"
+                  onClick={() => (onBack ? onBack() : navigate(-1))}
+                  display="inline-flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  borderRadius="full"
+                  px={3}
+                  py={2}
+                  cursor="pointer"
+                  transition="background-color 0.2s, transform 0.1s"
+                  _hover={{ bg: "gray.100" }}
+                  _active={{ bg: "gray.100", transform: "translateY(1px)" }}
+                >
+                  <Icon as={FaArrowLeft as ElementType} mr={2} />
+                  <Text as="span" fontWeight="semibold" color="gray.700">
+                    Back
+                  </Text>
+                </Box>
+              </Box>
+            ) : (
+              <Box
+                cursor="pointer"
+                onClick={() => navigate("/requests")}
+                transition="transform 0.2s"
+                position="relative"
+                top="2px"
+                _hover={{ transform: "scale(1.05)" }}
+              >
+                <Logo
+                  actorType={isVolunteer ? "volunteer" : "help-seeker"}
+                  size="1.3rem"
+                />
+              </Box>
+            )}
 
-            {/* Page Title - Center */}
-            <Heading
-              size="lg"
-              color="gray.800"
-              position="absolute"
-              left="50%"
-              transform="translateX(-50%)"
-              pointerEvents="none"
-              textAlign="center"
-            >
-              {title}
-            </Heading>
+            {variant === "navigation" ? (
+              <Box
+                position="absolute"
+                left="50%"
+                transform="translateX(-50%)"
+                cursor="pointer"
+                onClick={() => navigate("/requests")}
+              >
+                <Logo
+                  actorType={isVolunteer ? "volunteer" : "help-seeker"}
+                  size={logoSize || "1.6rem"}
+                />
+              </Box>
+            ) : (
+              <Heading
+                size="lg"
+                color="gray.800"
+                position="absolute"
+                left="50%"
+                transform="translateX(-50%)"
+                pointerEvents="none"
+                textAlign="center"
+              >
+                {title}
+              </Heading>
+            )}
 
             {/* User Greeting + Menu - Right side */}
             <HStack align="center" gap={5}>

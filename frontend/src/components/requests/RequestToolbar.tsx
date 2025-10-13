@@ -95,11 +95,12 @@ export const RequestToolbar = ({
             gap={2}
             p={2}
             mx="auto"
+            borderRadius="lg"
             _hover={{ boxShadow: "md", bg: "coral.800" }}
             transition="all 0.3s ease"
           >
             <Icon as={FaPlusCircle as ElementType} />
-            Create Request
+            Create New Request
           </Button>
         )}
         {/* Sort Options - Hidden in map view */}
