@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgis/postgis:15-3.5
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: kindly
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - app-network
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/kindly
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+volumes:
+  db_data: {}
+
+networks:
+  app-network:
+    driver: bridge
