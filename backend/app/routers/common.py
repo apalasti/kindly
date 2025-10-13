@@ -14,12 +14,6 @@ router = APIRouter(
 )
 
 
-class UpdateProfileBody(BaseModel):
-    name: str
-    date_of_birth: date
-    about_me: str
-
-
 @router.get("/profile")
 async def get_profile(session: SessionDep, user_data: UserDataDep):
     user = await session.get(User, user_data.id)
@@ -32,16 +26,10 @@ async def get_profile(session: SessionDep, user_data: UserDataDep):
     }
 
 
-@router.get("/users/{user_id}")
-async def get_user(session: SessionDep, user_id: int, _: UserDataDep):
-    user = await session.get(User, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return {
-        "success": True,
-        "data": user.serialize(),
-    }
+class UpdateProfileBody(BaseModel):
+    name: str
+    date_of_birth: date
+    about_me: str
 
 
 @router.put("/profile")
@@ -56,6 +44,18 @@ async def update_profile(session: SessionDep, user_data: UserDataDep, body: Upda
     await session.commit()
     await session.refresh(user)
     
+    return {
+        "success": True,
+        "data": user.serialize(),
+    }
+
+
+@router.get("/users/{user_id}")
+async def get_user(session: SessionDep, user_id: int, _: UserDataDep):
+    user = await session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
     return {
         "success": True,
         "data": user.serialize(),

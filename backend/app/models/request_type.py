@@ -11,6 +11,6 @@ class RequestType(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
 
-    requests: Mapped[List["Request"]] = relationship(  # pyright: ignore[reportUndefinedVariable]
+    requests: Mapped[List["Request"]] = relationship(
         secondary="type_of", back_populates="request_types"
     )

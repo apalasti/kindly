@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import TIMESTAMP, Boolean, ForeignKey, Integer, text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import UniqueConstraint
 
 from .base import Base
@@ -15,13 +15,19 @@ class Application(Base):
     )
     
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+
     request_id: Mapped[int] = mapped_column(Integer, ForeignKey("request.id"), nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
+
     is_accepted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    volunteer_rating: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    help_seeker_rating: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     applied_at: Mapped[Optional[datetime]] = mapped_column(
         TIMESTAMP(timezone=True),
         nullable=False,
         server_default=text("CURRENT_TIMESTAMP"),
     )
+
+    volunteer_rating: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    help_seeker_rating: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+
+    volunteer: Mapped["User"] = relationship("User")
+    request: Mapped["Request"] = relationship("Request")

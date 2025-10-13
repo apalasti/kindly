@@ -5,13 +5,13 @@ from sqlalchemy import TIMESTAMP, Boolean, Float, Integer, String, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from .request import Request
 
 
 class User(Base):
     __tablename__ = "user"
 
     id: Mapped[Optional[int]] = mapped_column(Integer, primary_key=True)
+
     name: Mapped[str] = mapped_column(String, nullable=False)
     email: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     password: Mapped[str] = mapped_column(String, nullable=False)
@@ -19,13 +19,6 @@ class User(Base):
     about_me: Mapped[str] = mapped_column(String, nullable=False)
     is_volunteer: Mapped[bool] = mapped_column(Boolean, nullable=False)
     avg_rating: Mapped[float] = mapped_column(Float, default=0.0)
-
-    requests: Mapped[List["Request"]] = relationship(
-        "Request", back_populates="creator"
-    )
-    applications: Mapped[List["Request"]] = relationship(
-        secondary="application", back_populates="applications"
-    )
 
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True),
@@ -37,6 +30,13 @@ class User(Base):
         nullable=False,
         server_default=text("CURRENT_TIMESTAMP"),
         onupdate=text("CURRENT_TIMESTAMP"),
+    )
+
+    requests: Mapped[List["Request"]] = relationship(
+        "Request", back_populates="creator"
+    )
+    applications: Mapped[List["Request"]] = relationship(
+        secondary="application", back_populates="applications"
     )
 
     def serialize(self):
