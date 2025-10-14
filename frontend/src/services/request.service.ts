@@ -1757,6 +1757,30 @@ const getCurrentUser = () => {
 };
 
 export const requestService = {
+  rateRequestParticipant: async (
+    requestId: number,
+    rating: number,
+    actor: { isVolunteer: boolean }
+  ): Promise<ApiResponse<{ request_id: number; rating: number }>> => {
+    if (USE_MOCK) {
+      await mockDelay(400);
+      return {
+        success: true,
+        data: { request_id: requestId, rating },
+        message: actor.isVolunteer
+          ? "Help seeker rated successfully"
+          : "Volunteer rated successfully",
+      } as ApiResponse<{ request_id: number; rating: number }>;
+    }
+    const endpoint = actor.isVolunteer
+      ? `/volunteer/requests/${requestId}/rate-seeker`
+      : `/help-seeker/requests/${requestId}/rate-volunteer`;
+    const response = await api.post<ApiResponse<{ request_id: number; rating: number }>>(
+      endpoint,
+      { rating }
+    );
+    return response.data;
+  },
   // Common endpoints
   getRequestTypes: async (): Promise<ApiResponse<RequestType[]>> => {
     if (USE_MOCK) {

@@ -22,6 +22,8 @@ import {
   FaClock,
   FaTimesCircle,
 } from "react-icons/fa";
+import { useDisclosure } from "@chakra-ui/react";
+import { LeaveReviewModal } from "./LeaveReviewModal";
 import { RequestDetailsBadges } from "./RequestDetailsBadges";
 import { ApplicantsSection } from "./ApplicantsSection";
 import type { Request, RequestApplication } from "../../types";
@@ -86,6 +88,23 @@ export const RequestDetails = ({
     request.accepted_volunteer.id !== currentUserId;
 
   const isEditDisabled = request.applications_count > 0;
+
+  // Review modal state
+  const {
+    open: isReviewOpen,
+    onOpen: onOpenReview,
+    onClose: onCloseReview,
+  } = useDisclosure();
+
+  // const canLeaveReview =
+  //   request.is_completed &&
+  //   ((isVolunteer && currentVolunteerAccepted) || (!isVolunteer && isCreator));
+
+  const canLeaveReview = true;
+
+  const handleReviewSubmitted = () => {
+    // TODO: optionally refresh request details or show toast
+  };
 
   const renderVolunteerAction = () => {
     if (otherVolunteerAccepted) {
@@ -177,97 +196,171 @@ export const RequestDetails = ({
     >
       <Stack gap={6}>
         {/* Header with Edit button for creators */}
-        <HStack justify="space-between" align="center">
-          <Text fontSize="3xl" fontWeight="bold" color="gray.800" flex={1}>
-            {request.name}
-          </Text>
-          {!isVolunteer && isCreator && (
-            <Tooltip.Root
-              openDelay={150}
-              disabled={!isEditDisabled}
-              positioning={{ placement: "left" }}
-            >
-              <Tooltip.Trigger asChild>
-                {/* Wrap disabled button so tooltip still triggers */}
-                <Box as="span">
-                  <Button
-                    onClick={handleEdit}
-                    bg="coral.500"
-                    variant="solid"
-                    size="md"
-                    borderRadius="full"
-                    px={5}
-                    boxShadow="sm"
-                    disabled={isEditDisabled}
-                    _hover={{
-                      boxShadow: "md",
-                      transform: "translateY(-1px)",
-                      bg: "coral.600",
-                    }}
-                    _active={{ transform: "translateY(0)" }}
-                    transition="all 0.15s ease"
-                  >
-                    <Icon as={FaEdit as ElementType} mr={2} />
-                    Edit
-                  </Button>
-                </Box>
-              </Tooltip.Trigger>
-              <Tooltip.Positioner>
-                <Tooltip.Content
-                  p={3}
-                  bg="gray.300"
-                  color="black"
-                  borderRadius="md"
-                >
-                  You can't edit a request once applications have been
-                  submitted.
-                </Tooltip.Content>
-              </Tooltip.Positioner>
-            </Tooltip.Root>
-          )}
-          {isVolunteer && request.creator && (
-            <Box>
-              <HStack
-                gap={4}
-                p={4}
-                borderRadius="lg"
-                cursor="pointer"
-                onClick={handleCreatorClick}
-                transition="all 0.2s"
-                _hover={{ bg: "gray.100", transform: "translateY(-2px)" }}
+        <Stack gap={4}>
+          <HStack justify="space-between" align="center" position="relative">
+            <Text fontSize="3xl" fontWeight="bold" color="gray.800" flex={1}>
+              {request.name}
+            </Text>
+            {canLeaveReview && (
+              <Button
+                size="md"
+                variant="solid"
+                bg="green.500"
+                color="white"
+                borderRadius="full"
+                boxShadow="md"
+                onClick={onOpenReview}
+                px={5}
+                _hover={{
+                  boxShadow: "md",
+                  transform: "translateY(-1px)",
+                  bg: "green.600",
+                }}
+                _active={{ transform: "translateY(0)" }}
+                transition="all 0.15s ease"
               >
-                <VStack align="flex-end" gap={0.5}>
-                  <Text
-                    fontWeight="semibold"
-                    fontSize="lg"
-                    color="gray.800"
-                    textAlign="right"
+                Leave review
+              </Button>
+            )}
+            {!isVolunteer && isCreator && (
+              <Tooltip.Root
+                openDelay={150}
+                disabled={!isEditDisabled}
+                positioning={{ placement: "left" }}
+              >
+                <Tooltip.Trigger asChild>
+                  {/* Wrap disabled button so tooltip still triggers */}
+                  <Box as="span">
+                    <Button
+                      onClick={handleEdit}
+                      bg="coral.500"
+                      variant="solid"
+                      size="md"
+                      borderRadius="full"
+                      px={5}
+                      boxShadow="sm"
+                      disabled={isEditDisabled}
+                      _hover={{
+                        boxShadow: "md",
+                        transform: "translateY(-1px)",
+                        bg: "coral.600",
+                      }}
+                      _active={{ transform: "translateY(0)" }}
+                      transition="all 0.15s ease"
+                    >
+                      <Icon as={FaEdit as ElementType} mr={2} />
+                      Edit
+                    </Button>
+                  </Box>
+                </Tooltip.Trigger>
+                <Tooltip.Positioner>
+                  <Tooltip.Content
+                    p={3}
+                    bg="gray.300"
+                    color="black"
+                    borderRadius="md"
                   >
-                    {request.creator.name}
-                  </Text>
-                  {request.creator.avg_rating && (
-                    <HStack gap={1} color="gray.800" px={2} borderRadius="xl">
-                      <Icon as={FaStar as ElementType} boxSize={4} />
-                      <Text
-                        fontSize="md"
-                        fontWeight="semibold"
-                        textAlign="right"
-                      >
-                        {request.creator.avg_rating.toFixed(1)}
-                      </Text>
-                    </HStack>
-                  )}
-                </VStack>
-                <Avatar.Root
-                  size="lg"
-                  colorPalette={pickPalette(request.creator.name)}
+                    You can't edit a request once applications have been
+                    submitted.
+                  </Tooltip.Content>
+                </Tooltip.Positioner>
+              </Tooltip.Root>
+            )}
+            {isVolunteer && request.creator && (
+              <Box>
+                <HStack
+                  gap={4}
+                  p={4}
+                  borderRadius="lg"
+                  cursor="pointer"
+                  onClick={handleCreatorClick}
+                  transition="all 0.2s"
+                  _hover={{ bg: "gray.100", transform: "translateY(-2px)" }}
                 >
-                  <Avatar.Fallback name={request.creator.name} />
-                </Avatar.Root>
-              </HStack>
-            </Box>
+                  <VStack align="flex-end" gap={0.5}>
+                    <Text
+                      fontWeight="semibold"
+                      fontSize="lg"
+                      color="gray.800"
+                      textAlign="right"
+                    >
+                      {request.creator.name}
+                    </Text>
+                    {request.creator.avg_rating && (
+                      <HStack gap={1} color="gray.800" px={2} borderRadius="xl">
+                        <Icon as={FaStar as ElementType} boxSize={4} />
+                        <Text
+                          fontSize="md"
+                          fontWeight="semibold"
+                          textAlign="right"
+                        >
+                          {request.creator.avg_rating.toFixed(1)}
+                        </Text>
+                      </HStack>
+                    )}
+                  </VStack>
+                  <Avatar.Root
+                    size="lg"
+                    colorPalette={pickPalette(request.creator.name)}
+                  >
+                    <Avatar.Fallback name={request.creator.name} />
+                  </Avatar.Root>
+                </HStack>
+              </Box>
+            )}
+          </HStack>
+          {/* Accepted Volunteer (creator view) */}
+          {!isVolunteer && isCreator && acceptedVolunteer && (
+            <HStack
+              gap={6}
+              p={4}
+              bg="green.50"
+              borderRadius="xl"
+              align="center"
+              cursor="pointer"
+              onClick={() => navigate(`/profile/${acceptedVolunteer.id}`)}
+              transition="all 0.2s"
+              _hover={{ bg: "green.100", transform: "translateY(-1px)" }}
+              alignSelf="flex-start"
+              w="auto"
+              maxW="full"
+            >
+              <Icon
+                as={FaCheckCircle as ElementType}
+                boxSize={8}
+                color="green.400"
+              />
+              <VStack align="start" gap={2} flex={1}>
+                <HStack>
+                  <Text fontSize="sm" fontWeight="semibold" color="green.600">
+                    Accepted volunteer
+                  </Text>
+                </HStack>
+                <HStack gap={3}>
+                  <Avatar.Root
+                    size="md"
+                    colorPalette={pickPalette(acceptedVolunteer.name)}
+                  >
+                    <Avatar.Fallback name={acceptedVolunteer.name} />
+                  </Avatar.Root>
+                  <VStack align="start" gap={0}>
+                    <Text fontWeight="semibold" color="gray.800" fontSize="md">
+                      {acceptedVolunteer.name}
+                    </Text>
+                    {acceptedVolunteer.avg_rating && (
+                      <HStack gap={1} color="gray.800">
+                        <Icon as={FaStar as ElementType} boxSize={3} />
+                        <Text fontSize="sm" fontWeight="semibold">
+                          {acceptedVolunteer.avg_rating.toFixed(1)}
+                        </Text>
+                      </HStack>
+                    )}
+                  </VStack>
+                </HStack>
+              </VStack>
+            </HStack>
           )}
-        </HStack>
+        </Stack>
 
         <Separator />
 
