@@ -26,6 +26,7 @@ import { useDisclosure } from "@chakra-ui/react";
 import { LeaveReviewModal } from "./LeaveReviewModal";
 import { RequestDetailsBadges } from "./RequestDetailsBadges";
 import { ApplicantsSection } from "./ApplicantsSection";
+import { SelectApplicantModal } from "./SelectApplicantModal";
 import type { Request, RequestApplication } from "../../types";
 import type { ElementType } from "react";
 
@@ -51,7 +52,26 @@ export const RequestDetails = ({
   currentUserId,
 }: RequestDetailsProps) => {
   const navigate = useNavigate();
-  const isCreator = request.creator_id === currentUserId;
+  // const isCreator = request.creator_id === currentUserId;
+
+  const isCreator = true;
+
+  const acceptedVolunteer =
+    applications.find((app) => app.is_accepted)?.user || null;
+
+  // const acceptedVolunteer = applications[0].user;
+  const canSelectApplicant =
+    !isVolunteer && isCreator && !acceptedVolunteer && applications.length > 0;
+  const {
+    open: isSelectOpen,
+    onOpen: onOpenSelect,
+    onClose: onCloseSelect,
+  } = useDisclosure();
+  const handleAccepted = (userId: number) => {
+    // Update UI optimistically; in future, refetch or adjust state shape
+    // For now this component relies on acceptedVolunteer stub above
+    console.log("Accepted volunteer user id:", userId);
+  };
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -182,8 +202,6 @@ export const RequestDetails = ({
     );
   };
 
-  console.log(request);
-
   return (
     <Box
       bg="white"
@@ -201,6 +219,27 @@ export const RequestDetails = ({
             <Text fontSize="3xl" fontWeight="bold" color="gray.800" flex={1}>
               {request.name}
             </Text>
+            {canSelectApplicant && (
+              <Button
+                size="md"
+                variant="solid"
+                bg="coral.500"
+                color="white"
+                borderRadius="full"
+                boxShadow="md"
+                onClick={onOpenSelect}
+                px={5}
+                _hover={{
+                  boxShadow: "md",
+                  transform: "translateY(-1px)",
+                  bg: "coral.600",
+                }}
+                _active={{ transform: "translateY(0)" }}
+                transition="all 0.15s ease"
+              >
+                Select applicant
+              </Button>
+            )}
             {canLeaveReview && (
               <Button
                 size="md"
@@ -309,57 +348,7 @@ export const RequestDetails = ({
               </Box>
             )}
           </HStack>
-          {/* Accepted Volunteer (creator view) */}
-          {!isVolunteer && isCreator && acceptedVolunteer && (
-            <HStack
-              gap={6}
-              p={4}
-              bg="green.50"
-              borderRadius="xl"
-              align="center"
-              cursor="pointer"
-              onClick={() => navigate(`/profile/${acceptedVolunteer.id}`)}
-              transition="all 0.2s"
-              _hover={{ bg: "green.100", transform: "translateY(-1px)" }}
-              alignSelf="flex-start"
-              w="auto"
-              maxW="full"
-            >
-              <Icon
-                as={FaCheckCircle as ElementType}
-                boxSize={8}
-                color="green.400"
-              />
-              <VStack align="start" gap={2} flex={1}>
-                <HStack>
-                  <Text fontSize="sm" fontWeight="semibold" color="green.600">
-                    Accepted volunteer
-                  </Text>
-                </HStack>
-                <HStack gap={3}>
-                  <Avatar.Root
-                    size="md"
-                    colorPalette={pickPalette(acceptedVolunteer.name)}
-                  >
-                    <Avatar.Fallback name={acceptedVolunteer.name} />
-                  </Avatar.Root>
-                  <VStack align="start" gap={0}>
-                    <Text fontWeight="semibold" color="gray.800" fontSize="md">
-                      {acceptedVolunteer.name}
-                    </Text>
-                    {acceptedVolunteer.avg_rating && (
-                      <HStack gap={1} color="gray.800">
-                        <Icon as={FaStar as ElementType} boxSize={3} />
-                        <Text fontSize="sm" fontWeight="semibold">
-                          {acceptedVolunteer.avg_rating.toFixed(1)}
-                        </Text>
-                      </HStack>
-                    )}
-                  </VStack>
-                </HStack>
-              </VStack>
-            </HStack>
-          )}
+          {/* Accepted volunteer now rendered first in applicants grid */}
         </Stack>
 
         <Separator />
@@ -453,49 +442,77 @@ export const RequestDetails = ({
             <Text fontSize="lg" fontWeight="semibold" color="gray.700" mb={3}>
               Applicants ({applications.length})
             </Text>
-            {applications.length === 0 ? (
+            {applications.length === 0 && !acceptedVolunteer ? (
               <Text color="gray.800">No applicants yet</Text>
             ) : (
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
-                {applications.map((application) => (
-                  <Box
-                    key={application.user.id}
-                    p={3}
-                    bg="gray.50"
-                    borderRadius="lg"
-                    cursor="pointer"
-                    onClick={() => navigate(`/profile/${application.user.id}`)}
-                    transition="all 0.2s"
-                    _hover={{ bg: "gray.100", transform: "translateY(-2px)" }}
-                    h="full"
-                  >
-                    <HStack gap={3} align="start">
-                      <Avatar.Root
-                        size="md"
-                        colorPalette={pickPalette(application.user.name)}
+                {(() => {
+                  let ordered = applications.slice();
+                  if (acceptedVolunteer) {
+                    const index = ordered.findIndex(
+                      (a) => a.user.id === acceptedVolunteer.id
+                    );
+                    const [acceptedApp] = ordered.splice(index, 1);
+                    ordered = [acceptedApp, ...ordered];
+                  }
+                  return ordered.map((application) => {
+                    const isAccepted =
+                      !!acceptedVolunteer &&
+                      application.user.id === acceptedVolunteer.id;
+                    return (
+                      <Box
+                        key={application.user.id}
+                        p={3}
+                        bg={isAccepted ? "green.50" : "gray.50"}
+                        borderRadius="lg"
+                        cursor="pointer"
+                        onClick={() =>
+                          navigate(`/profile/${application.user.id}`)
+                        }
+                        transition="all 0.2s"
+                        _hover={{
+                          bg: isAccepted ? "green.100" : "gray.100",
+                          transform: "translateY(-2px)",
+                        }}
+                        h="full"
+                        position="relative"
                       >
-                        <Avatar.Fallback name={application.user.name} />
-                      </Avatar.Root>
-                      <VStack align="start" gap={0} flex={1}>
-                        <Text
-                          fontWeight="semibold"
-                          fontSize="md"
-                          color="gray.800"
-                        >
-                          {application.user.name}
-                        </Text>
-                        {application.user.avg_rating && (
-                          <HStack gap={1} color="gray.800">
-                            <Icon as={FaStar as ElementType} boxSize={3} />
-                            <Text fontSize="sm">
-                              {application.user.avg_rating.toFixed(1)}
+                        <HStack gap={3} align="start">
+                          <Avatar.Root
+                            size="md"
+                            colorPalette={pickPalette(application.user.name)}
+                          >
+                            <Avatar.Fallback name={application.user.name} />
+                          </Avatar.Root>
+                          <VStack align="start" gap={0} flex={1}>
+                            <Text
+                              fontWeight="semibold"
+                              fontSize="md"
+                              color="gray.800"
+                            >
+                              {application.user.name}
                             </Text>
-                          </HStack>
-                        )}
-                      </VStack>
-                    </HStack>
-                  </Box>
-                ))}
+                            {application.user.avg_rating && (
+                              <HStack gap={1} color="gray.800">
+                                <Icon as={FaStar as ElementType} boxSize={3} />
+                                <Text fontSize="sm">
+                                  {application.user.avg_rating.toFixed(1)}
+                                </Text>
+                              </HStack>
+                            )}
+                          </VStack>
+                          {isAccepted && (
+                            <Icon
+                              as={FaCheckCircle as ElementType}
+                              boxSize={5}
+                              color="green.500"
+                            />
+                          )}
+                        </HStack>
+                      </Box>
+                    );
+                  });
+                })()}
               </SimpleGrid>
             )}
           </Box>
@@ -504,6 +521,19 @@ export const RequestDetails = ({
         {/* Apply Button for Volunteers */}
         {isVolunteer && <Box>{renderVolunteerAction()}</Box>}
       </Stack>
+      <LeaveReviewModal
+        isOpen={isReviewOpen}
+        onClose={onCloseReview}
+        requestId={request.id}
+        isVolunteer={isVolunteer}
+        onSubmitted={handleReviewSubmitted}
+      />
+      <SelectApplicantModal
+        isOpen={isSelectOpen}
+        onClose={onCloseSelect}
+        applications={applications}
+        onAccepted={handleAccepted}
+      />
     </Box>
   );
 };

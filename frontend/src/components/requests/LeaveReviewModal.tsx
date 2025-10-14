@@ -3,6 +3,7 @@ import { Button, HStack, Stack, Icon, Dialog, Portal } from "@chakra-ui/react";
 import type { ElementType } from "react";
 import { FaStar } from "react-icons/fa";
 import { requestService } from "../../services/request.service";
+import { toaster } from "../ui/toaster";
 
 interface LeaveReviewModalProps {
   isOpen: boolean;
@@ -35,6 +36,12 @@ export const LeaveReviewModal = ({
       });
       onSubmitted?.(selectedRating);
       setDidSave(true);
+      toaster.create({
+        title: "Success",
+        description: "Your review has been submitted",
+        type: "success",
+        duration: 5000,
+      });
       onClose();
     } finally {
       setIsSaving(false);
