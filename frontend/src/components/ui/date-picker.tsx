@@ -98,6 +98,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
                 readOnly
                 cursor="pointer"
                 size={size}
+                borderRadius="md"
                 px={5}
                 py={4}
                 pr={selected ? "4.5rem" : "3rem"}

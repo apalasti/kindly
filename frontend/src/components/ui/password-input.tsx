@@ -69,6 +69,8 @@ export const PasswordInput = React.forwardRef<
     <InputGroup
       w="full"
       overflow="hidden"
+      borderRadius="md"
+      bg="white"
       endElement={
         <VisibilityTrigger
           disabled={rest.disabled}
@@ -89,6 +91,7 @@ export const PasswordInput = React.forwardRef<
         ref={mergeRefs(ref, inputRef)}
         w="full"
         type={visible ? "text" : "password"}
+        borderRadius="md"
       />
     </InputGroup>
   );
@@ -105,8 +108,8 @@ const VisibilityTrigger = React.forwardRef<HTMLButtonElement, ButtonProps>(
         variant="ghost"
         aria-label="Toggle password visibility"
         borderRadius="md"
-        height="calc(100% - 8px)"
-        mx="1.5"
+        height="100%"
+        mx="1"
         _hover={{
           bg: "blackAlpha.5",
         }}

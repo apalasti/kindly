@@ -4,10 +4,9 @@ import { LoginPage } from "./pages/LoginPage";
 import { RequestsPage } from "./pages/RequestsPage";
 import { RequestDetailsPage } from "./pages/RequestDetailsPage";
 import { RequestEditPage } from "./pages/RequestEditPage";
-// TODO: Import page components as they are created
 import { CreateRequestPage } from "./pages/CreateRequestPage";
-// import { ProfilePage } from "./pages/ProfilePage";
-// import { EditProfilePage } from "./pages/EditProfilePage";
+import { ProfilePage } from "./pages/ProfilePage";
+import { EditProfilePage } from "./pages/EditProfilePage";
 
 function App() {
   return (
@@ -26,8 +25,8 @@ function App() {
       <Route path="/requests/:id/edit" element={<RequestEditPage />} />
 
       {/* Profile routes */}
-      {/* <Route path="/profile/:id" element={<ProfilePage />} /> */}
-      {/* <Route path="/profile/:id/edit" element={<EditProfilePage />} /> */}
+      <Route path="/profile/:id" element={<ProfilePage />} />
+      <Route path="/profile/:id/edit" element={<EditProfilePage />} />
 
       {/* Fallback for unknown routes */}
       <Route path="*" element={<Navigate to="/requests" replace />} />

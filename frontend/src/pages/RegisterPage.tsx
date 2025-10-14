@@ -1,52 +1,24 @@
-import { useMemo, useState, type ElementType } from "react";
-import {
-  Box,
-  Button,
-  Container,
-  Input,
-  Textarea,
-  Stack,
-  Text,
-  HStack,
-  Icon,
-} from "@chakra-ui/react";
-import { Field } from "@chakra-ui/react/field";
+import { useState, type ElementType } from "react";
+import { Box, Container, Stack, Text, HStack, Icon } from "@chakra-ui/react";
 import { useForm, Controller, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { FaHandHoldingHeart, FaHandsHelping } from "react-icons/fa";
-import { registerSchema, type RegisterFormData } from "../utils/validators";
+import type { RegisterFormData } from "../utils/validators";
 import { authService } from "../services/auth.service";
-import {
-  PasswordInput,
-  PasswordStrengthMeter,
-} from "../components/ui/password-input";
-import { DatePicker } from "../components/ui/date-picker";
 import { toaster } from "../components/ui/toaster";
-import { passwordStrength, type Options } from "check-password-strength";
 import { Logo } from "../components/ui/logo";
 import { getBackgroundStyle, getAccentColor } from "../theme/backgrounds";
 import { ActorTypeSwitch } from "../components/ui/actor-type-switch";
+import { ProfileForm } from "../components/profile/ProfileForm";
 import { PageLayout } from "../components/layout/PageLayout";
 
 export const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  // Password visibility managed inside ProfileForm
   const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-    control,
-    setValue,
-  } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-    mode: "onTouched",
-    defaultValues: {
-      is_volunteer: false,
-    },
+  const { control, setValue } = useForm<RegisterFormData>({
+    defaultValues: { is_volunteer: false },
   });
 
   const isVolunteer = useWatch({
@@ -54,23 +26,32 @@ export const RegisterPage = () => {
     name: "is_volunteer",
   });
 
-  const onSubmit = async (data: RegisterFormData) => {
+  interface BasicProfilePayload {
+    first_name: string;
+    last_name: string;
+    email: string;
+    password?: string;
+    repeat_password?: string;
+    date_of_birth: string;
+    about_me: string;
+  }
+  const handleProfileSubmit = async (data: BasicProfilePayload) => {
     setIsLoading(true);
     try {
-      // Format date to YYYY-MM-DD for backend
       const formattedDate = data.date_of_birth
         ? new Date(data.date_of_birth).toISOString().split("T")[0]
         : "";
-
+      if (!data.password) {
+        throw new Error("Password is required");
+      }
       const registerData = {
-        name: `${data.first_name} ${data.last_name}`,
+        name: `${data.first_name} ${data.last_name}`.trim(),
         email: data.email,
         password: data.password,
         date_of_birth: formattedDate,
         about_me: data.about_me,
-        is_volunteer: data.is_volunteer,
+        is_volunteer: isVolunteer,
       };
-
       const response = await authService.register(registerData);
       toaster.create({
         title: "Registration successful!",
@@ -100,22 +81,7 @@ export const RegisterPage = () => {
   const accentColorShade = getAccentColor(isVolunteer, true);
   const backgroundStyle = getBackgroundStyle(isVolunteer);
 
-  // Password strength using check-password-strength
-  const strengthOptions = useMemo<Options<string>>(
-    () => [
-      { id: 1, value: "weak", minDiversity: 0, minLength: 0 },
-      { id: 2, value: "medium", minDiversity: 2, minLength: 6 },
-      { id: 3, value: "strong", minDiversity: 3, minLength: 8 },
-      { id: 4, value: "very-strong", minDiversity: 4, minLength: 10 },
-    ],
-    []
-  );
-
-  const passwordValue = watch("password");
-  const strength = useMemo(() => {
-    if (!passwordValue) return 0;
-    return passwordStrength(passwordValue, strengthOptions).id;
-  }, [passwordValue, strengthOptions]);
+  // Password strength handled inside ProfileForm
 
   return (
     <PageLayout
@@ -209,10 +175,8 @@ export const RegisterPage = () => {
             </Stack>
           </Box>
 
-          {/* Registration Form */}
+          {/* Registration Form (shared ProfileForm) */}
           <Box
-            as="form"
-            onSubmit={handleSubmit(onSubmit)}
             bg="white"
             p={8}
             borderRadius="2xl"
@@ -224,167 +188,33 @@ export const RegisterPage = () => {
             borderColor={accentColor}
             transition="all 0.3s ease"
           >
-            <Stack gap={6}>
-              <HStack w="full" gap={4} align="start">
-                <Field.Root invalid={!!errors.first_name} flex="1">
-                  <Field.Label>First Name</Field.Label>
-                  <Input
-                    {...register("first_name")}
-                    placeholder="Enter your first name"
-                    size="md"
-                    px={5}
-                    py={4}
-                  />
-                  {errors.first_name?.message && (
-                    <Field.ErrorText>
-                      {errors.first_name.message}
-                    </Field.ErrorText>
-                  )}
-                </Field.Root>
-
-                <Field.Root invalid={!!errors.last_name} flex="1">
-                  <Field.Label>Last Name</Field.Label>
-                  <Input
-                    {...register("last_name")}
-                    placeholder="Enter your last name"
-                    size="md"
-                    px={5}
-                    py={4}
-                  />
-                  {errors.last_name?.message && (
-                    <Field.ErrorText>
-                      {errors.last_name.message}
-                    </Field.ErrorText>
-                  )}
-                </Field.Root>
-              </HStack>
-
-              <Field.Root invalid={!!errors.email}>
-                <Field.Label>Email Address</Field.Label>
-                <Input
-                  {...register("email")}
-                  type="email"
-                  placeholder="your.email@example.com"
-                  size="md"
-                  px={5}
-                  py={4}
-                />
-                {errors.email?.message && (
-                  <Field.ErrorText>{errors.email.message}</Field.ErrorText>
-                )}
-              </Field.Root>
-
-              <HStack w="full" gap={4} align="start">
-                <Field.Root invalid={!!errors.password} flex={1}>
-                  <Field.Label>Password</Field.Label>
-                  <Stack gap="3" w="full">
-                    <PasswordInput
-                      {...register("password")}
-                      placeholder="Create a strong password"
-                      visible={isPasswordVisible}
-                      onVisibleChange={setIsPasswordVisible}
-                      px={5}
-                      py={4}
-                    />
-                    <PasswordStrengthMeter value={strength} />
-                  </Stack>
-                  {errors.password?.message && (
-                    <Field.ErrorText>{errors.password.message}</Field.ErrorText>
-                  )}
-                </Field.Root>
-
-                <Field.Root invalid={!!errors.repeat_password} flex={1}>
-                  <Field.Label>Repeat Password</Field.Label>
-                  <PasswordInput
-                    {...register("repeat_password")}
-                    placeholder="Re-enter your password"
-                    visible={isPasswordVisible}
-                    onVisibleChange={setIsPasswordVisible}
-                    px={5}
-                    py={4}
-                  />
-                  {errors.repeat_password?.message && (
-                    <Field.ErrorText>
-                      {errors.repeat_password.message}
-                    </Field.ErrorText>
-                  )}
-                </Field.Root>
-              </HStack>
-
-              <Field.Root invalid={!!errors.date_of_birth}>
-                <Field.Label>Date of Birth</Field.Label>
-                <Controller
-                  name="date_of_birth"
-                  control={control}
-                  render={({ field }) => (
-                    <DatePicker
-                      selected={field.value ? new Date(field.value) : null}
-                      onChange={(date) => {
-                        field.onChange(date ? date.toISOString() : "");
-                      }}
-                      size="lg"
-                    />
-                  )}
-                />
-                {errors.date_of_birth?.message && (
-                  <Field.ErrorText>
-                    {errors.date_of_birth.message}
-                  </Field.ErrorText>
-                )}
-              </Field.Root>
-
-              <Field.Root invalid={!!errors.about_me}>
-                <Field.Label>About Me</Field.Label>
-                <Textarea
-                  {...register("about_me")}
-                  placeholder={"Tell us about yourself..."}
-                  size="md"
-                  minHeight={"100px"}
-                  rows={4}
-                  transition="all 0.3s ease"
-                  px={5}
-                  py={4}
-                />
-                {errors.about_me?.message && (
-                  <Field.ErrorText>{errors.about_me.message}</Field.ErrorText>
-                )}
-              </Field.Root>
-
-              <Button
-                type="submit"
-                size="lg"
-                w="full"
-                bg={accentColor}
-                color="white"
-                _hover={{
-                  bg: accentColorShade,
-                  transform: "translateY(-2px)",
-                  boxShadow: "lg",
-                }}
-                _active={{
-                  transform: "translateY(0)",
-                }}
-                loading={isLoading}
-                loadingText="Creating account..."
-                transition="all 0.2s ease"
-              >
-                Create Account
-              </Button>
-
-              <Text color="primary.400" textAlign="center">
-                Already have an account?{" "}
-                <Text
-                  as="span"
-                  color={accentColor}
-                  fontWeight="semibold"
-                  cursor="pointer"
-                  onClick={() => navigate("/login")}
-                  _hover={{ textDecoration: "underline" }}
-                >
-                  Sign in
+            <ProfileForm
+              mode="register"
+              onSubmit={handleProfileSubmit}
+              onCancel={() => navigate("/login")}
+              isSubmitting={isLoading}
+              accentColor={accentColor}
+              accentColorShade={accentColorShade}
+              submitLabel="Create Account"
+              cancelLabel="Cancel"
+              showCancel={false}
+              hideSubmitIcon
+              footer={
+                <Text color="primary.400" textAlign="center">
+                  Already have an account?{" "}
+                  <Text
+                    as="span"
+                    color={accentColor}
+                    fontWeight="semibold"
+                    cursor="pointer"
+                    onClick={() => navigate("/login")}
+                    _hover={{ textDecoration: "underline" }}
+                  >
+                    Sign in
+                  </Text>
                 </Text>
-              </Text>
-            </Stack>
+              }
+            />
           </Box>
         </Stack>
       </Container>
