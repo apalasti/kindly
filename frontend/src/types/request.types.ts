@@ -30,7 +30,8 @@ export interface Request {
 export interface RequestApplication {
   user: {
     id: number;
-    name: string;
+    first_name: string;
+    last_name: string;
     avg_rating?: number;
   };
   is_accepted: boolean;

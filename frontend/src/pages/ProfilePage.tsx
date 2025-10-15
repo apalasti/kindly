@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Container, Center, Stack, Spinner, Text } from "@chakra-ui/react";
+import { Container, Center, Stack, Text } from "@chakra-ui/react";
 import { AppLayout } from "../layouts/AppLayout";
 import { ProfileDetails } from "../components/profile/ProfileDetails";
 import { userService } from "../services/user.service";
 import type { User } from "../types";
+import { LoadingState } from "../components/ui/loading-state";
 
 export const ProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -97,15 +98,10 @@ export const ProfilePage = () => {
         onBack={() => navigate(-1)}
         isVolunteer={currentUserIsVolunteer}
       >
-        <Center py={12}>
-          <Stack align="center" gap={4}>
-            <Spinner
-              size="xl"
-              color={currentUserIsVolunteer ? "teal.500" : "coral.500"}
-            />
-            <Text color="gray.600">Loading profile...</Text>
-          </Stack>
-        </Center>
+        <LoadingState
+          message="Loading profile..."
+          colorScheme={currentUserIsVolunteer ? "teal.500" : "coral.500"}
+        />
       </AppLayout>
     );
   }

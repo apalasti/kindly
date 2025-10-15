@@ -45,7 +45,8 @@ export const RegisterPage = () => {
         throw new Error("Password is required");
       }
       const registerData = {
-        name: `${data.first_name} ${data.last_name}`.trim(),
+        first_name: data.first_name,
+        last_name: data.last_name,
         email: data.email,
         password: data.password,
         date_of_birth: formattedDate,

@@ -32,7 +32,7 @@ export const LeaveReviewModal = ({
     try {
       setIsSaving(true);
       await requestService.rateRequestParticipant(requestId, selectedRating, {
-        isVolunteer,
+        is_volunteer: isVolunteer,
       });
       onSubmitted?.(selectedRating);
       setDidSave(true);

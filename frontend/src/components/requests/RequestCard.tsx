@@ -10,14 +10,8 @@ import {
 } from "react-icons/fa";
 import type { Request } from "../../types";
 import type { ElementType } from "react";
-
-// Color palette for avatar backgrounds
-const colorPalette = ["red", "blue", "green", "yellow", "purple", "orange"];
-
-const pickPalette = (name: string) => {
-  const index = name.charCodeAt(0) % colorPalette.length;
-  return colorPalette[index];
-};
+import { getFullName, pickAvatarPalette } from "../../utils/avatar";
+import { formatDate } from "../../utils/date";
 
 interface RequestCardProps {
   request: Request;
@@ -61,18 +55,6 @@ export const RequestCard = ({
   };
 
   const statusInfo = getStatusInfo();
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   // Truncate description
   const truncateText = (text: string, maxLength: number) => {
@@ -170,7 +152,7 @@ export const RequestCard = ({
           {/* Start date */}
           <HStack gap={1} color="gray.500" fontSize="sm">
             <Icon as={FaCalendarAlt as ElementType} boxSize={3} />
-            <Text>{formatDate(request.start)}</Text>
+            <Text>{formatDate(request.start, { format: "short" })}</Text>
           </HStack>
 
           {/* Reward (for volunteers) or Avatar group (for help seekers) */}
@@ -194,11 +176,19 @@ export const RequestCard = ({
                   <Avatar.Root
                     key={application.user.id}
                     size="sm"
-                    colorPalette={pickPalette(application.user.name)}
+                    colorPalette={pickAvatarPalette(
+                      application.user.first_name,
+                      application.user.last_name
+                    )}
                     borderWidth="2px"
                     borderColor="white"
                   >
-                    <Avatar.Fallback name={application.user.name} />
+                    <Avatar.Fallback
+                      name={getFullName(
+                        application.user.first_name,
+                        application.user.last_name
+                      )}
+                    />
                   </Avatar.Root>
                 ))}
               {request.applications.length > displayedAvatars && (

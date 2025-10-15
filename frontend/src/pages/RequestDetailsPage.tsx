@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Container, Stack, Spinner, Center, Text } from "@chakra-ui/react";
+import { Container, Stack, Center, Text } from "@chakra-ui/react";
 import { AppLayout } from "../layouts/AppLayout";
 import { RequestDetails } from "../components/requests/RequestDetails";
 import { requestService } from "../services/request.service";
 import type { Request } from "../types";
+import { LoadingState } from "../components/ui/loading-state";
 
 export const RequestDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,7 +15,7 @@ export const RequestDetailsPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Mock user data - in real app, this would come from auth context
-  const isVolunteer = false;
+  const isVolunteer = true;
   const currentUserId = 2;
 
   useEffect(() => {
@@ -64,15 +65,10 @@ export const RequestDetailsPage = () => {
         onBack={() => navigate(-1)}
       >
         <Container maxW="container.xl" mx="auto">
-          <Center py={12}>
-            <Stack align="center" gap={4}>
-              <Spinner
-                size="xl"
-                color={isVolunteer ? "teal.500" : "coral.500"}
-              />
-              <Text color="gray.600">Loading request details...</Text>
-            </Stack>
-          </Center>
+          <LoadingState
+            message="Loading request details..."
+            colorScheme={isVolunteer ? "teal.500" : "coral.500"}
+          />
         </Container>
       </AppLayout>
     );

@@ -22,6 +22,7 @@ import {
 import { FaUsers, FaStar } from "react-icons/fa";
 import type { RequestApplication } from "../../types";
 import type { ElementType } from "react";
+import { getFullName, pickAvatarPalette } from "../../utils/avatar";
 
 // Volunteer view - only sees count
 interface VolunteerApplicantsProps {
@@ -39,14 +40,6 @@ interface HelpSeekerApplicantsProps {
 type ApplicantsSectionProps =
   | VolunteerApplicantsProps
   | HelpSeekerApplicantsProps;
-
-// Color palette for avatar backgrounds
-const colorPalette = ["red", "blue", "green", "yellow", "purple", "orange"];
-
-const pickPalette = (name: string) => {
-  const index = name.charCodeAt(0) % colorPalette.length;
-  return colorPalette[index];
-};
 
 export const ApplicantsSection = (props: ApplicantsSectionProps) => {
   const navigate = useNavigate();
@@ -118,11 +111,19 @@ export const ApplicantsSection = (props: ApplicantsSectionProps) => {
               <Avatar.Root
                 key={application.user.id}
                 size="lg"
-                colorPalette={pickPalette(application.user.name)}
+                colorPalette={pickAvatarPalette(
+                  application.user.first_name,
+                  application.user.last_name
+                )}
                 borderWidth="2px"
                 borderColor="white"
               >
-                <Avatar.Fallback name={application.user.name} />
+                <Avatar.Fallback
+                  name={getFullName(
+                    application.user.first_name,
+                    application.user.last_name
+                  )}
+                />
               </Avatar.Root>
             ))}
             {remainingCount > 0 && (
@@ -165,13 +166,16 @@ export const ApplicantsSection = (props: ApplicantsSectionProps) => {
                   <HStack gap={3} w="full">
                     <Avatar.Root
                       size="md"
-                      colorPalette={pickPalette(application.user.name)}
+                      colorPalette={pickAvatarPalette(
+                        application.user.first_name,
+                        application.user.last_name
+                      )}
                     >
-                      <Avatar.Fallback name={application.user.name} />
+                      <Avatar.Fallback name={application.user.first_name} />
                     </Avatar.Root>
                     <VStack align="start" gap={0} flex={1}>
                       <Text fontWeight="semibold" fontSize="md">
-                        {application.user.name}
+                        {`${application.user.first_name} ${application.user.last_name}`}
                       </Text>
                       {application.user.avg_rating && (
                         <HStack gap={1} color="grey.700">

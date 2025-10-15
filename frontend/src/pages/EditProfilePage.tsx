@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Container, Center, Stack, Spinner, Text, Box } from "@chakra-ui/react";
+import { Container, Stack, Text, Box } from "@chakra-ui/react";
 import { AppLayout } from "../layouts/AppLayout";
+import { LoadingState } from "../components/ui/loading-state";
 import {
   ProfileForm,
   type ProfileFormData,
@@ -20,8 +21,10 @@ export const EditProfilePage = () => {
 
   // Get current user info from localStorage (mock)
   // const currentUserId = parseInt(localStorage.getItem("mock_user_id") || "1");
+  // const currentUserIsVolunteer = localStorage.getItem("is_volunteer") === "true";
   // const isOwnProfile = currentUserId === parseInt(id || "0");
 
+  const currentUserIsVolunteer = false;
   const isOwnProfile = true;
 
   useEffect(() => {
@@ -125,20 +128,15 @@ export const EditProfilePage = () => {
   if (isLoading || !user) {
     return (
       <AppLayout
-        title=""
+        title="Edit Profile"
         headerVariant="navigation"
         onBack={() => navigate(-1)}
-        isVolunteer={user?.is_volunteer || false}
+        isVolunteer={currentUserIsVolunteer}
       >
-        <Center py={12}>
-          <Stack align="center" gap={4}>
-            <Spinner
-              size="xl"
-              color={user?.is_volunteer ? "teal.500" : "coral.500"}
-            />
-            <Text color="gray.600">Loading profile...</Text>
-          </Stack>
-        </Center>
+        <LoadingState
+          message="Loading profile..."
+          colorScheme={currentUserIsVolunteer ? "teal.500" : "coral.500"}
+        />
       </AppLayout>
     );
   }

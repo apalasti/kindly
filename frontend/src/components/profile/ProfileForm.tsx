@@ -120,9 +120,6 @@ export const ProfileForm = ({
 }: ProfileFormProps) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  // Parse initial name into first and last
-  const [firstName, lastName] = initialData?.name?.split(" ") || ["", ""];
-
   const activeSchema = useMemo(() => buildSchema(mode), [mode]);
 
   const {
@@ -135,8 +132,8 @@ export const ProfileForm = ({
     resolver: zodResolver(activeSchema),
     mode: "onTouched",
     defaultValues: {
-      first_name: firstName,
-      last_name: lastName,
+      first_name: initialData?.first_name || "",
+      last_name: initialData?.last_name || "",
       email: initialData?.email || "",
       date_of_birth: initialData?.date_of_birth || "",
       about_me: initialData?.about_me || "",

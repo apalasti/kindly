@@ -29,6 +29,8 @@ import { ApplicantsSection } from "./ApplicantsSection";
 import { SelectApplicantModal } from "./SelectApplicantModal";
 import type { Request, RequestApplication } from "../../types";
 import type { ElementType } from "react";
+import { getFullName, pickAvatarPalette } from "../../utils/avatar";
+import { formatDateFull } from "../../utils/date";
 
 interface RequestDetailsProps {
   request: Request;
@@ -36,14 +38,6 @@ interface RequestDetailsProps {
   isVolunteer: boolean;
   currentUserId: number;
 }
-
-// Color palette for avatar backgrounds
-const colorPalette = ["red", "blue", "green", "yellow", "purple", "orange"];
-
-const pickPalette = (name: string) => {
-  const index = name.charCodeAt(0) % colorPalette.length;
-  return colorPalette[index];
-};
 
 export const RequestDetails = ({
   request,
@@ -71,18 +65,6 @@ export const RequestDetails = ({
     // Update UI optimistically; in future, refetch or adjust state shape
     // For now this component relies on acceptedVolunteer stub above
     console.log("Accepted volunteer user id:", userId);
-  };
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   const handleApply = () => {
@@ -323,7 +305,10 @@ export const RequestDetails = ({
                       color="gray.800"
                       textAlign="right"
                     >
-                      {request.creator.name}
+                      {getFullName(
+                        request.creator.first_name,
+                        request.creator.last_name
+                      )}
                     </Text>
                     {request.creator.avg_rating && (
                       <HStack gap={1} color="gray.800" px={2} borderRadius="xl">
@@ -340,9 +325,17 @@ export const RequestDetails = ({
                   </VStack>
                   <Avatar.Root
                     size="lg"
-                    colorPalette={pickPalette(request.creator.name)}
+                    colorPalette={pickAvatarPalette(
+                      request.creator.first_name,
+                      request.creator.last_name
+                    )}
                   >
-                    <Avatar.Fallback name={request.creator.name} />
+                    <Avatar.Fallback
+                      name={getFullName(
+                        request.creator.first_name,
+                        request.creator.last_name
+                      )}
+                    />
                   </Avatar.Root>
                 </HStack>
               </Box>
@@ -392,7 +385,7 @@ export const RequestDetails = ({
                 <Text as="span" fontWeight="semibold">
                   Start:
                 </Text>{" "}
-                {formatDate(request.start)}
+                {formatDateFull(request.start)}
               </Text>
             </HStack>
             <HStack gap={2} color="gray.600">
@@ -401,7 +394,7 @@ export const RequestDetails = ({
                 <Text as="span" fontWeight="semibold">
                   End:
                 </Text>{" "}
-                {formatDate(request.end)}
+                {formatDateFull(request.end)}
               </Text>
             </HStack>
           </VStack>
@@ -480,9 +473,17 @@ export const RequestDetails = ({
                         <HStack gap={3} align="start">
                           <Avatar.Root
                             size="md"
-                            colorPalette={pickPalette(application.user.name)}
+                            colorPalette={pickAvatarPalette(
+                              application.user.first_name,
+                              application.user.last_name
+                            )}
                           >
-                            <Avatar.Fallback name={application.user.name} />
+                            <Avatar.Fallback
+                              name={getFullName(
+                                application.user.first_name,
+                                application.user.last_name
+                              )}
+                            />
                           </Avatar.Root>
                           <VStack align="start" gap={0} flex={1}>
                             <Text
@@ -490,7 +491,10 @@ export const RequestDetails = ({
                               fontSize="md"
                               color="gray.800"
                             >
-                              {application.user.name}
+                              {getFullName(
+                                application.user.first_name,
+                                application.user.last_name
+                              )}
                             </Text>
                             {application.user.avg_rating && (
                               <HStack gap={1} color="gray.800">

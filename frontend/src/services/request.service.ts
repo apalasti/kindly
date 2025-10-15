@@ -51,7 +51,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 1,
       creator: {
         id: 1,
-        name: "John Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
         date_of_birth: "1950-05-15",
         about_me: "Retired teacher needing occasional help",
@@ -67,7 +68,8 @@ const generateMockRequests = (): Request[] => {
         {
           user: {
             id: 10,
-            name: "Bob Wilson",
+            first_name: "Bob",
+            last_name: "Wilson",
             avg_rating: 4.7,
           },
           is_accepted: false,
@@ -78,7 +80,8 @@ const generateMockRequests = (): Request[] => {
         {
           user: {
             id: 11,
-            name: "Alice Johnson",
+            first_name: "Alice",
+            last_name: "Johnson",
             avg_rating: 4.9,
           },
           is_accepted: false,
@@ -89,7 +92,8 @@ const generateMockRequests = (): Request[] => {
         {
           user: {
             id: 12,
-            name: "Charlie Brown",
+            first_name: "Charlie",
+            last_name: "Brown",
             avg_rating: 4.6,
           },
           is_accepted: false,
@@ -100,7 +104,8 @@ const generateMockRequests = (): Request[] => {
         {
           user: {
             id: 13,
-            name: "Janet Lee",
+            first_name: "Janet",
+            last_name: "Lee",
             avg_rating: 4.6,
           },
           is_accepted: false,
@@ -111,7 +116,8 @@ const generateMockRequests = (): Request[] => {
         {
           user: {
             id: 14,
-            name: "Bruce Wayne",
+            first_name: "Bruce",
+            last_name: "Wayne",
             avg_rating: 4.6,
           },
           is_accepted: false,
@@ -144,7 +150,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 1,
       creator: {
         id: 2,
-        name: "Mary Smith",
+        first_name: "Mary",
+        last_name: "Smith",
         email: "mary@example.com",
         date_of_birth: "1945-08-20",
         about_me: "Living independently but need occasional assistance",
@@ -158,7 +165,8 @@ const generateMockRequests = (): Request[] => {
       applications_count: 5,
       accepted_volunteer: {
         id: 10,
-        name: "Bob Wilson",
+        first_name: "Bob",
+        last_name: "Wilson",
         email: "bob@example.com",
         date_of_birth: "1985-03-10",
         about_me: "Happy to help!",
@@ -190,7 +198,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 1,
       creator: {
         id: 1,
-        name: "John Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
         date_of_birth: "1950-05-15",
         about_me: "Retired teacher needing occasional help",
@@ -204,7 +213,8 @@ const generateMockRequests = (): Request[] => {
       applications_count: 2,
       accepted_volunteer: {
         id: 11,
-        name: "Alice Johnson",
+        first_name: "Alice",
+        last_name: "Johnson",
         email: "alice@example.com",
         date_of_birth: "1990-07-22",
         about_me: "Handy with tools!",
@@ -236,7 +246,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 3,
       creator: {
         id: 3,
-        name: "Robert Brown",
+        first_name: "Robert",
+        last_name: "Brown",
         email: "robert@example.com",
         date_of_birth: "1955-12-01",
         about_me: "Recently retired, staying active",
@@ -270,7 +281,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 2,
       creator: {
         id: 2,
-        name: "Mary Smith",
+        first_name: "Mary",
+        last_name: "Smith",
         email: "mary@example.com",
         date_of_birth: "1945-08-20",
         about_me: "Living independently but need occasional assistance",
@@ -314,7 +326,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 1,
       creator: {
         id: 1,
-        name: "John Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
         date_of_birth: "1950-05-15",
         about_me: "Retired teacher needing occasional help",
@@ -350,7 +363,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 4,
       creator: {
         id: 4,
-        name: "Susan Davis",
+        first_name: "Susan",
+        last_name: "Davis",
         email: "susan@example.com",
         date_of_birth: "1948-03-25",
         about_me: "Learning new technology!",
@@ -384,7 +398,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -418,7 +433,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -452,7 +468,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -486,7 +503,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -520,7 +538,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -554,7 +573,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -588,7 +608,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -624,7 +645,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 1,
       creator: {
         id: 1,
-        name: "John Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
         date_of_birth: "1950-05-15",
         about_me: "Retired teacher needing occasional help",
@@ -660,7 +682,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 4,
       creator: {
         id: 4,
-        name: "Susan Davis",
+        first_name: "Susan",
+        last_name: "Davis",
         email: "susan@example.com",
         date_of_birth: "1948-03-25",
         about_me: "Learning new technology!",
@@ -694,7 +717,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -728,7 +752,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -762,7 +787,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -796,7 +822,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -830,7 +857,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -864,7 +892,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -898,7 +927,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -934,7 +964,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 1,
       creator: {
         id: 1,
-        name: "John Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
         date_of_birth: "1950-05-15",
         about_me: "Retired teacher needing occasional help",
@@ -970,7 +1001,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 2,
       creator: {
         id: 2,
-        name: "Mary Smith",
+        first_name: "Mary",
+        last_name: "Smith",
         email: "mary@example.com",
         date_of_birth: "1945-08-20",
         about_me: "Living independently but need occasional assistance",
@@ -984,7 +1016,8 @@ const generateMockRequests = (): Request[] => {
       applications_count: 5,
       accepted_volunteer: {
         id: 10,
-        name: "Bob Wilson",
+        first_name: "Bob",
+        last_name: "Wilson",
         email: "bob@example.com",
         date_of_birth: "1985-03-10",
         about_me: "Happy to help!",
@@ -1016,7 +1049,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 1,
       creator: {
         id: 1,
-        name: "John Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
         date_of_birth: "1950-05-15",
         about_me: "Retired teacher needing occasional help",
@@ -1030,7 +1064,8 @@ const generateMockRequests = (): Request[] => {
       applications_count: 2,
       accepted_volunteer: {
         id: 11,
-        name: "Alice Johnson",
+        first_name: "Alice",
+        last_name: "Johnson",
         email: "alice@example.com",
         date_of_birth: "1990-07-22",
         about_me: "Handy with tools!",
@@ -1062,7 +1097,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 3,
       creator: {
         id: 3,
-        name: "Robert Brown",
+        first_name: "Robert",
+        last_name: "Brown",
         email: "robert@example.com",
         date_of_birth: "1955-12-01",
         about_me: "Recently retired, staying active",
@@ -1096,7 +1132,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 2,
       creator: {
         id: 2,
-        name: "Mary Smith",
+        first_name: "Mary",
+        last_name: "Smith",
         email: "mary@example.com",
         date_of_birth: "1945-08-20",
         about_me: "Living independently but need occasional assistance",
@@ -1132,7 +1169,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 1,
       creator: {
         id: 1,
-        name: "John Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
         date_of_birth: "1950-05-15",
         about_me: "Retired teacher needing occasional help",
@@ -1168,7 +1206,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 4,
       creator: {
         id: 4,
-        name: "Susan Davis",
+        first_name: "Susan",
+        last_name: "Davis",
         email: "susan@example.com",
         date_of_birth: "1948-03-25",
         about_me: "Learning new technology!",
@@ -1202,7 +1241,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1236,7 +1276,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1270,7 +1311,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1304,7 +1346,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1338,7 +1381,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1372,7 +1416,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1406,7 +1451,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1442,7 +1488,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 1,
       creator: {
         id: 1,
-        name: "John Doe",
+        first_name: "John",
+        last_name: "Doe",
         email: "john@example.com",
         date_of_birth: "1950-05-15",
         about_me: "Retired teacher needing occasional help",
@@ -1478,7 +1525,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 4,
       creator: {
         id: 4,
-        name: "Susan Davis",
+        first_name: "Susan",
+        last_name: "Davis",
         email: "susan@example.com",
         date_of_birth: "1948-03-25",
         about_me: "Learning new technology!",
@@ -1512,7 +1560,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1546,7 +1595,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1580,7 +1630,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1614,7 +1665,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1648,7 +1700,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1682,7 +1735,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1716,7 +1770,8 @@ const generateMockRequests = (): Request[] => {
       creator_id: 5,
       creator: {
         id: 5,
-        name: "George Wilson",
+        first_name: "George",
+        last_name: "Wilson",
         email: "george@example.com",
         date_of_birth: "1940-11-10",
         about_me: "Retired professor, love good conversations",
@@ -1760,25 +1815,24 @@ export const requestService = {
   rateRequestParticipant: async (
     requestId: number,
     rating: number,
-    actor: { isVolunteer: boolean }
+    actor: { is_volunteer: boolean }
   ): Promise<ApiResponse<{ request_id: number; rating: number }>> => {
     if (USE_MOCK) {
       await mockDelay(400);
       return {
         success: true,
         data: { request_id: requestId, rating },
-        message: actor.isVolunteer
+        message: actor.is_volunteer
           ? "Help seeker rated successfully"
           : "Volunteer rated successfully",
       } as ApiResponse<{ request_id: number; rating: number }>;
     }
-    const endpoint = actor.isVolunteer
+    const endpoint = actor.is_volunteer
       ? `/volunteer/requests/${requestId}/rate-seeker`
       : `/help-seeker/requests/${requestId}/rate-volunteer`;
-    const response = await api.post<ApiResponse<{ request_id: number; rating: number }>>(
-      endpoint,
-      { rating }
-    );
+    const response = await api.post<
+      ApiResponse<{ request_id: number; rating: number }>
+    >(endpoint, { rating });
     return response.data;
   },
   // Common endpoints
@@ -2005,7 +2059,7 @@ export const requestService = {
 
   getRequestDetails: async (
     id: number,
-    isVolunteer: boolean
+    is_volunteer: boolean
   ): Promise<ApiResponse<Request>> => {
     if (USE_MOCK) {
       await mockDelay(500);
@@ -2016,12 +2070,13 @@ export const requestService = {
 
       // Include applications for help-seekers (creators)
       const requestWithApplications = { ...request };
-      if (!isVolunteer) {
+      if (!is_volunteer) {
         const mockApplications: RequestApplication[] = [
           {
             user: {
               id: 10,
-              name: "Bob Wilson",
+              first_name: "Bob",
+              last_name: "Wilson",
               avg_rating: 4.7,
             },
             is_accepted: false,
@@ -2032,7 +2087,8 @@ export const requestService = {
           {
             user: {
               id: 11,
-              name: "Alice Johnson",
+              first_name: "Alice",
+              last_name: "Johnson",
               avg_rating: 4.9,
             },
             is_accepted: false,
@@ -2043,7 +2099,8 @@ export const requestService = {
           {
             user: {
               id: 12,
-              name: "Charlie Brown",
+              first_name: "Charlie",
+              last_name: "Brown",
               avg_rating: 4.6,
             },
             is_accepted: false,
@@ -2054,7 +2111,8 @@ export const requestService = {
           {
             user: {
               id: 13,
-              name: "Janet Lee",
+              first_name: "Janet",
+              last_name: "Lee",
               avg_rating: 4.6,
             },
             is_accepted: false,
@@ -2065,7 +2123,8 @@ export const requestService = {
           {
             user: {
               id: 14,
-              name: "Bruce Wayne",
+              first_name: "Bruce",
+              last_name: "Wayne",
               avg_rating: 4.6,
             },
             is_accepted: false,
@@ -2083,7 +2142,7 @@ export const requestService = {
       };
     }
 
-    const endpoint = isVolunteer
+    const endpoint = is_volunteer
       ? `/volunteer/requests/${id}`
       : `/help-seeker/requests/${id}`;
     const response = await api.get<ApiResponse<Request>>(endpoint);
@@ -2099,7 +2158,8 @@ export const requestService = {
         {
           user: {
             id: 10,
-            name: "Bob Wilson",
+            first_name: "Bob",
+            last_name: "Wilson",
             avg_rating: 4.7,
           },
           is_accepted: false,
@@ -2110,7 +2170,8 @@ export const requestService = {
         {
           user: {
             id: 11,
-            name: "Alice Johnson",
+            first_name: "Alice",
+            last_name: "Johnson",
             avg_rating: 4.9,
           },
           is_accepted: false,

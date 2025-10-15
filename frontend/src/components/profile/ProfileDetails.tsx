@@ -21,6 +21,8 @@ import {
   FaUserClock,
 } from "react-icons/fa";
 import type { User } from "../../types";
+import { getFullName, pickAvatarPalette } from "../../utils/avatar";
+import { formatDateCompact } from "../../utils/date";
 
 interface ProfileDetailsProps {
   currentUserIsVolunteer: boolean;
@@ -28,30 +30,12 @@ interface ProfileDetailsProps {
   isOwnProfile: boolean;
 }
 
-// Color palette for avatar backgrounds
-const colorPalette = ["red", "blue", "green", "yellow", "purple", "orange"];
-
-const pickPalette = (name: string) => {
-  const index = name.charCodeAt(0) % colorPalette.length;
-  return colorPalette[index];
-};
-
 export const ProfileDetails = ({
   currentUserIsVolunteer,
   user,
   isOwnProfile,
 }: ProfileDetailsProps) => {
   const navigate = useNavigate();
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
 
   const handleEdit = () => {
     navigate(`/profile/${user.id}/edit`);
@@ -96,13 +80,18 @@ export const ProfileDetails = ({
         {/* Header with profile picture, name, and rating */}
         <VStack gap={4} align="center">
           {/* Profile Picture */}
-          <Avatar.Root size="2xl" colorPalette={pickPalette(user.name)}>
-            <Avatar.Fallback name={user.name} />
+          <Avatar.Root
+            size="2xl"
+            colorPalette={pickAvatarPalette(user.first_name, user.last_name)}
+          >
+            <Avatar.Fallback
+              name={getFullName(user.first_name, user.last_name)}
+            />
           </Avatar.Root>
 
           {/* Name */}
           <Text fontSize="3xl" fontWeight="bold" color="gray.800">
-            {user.name}
+            {getFullName(user.first_name, user.last_name)}
           </Text>
 
           {/* Role badge + optional star rating */}
@@ -196,7 +185,7 @@ export const ProfileDetails = ({
               </Text>
             </HStack>
             <Text fontSize="md" color="gray.600" pl={7}>
-              {formatDate(user.date_of_birth)}
+              {formatDateCompact(user.date_of_birth)}
             </Text>
           </Box>
 
@@ -213,7 +202,7 @@ export const ProfileDetails = ({
               </Text>
             </HStack>
             <Text fontSize="md" color="gray.600" pl={7}>
-              {formatDate(user.created_at)}
+              {formatDateCompact(user.created_at)}
             </Text>
           </Box>
         </Stack>

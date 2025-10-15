@@ -23,7 +23,8 @@ export const authService = {
         data: {
           user: {
             id: 1,
-            name: data.name,
+            first_name: data.first_name,
+            last_name: data.last_name,
             email: data.email,
             date_of_birth: data.date_of_birth,
             about_me: data.about_me,
@@ -72,7 +73,8 @@ export const authService = {
           data: {
             user: {
               id: 1,
-              name: "John Doe",
+              first_name: "John",
+              last_name: "Doe",
               email: data.email,
               date_of_birth: "1990-01-01",
               about_me: "I'm here to help and make a difference!",

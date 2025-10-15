@@ -16,6 +16,7 @@ import { authService } from "../../services/auth.service";
 import { toaster } from "../ui/toaster";
 import type { ElementType } from "react";
 import { useRef, useState } from "react";
+import { getFullName, pickAvatarPalette } from "../../utils/avatar";
 
 interface AppHeaderProps {
   title?: string;
@@ -24,14 +25,6 @@ interface AppHeaderProps {
   onBack?: () => void;
   logoSize?: string;
 }
-
-// Color palette for avatar backgrounds
-const colorPalette = ["red", "blue", "green", "yellow", "purple", "orange"];
-
-const pickPalette = (name: string) => {
-  const index = name.charCodeAt(0) % colorPalette.length;
-  return colorPalette[index];
-};
 
 export const AppHeader = ({
   title,
@@ -63,12 +56,10 @@ export const AppHeader = ({
 
   // Mock user data - in real app, this would come from auth context
   const currentUser = {
-    name: "John Doe",
+    firstName: "John",
+    lastName: "Doe",
     id: 1,
   };
-
-  // Extract first name for the greeting
-  const firstName = currentUser.name.split(" ")[0];
 
   const handleLogout = async () => {
     try {
@@ -169,7 +160,7 @@ export const AppHeader = ({
               <Text color="gray.700">
                 Welcome,{" "}
                 <Text as="span" fontWeight="bold">
-                  {firstName}
+                  {currentUser.firstName}
                 </Text>
                 !{" "}
               </Text>
@@ -190,8 +181,18 @@ export const AppHeader = ({
                     onMouseLeave={() => closeMenuWithDelay()}
                     onClick={() => setMenuOpen((v) => !v)}
                   >
-                    <Avatar.Root colorPalette={pickPalette(currentUser.name)}>
-                      <Avatar.Fallback name={currentUser.name} />
+                    <Avatar.Root
+                      colorPalette={pickAvatarPalette(
+                        currentUser.firstName,
+                        currentUser.lastName
+                      )}
+                    >
+                      <Avatar.Fallback
+                        name={getFullName(
+                          currentUser.firstName,
+                          currentUser.lastName
+                        )}
+                      />
                     </Avatar.Root>
                   </Box>
                 </Menu.Trigger>

@@ -17,7 +17,8 @@ interface UserResponse {
 }
 
 interface UpdateProfileData {
-  name?: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
   password?: string;
   date_of_birth?: string;
@@ -37,7 +38,8 @@ export const userService = {
       const mockUsers: Record<number, User> = {
         1: {
           id: 1,
-          name: "John Doe",
+          first_name: "John",
+          last_name: "Doe",
           email: "john@example.com",
           date_of_birth: "1990-01-01",
           about_me: "I'm here to help and make a difference in my community!",
@@ -48,7 +50,8 @@ export const userService = {
         },
         2: {
           id: 2,
-          name: "Jane Smith",
+          first_name: "Jane",
+          last_name: "Smith",
           email: "jane@example.com",
           date_of_birth: "1985-05-15",
           about_me: "Looking for help with daily tasks and errands.",
@@ -65,7 +68,7 @@ export const userService = {
         email: `user${userId}@example.com`,
         date_of_birth: "1995-06-20",
         about_me: "This is a mock user profile.",
-        is_volunteer: userId % 2 === 0,
+        isVolunteer: userId % 2 === 0,
         avg_rating: 4.0 + Math.random(),
         created_at: "2024-02-01T00:00:00.000Z",
         updated_at: new Date().toISOString(),
@@ -99,7 +102,8 @@ export const userService = {
         success: true,
         data: {
           id: mockUserId,
-          name: "Current User",
+          first_name: "Current",
+          last_name: "User",
           email: "current@example.com",
           date_of_birth: "1990-01-01",
           about_me: "This is my profile that I can edit.",
@@ -130,7 +134,8 @@ export const userService = {
         success: true,
         data: {
           id: 1,
-          name: data.name || "Updated User",
+          first_name: data.first_name || "Updated",
+          last_name: data.last_name || "User",
           email: data.email || "updated@example.com",
           date_of_birth: data.date_of_birth || "1990-01-01",
           about_me: data.about_me || "Updated profile description",

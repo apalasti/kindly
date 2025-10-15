@@ -15,6 +15,7 @@ import type { RequestApplication } from "../../types";
 import type { ElementType } from "react";
 import { FaCheckCircle, FaStar } from "react-icons/fa";
 import { toaster } from "../ui/toaster";
+import { getFullName, pickAvatarPalette } from "../../utils/avatar";
 
 interface SelectApplicantModalProps {
   isOpen: boolean;
@@ -29,19 +30,6 @@ export const SelectApplicantModal = ({
   applications,
   onAccepted,
 }: SelectApplicantModalProps) => {
-  // Match avatar color logic from RequestDetails
-  const colorPalette = [
-    "red",
-    "blue",
-    "green",
-    "yellow",
-    "purple",
-    "orange",
-  ] as const;
-  const pickPalette = (name: string) => {
-    const index = name.charCodeAt(0) % colorPalette.length;
-    return colorPalette[index];
-  };
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -121,13 +109,24 @@ export const SelectApplicantModal = ({
                           >
                             <Avatar.Root
                               size="sm"
-                              colorPalette={pickPalette(app.user.name)}
+                              colorPalette={pickAvatarPalette(
+                                app.user.first_name,
+                                app.user.last_name
+                              )}
                             >
-                              <Avatar.Fallback name={app.user.name} />
+                              <Avatar.Fallback
+                                name={getFullName(
+                                  app.user.first_name,
+                                  app.user.last_name
+                                )}
+                              />
                             </Avatar.Root>
                             <Stack flex={1} gap={0}>
                               <Text fontWeight="semibold" color="gray.800">
-                                {app.user.name}
+                                {getFullName(
+                                  app.user.first_name,
+                                  app.user.last_name
+                                )}
                               </Text>
                               {app.user.avg_rating && (
                                 <HStack gap={1} fontSize="xs" color="gray.600">
