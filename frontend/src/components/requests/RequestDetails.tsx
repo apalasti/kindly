@@ -198,8 +198,19 @@ export const RequestDetails = ({
         {/* Header with Edit button for creators */}
         <Stack gap={4}>
           <HStack justify="space-between" align="center" position="relative">
-            <Text fontSize="3xl" fontWeight="bold" color="gray.800" flex={1}>
-              {request.name}
+            <Text
+              fontSize="3xl"
+              fontWeight="bold"
+              color="gray.800"
+              flex={1}
+              whiteSpace="normal"
+              minWidth={0}
+              wordBreak="break-word"
+              pr={10}
+            >
+              {/* {request.name} */}
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit
+              fndsfgjsdigjsikgjfdgndfjghnfdjgbnfsjgnsjfgnjsfgnjf
             </Text>
             {canSelectApplicant && (
               <Button

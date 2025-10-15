@@ -378,6 +378,9 @@ export const ProfileForm = ({
               onClick={onCancel}
               disabled={isSubmitting}
               px={6}
+              _hover={{
+                transform: "translateY(-2px)",
+              }}
             >
               {!hideSubmitIcon && <Icon as={FaTimes as ElementType} mr={2} />}
               {cancelLabel || (mode === "edit" ? "Cancel" : "Back")}

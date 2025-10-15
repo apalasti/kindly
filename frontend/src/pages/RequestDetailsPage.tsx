@@ -15,7 +15,7 @@ export const RequestDetailsPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Mock user data - in real app, this would come from auth context
-  const isVolunteer = true;
+  const isVolunteer = false;
   const currentUserId = 2;
 
   useEffect(() => {
@@ -62,7 +62,8 @@ export const RequestDetailsPage = () => {
         title=""
         isVolunteer={isVolunteer}
         headerVariant="navigation"
-        onBack={() => navigate(-1)}
+        onBack={() => navigate("/requests")}
+        backButtonTitle="Back to Requests"
       >
         <Container maxW="container.xl" mx="auto">
           <LoadingState
@@ -80,7 +81,8 @@ export const RequestDetailsPage = () => {
         title=""
         isVolunteer={isVolunteer}
         headerVariant="navigation"
-        onBack={() => navigate(-1)}
+        onBack={() => navigate("/requests")}
+        backButtonTitle="Back to Requests"
       >
         <Container maxW="container.xl" mx="auto">
           <Stack gap={0}>
@@ -106,7 +108,8 @@ export const RequestDetailsPage = () => {
       title=""
       isVolunteer={isVolunteer}
       headerVariant="navigation"
-      onBack={() => navigate(-1)}
+      onBack={() => navigate("/requests")}
+      backButtonTitle="Back to Requests"
     >
       <Container maxW="container.xl" mx="auto">
         <RequestDetails

@@ -8,6 +8,7 @@ interface AppLayoutProps {
   isVolunteer?: boolean;
   children: ReactNode;
   headerVariant?: "default" | "navigation";
+  backButtonTitle?: string;
   onBack?: () => void;
 }
 
@@ -17,6 +18,7 @@ export const AppLayout = ({
   children,
   headerVariant = "default",
   onBack,
+  backButtonTitle,
 }: AppLayoutProps) => {
   const backgroundStyle = getBackgroundStyle(isVolunteer);
 
@@ -27,6 +29,7 @@ export const AppLayout = ({
         isVolunteer={isVolunteer}
         variant={headerVariant}
         onBack={onBack}
+        backButtonTitle={backButtonTitle}
         logoSize={headerVariant === "navigation" ? "1.8rem" : "1.3rem"}
       />
       {children}

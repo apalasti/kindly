@@ -25,6 +25,7 @@ interface AppHeaderProps {
   variant?: "default" | "navigation";
   onBack?: () => void;
   logoSize?: string;
+  backButtonTitle?: string;
 }
 
 export const AppHeader = ({
@@ -33,6 +34,7 @@ export const AppHeader = ({
   variant = "default",
   onBack,
   logoSize = "1.3rem",
+  backButtonTitle = "Back",
 }: AppHeaderProps) => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -137,7 +139,7 @@ export const AppHeader = ({
                 >
                   <Icon as={FaArrowLeft as ElementType} mr={2} />
                   <Text as="span" fontWeight="semibold" color="gray.700">
-                    Back
+                    {backButtonTitle}
                   </Text>
                 </Box>
               </Box>

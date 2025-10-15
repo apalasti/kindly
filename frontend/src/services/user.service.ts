@@ -64,11 +64,12 @@ export const userService = {
 
       const user = mockUsers[userId] || {
         id: userId,
-        name: `User ${userId}`,
+        first_name: `User ${userId}`,
+        last_name: "Unknown",
         email: `user${userId}@example.com`,
         date_of_birth: "1995-06-20",
         about_me: "This is a mock user profile.",
-        isVolunteer: userId % 2 === 0,
+        is_volunteer: userId % 2 === 0,
         avg_rating: 4.0 + Math.random(),
         created_at: "2024-02-01T00:00:00.000Z",
         updated_at: new Date().toISOString(),

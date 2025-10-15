@@ -70,7 +70,8 @@ export const ProfilePage = () => {
       <AppLayout
         title=""
         headerVariant="navigation"
-        onBack={() => navigate(-1)}
+        onBack={() => navigate("/requests")}
+        backButtonTitle="Back to Requests"
         isVolunteer={currentUserIsVolunteer}
       >
         <Container maxW="container.xl" mx="auto">
@@ -95,7 +96,8 @@ export const ProfilePage = () => {
       <AppLayout
         title=""
         headerVariant="navigation"
-        onBack={() => navigate(-1)}
+        onBack={() => navigate("/requests")}
+        backButtonTitle="Back to Requests"
         isVolunteer={currentUserIsVolunteer}
       >
         <LoadingState
@@ -110,8 +112,9 @@ export const ProfilePage = () => {
     <AppLayout
       title=""
       headerVariant="navigation"
-      onBack={() => navigate(-1)}
       isVolunteer={currentUserIsVolunteer}
+      onBack={() => navigate("/requests")}
+      backButtonTitle="Back to Requests"
     >
       <Container maxW="container.xl" mx="auto">
         <ProfileDetails
