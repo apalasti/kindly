@@ -17,6 +17,7 @@ import { toaster } from "../ui/toaster";
 import type { ElementType } from "react";
 import { useRef, useState } from "react";
 import { getFullName, pickAvatarPalette } from "../../utils/avatar";
+import { useScrollPosition } from "../../hooks/useScrollPosition";
 
 interface AppHeaderProps {
   title?: string;
@@ -36,6 +37,7 @@ export const AppHeader = ({
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { isScrolled } = useScrollPosition(20);
 
   const clearHoverTimer = () => {
     if (hoverTimer.current) {
@@ -85,9 +87,36 @@ export const AppHeader = ({
   };
 
   return (
-    <Box position="sticky" top={0} zIndex={10} py={4} bg="transparent" pb={10}>
+    <Box
+      position="sticky"
+      top={0}
+      zIndex={10}
+      py={4}
+      transition="all 0.3s ease"
+      _before={{
+        content: '""',
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "44px", // blur only across the top band
+        pointerEvents: "none",
+        backdropFilter: isScrolled ? "blur(10px)" : "none",
+        bgGradient:
+          "linear(to-b, rgba(255,255,255,0.85), rgba(255,255,255,0.4) 60%, rgba(255,255,255,0))",
+        opacity: isScrolled ? 1 : 0,
+        transition: "opacity 0.25s ease, backdrop-filter 0.25s ease",
+      }}
+    >
       <Container maxW="container.xl" mx="auto">
-        <Box bg="white" borderRadius="full" boxShadow="lg" px={8} py={5}>
+        <Box
+          bg="white"
+          borderRadius="full"
+          boxShadow={isScrolled ? "xl" : "lg"}
+          px={8}
+          py={5}
+          transition="box-shadow 0.3s ease"
+        >
           <HStack justify="space-between" align="center">
             {variant === "navigation" ? (
               <Box>
