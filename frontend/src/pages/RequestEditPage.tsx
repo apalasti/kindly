@@ -11,7 +11,6 @@ import {
   Spinner,
   Icon,
 } from "@chakra-ui/react";
-import { Dialog } from "@chakra-ui/react/dialog";
 import { FaSave, FaTrash } from "react-icons/fa";
 import { AppLayout } from "../layouts/AppLayout";
 import { requestService } from "../services/request.service";
@@ -19,7 +18,8 @@ import { toaster } from "../components/ui/toaster";
 import { RequestForm } from "../components/requests/RequestForm";
 import type { RequestFormValues } from "../components/requests/RequestForm";
 import type { Request, RequestType, UpdateRequestData } from "../types";
-// removed duplicate ElementType import (declared in first import)
+import { ConfirmDialog } from "../components/ui/ConfirmDialog";
+import { useConfirmDialog } from "../hooks/useConfirmDialog";
 
 // Reuse RequestForm for validation and UI
 
@@ -27,10 +27,9 @@ export const RequestEditPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [request, setRequest] = useState<Request | null>(null);
   const [requestTypes, setRequestTypes] = useState<RequestType[]>([]);
+  const { confirm, dialogProps } = useConfirmDialog();
 
   const [initialValues, setInitialValues] =
     useState<Partial<RequestFormValues> | null>(null);
@@ -108,6 +107,18 @@ export const RequestEditPage = () => {
 
   const onSubmit = async (payload: UpdateRequestData) => {
     if (!id) return;
+
+    const confirmed = await confirm({
+      title: "Update Request?",
+      message: "Are you sure you want to save these changes to your request?",
+      confirmLabel: "Save Changes",
+      cancelLabel: "Keep Editing",
+      variant: "info",
+      isVolunteer: false,
+    });
+
+    if (!confirmed) return;
+
     try {
       await requestService.updateRequest(parseInt(id), payload);
       toaster.create({
@@ -125,16 +136,34 @@ export const RequestEditPage = () => {
         type: "error",
         duration: 5000,
       });
-    } finally {
-      // no-op
     }
   };
 
-  // Handle delete
+  const handleCancel = async () => {
+    const confirmed = await confirm({
+      title: "Discard Changes?",
+      message: "Your changes will be lost. This action cannot be undone.",
+      confirmLabel: "Discard",
+      cancelLabel: "Keep Editing",
+      variant: "danger",
+    });
+    if (confirmed) navigate(`/requests/${id}`);
+  };
+
   const handleDelete = async () => {
     if (!id) return;
 
-    setIsDeleting(true);
+    const confirmed = await confirm({
+      title: "Delete Request?",
+      message:
+        "Are you sure you want to delete this request? This action cannot be undone.",
+      confirmLabel: "Delete",
+      cancelLabel: "Cancel",
+      variant: "danger",
+    });
+
+    if (!confirmed) return;
+
     try {
       await requestService.deleteRequest(parseInt(id));
 
@@ -154,9 +183,6 @@ export const RequestEditPage = () => {
         type: "error",
         duration: 5000,
       });
-    } finally {
-      setIsDeleting(false);
-      setShowDeleteDialog(false);
     }
   };
 
@@ -210,10 +236,10 @@ export const RequestEditPage = () => {
                 cancelLabel="Cancel"
                 onSubmit={(p) => onSubmit(p as UpdateRequestData)}
                 submitIcon={FaSave as ElementType}
-                onCancel={() => navigate(`/requests/${id}`)}
+                onCancel={handleCancel}
                 leftAction={
                   <Button
-                    onClick={() => setShowDeleteDialog(true)}
+                    onClick={handleDelete}
                     bg="red.500"
                     _hover={{ bg: "red.600" }}
                     color="white"
@@ -227,65 +253,8 @@ export const RequestEditPage = () => {
             )}
           </Stack>
         </Box>
-
-        {/* Delete Confirmation Dialog */}
-        <Dialog.Root
-          open={showDeleteDialog}
-          onOpenChange={(e) => setShowDeleteDialog(e.open)}
-        >
-          <Dialog.Backdrop />
-          <Dialog.Positioner
-            position="fixed"
-            inset={0}
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            p={4}
-            zIndex={1700}
-          >
-            <Dialog.Content
-              w="full"
-              maxW="480px"
-              borderRadius="2xl"
-              boxShadow="2xl"
-              bg="white"
-            >
-              <Dialog.Header px={6} pt={6} pb={2}>
-                <Dialog.Title>Delete Request</Dialog.Title>
-              </Dialog.Header>
-              <Dialog.Body px={6} py={3}>
-                <Text>
-                  Are you sure you want to delete this request? This action
-                  cannot be undone.
-                </Text>
-              </Dialog.Body>
-              <Dialog.Footer px={6} pb={6} pt={2}>
-                <HStack justify="flex-end" gap={3} w="full">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowDeleteDialog(false)}
-                    px={4}
-                    py={2}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    bg="red.500"
-                    _hover={{ bg: "red.700" }}
-                    color="white"
-                    onClick={handleDelete}
-                    loading={isDeleting}
-                    px={4}
-                    py={2}
-                  >
-                    Delete
-                  </Button>
-                </HStack>
-              </Dialog.Footer>
-            </Dialog.Content>
-          </Dialog.Positioner>
-        </Dialog.Root>
       </Container>
+      <ConfirmDialog {...dialogProps} />
     </AppLayout>
   );
 };

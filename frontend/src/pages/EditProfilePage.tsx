@@ -11,6 +11,8 @@ import { userService } from "../services/user.service";
 import { toaster } from "../components/ui/toaster";
 import { getAccentColor } from "../theme/backgrounds";
 import type { User } from "../types";
+import { ConfirmDialog } from "../components/ui/ConfirmDialog";
+import { useConfirmDialog } from "../hooks/useConfirmDialog";
 
 export const EditProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +20,7 @@ export const EditProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const { confirm, dialogProps } = useConfirmDialog();
 
   // Get current user info from localStorage (mock)
   // const currentUserId = parseInt(localStorage.getItem("mock_user_id") || "1");
@@ -120,8 +123,15 @@ export const EditProfilePage = () => {
     }
   };
 
-  const handleCancel = () => {
-    navigate(`/profile/${id}`);
+  const handleCancel = async () => {
+    const confirmed = await confirm({
+      title: "Discard Changes?",
+      message: "Your changes will be lost. This action cannot be undone.",
+      confirmLabel: "Discard",
+      cancelLabel: "Keep Editing",
+      variant: "danger",
+    });
+    if (confirmed) navigate(`/profile/${id}`);
   };
 
   // Loading state
@@ -146,41 +156,44 @@ export const EditProfilePage = () => {
   const accentColorShade = getAccentColor(user.is_volunteer, true);
 
   return (
-    <AppLayout
-      title=""
-      headerVariant="navigation"
-      onBack={() => navigate(`/profile/${id}`)}
-      isVolunteer={user.is_volunteer}
-    >
-      <Container maxW="container.xl" mx="auto">
-        <Box
-          bg="white"
-          borderRadius="2xl"
-          boxShadow="xl"
-          p={8}
-          w="full"
-          maxW="900px"
-          mx="auto"
-          borderTop="4px solid"
-          borderColor={accentColor}
-        >
-          <Stack gap={6}>
-            <Text fontSize="2xl" fontWeight="bold" color="gray.800">
-              Edit Profile
-            </Text>
+    <>
+      <AppLayout
+        title=""
+        headerVariant="navigation"
+        onBack={() => navigate(`/profile/${id}`)}
+        isVolunteer={user.is_volunteer}
+      >
+        <Container maxW="container.xl" mx="auto">
+          <Box
+            bg="white"
+            borderRadius="2xl"
+            boxShadow="xl"
+            p={8}
+            w="full"
+            maxW="900px"
+            mx="auto"
+            borderTop="4px solid"
+            borderColor={accentColor}
+          >
+            <Stack gap={6}>
+              <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+                Edit Profile
+              </Text>
 
-            <ProfileForm
-              initialData={user}
-              onSubmit={handleSubmit}
-              onCancel={handleCancel}
-              isSubmitting={isSaving}
-              mode="edit"
-              accentColor={accentColor}
-              accentColorShade={accentColorShade}
-            />
-          </Stack>
-        </Box>
-      </Container>
-    </AppLayout>
+              <ProfileForm
+                initialData={user}
+                onSubmit={handleSubmit}
+                onCancel={handleCancel}
+                isSubmitting={isSaving}
+                mode="edit"
+                accentColor={accentColor}
+                accentColorShade={accentColorShade}
+              />
+            </Stack>
+          </Box>
+        </Container>
+      </AppLayout>
+      <ConfirmDialog {...dialogProps} />
+    </>
   );
 };

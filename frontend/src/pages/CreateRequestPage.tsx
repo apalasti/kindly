@@ -7,11 +7,14 @@ import { toaster } from "../components/ui/toaster";
 import type { CreateRequestData, RequestType } from "../types";
 import { useNavigate } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
+import { ConfirmDialog } from "../components/ui/ConfirmDialog";
+import { useConfirmDialog } from "../hooks/useConfirmDialog";
 
 export const CreateRequestPage = () => {
   const [requestTypes, setRequestTypes] = useState<RequestType[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { confirm, dialogProps } = useConfirmDialog();
 
   useEffect(() => {
     (async () => {
@@ -49,44 +52,54 @@ export const CreateRequestPage = () => {
     }
   };
 
-  const handleCancel = () => {
-    // Confirm discard
-    const confirmed = window.confirm(
-      "Discard this request? Your changes will be lost."
-    );
+  const handleCancel = async () => {
+    const confirmed = await confirm({
+      title: "Discard Request?",
+      message: "Your changes will be lost. This action cannot be undone.",
+      confirmLabel: "Discard",
+      cancelLabel: "Keep Editing",
+      variant: "danger",
+    });
     if (confirmed) navigate("/requests");
   };
 
   return (
-    <AppLayout title="" headerVariant="navigation" onBack={() => navigate(-1)}>
-      <Container maxW="container.xl" mx="auto">
-        <Box
-          bg="white"
-          p={8}
-          borderRadius="2xl"
-          boxShadow="xl"
-          w="full"
-          maxW="900px"
-          mx="auto"
-        >
-          <HStack justify="flex-start" align="center" mb={6}>
-            <Text fontSize="2xl" fontWeight="bold" color="gray.800">
-              Create Request
-            </Text>
-          </HStack>
-          {!loading && (
-            <RequestForm
-              mode="create"
-              requestTypes={requestTypes}
-              submitLabel="Create Request"
-              cancelLabel="Discard"
-              onSubmit={(p) => handleCreate(p as CreateRequestData)}
-              onCancel={handleCancel}
-              submitIcon={FaPlus as ElementType}
-            />
-          )}
-        </Box>
-      </Container>
-    </AppLayout>
+    <>
+      <AppLayout
+        title=""
+        headerVariant="navigation"
+        onBack={() => navigate(-1)}
+      >
+        <Container maxW="container.xl" mx="auto">
+          <Box
+            bg="white"
+            p={8}
+            borderRadius="2xl"
+            boxShadow="xl"
+            w="full"
+            maxW="900px"
+            mx="auto"
+          >
+            <HStack justify="flex-start" align="center" mb={6}>
+              <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+                Create Request
+              </Text>
+            </HStack>
+            {!loading && (
+              <RequestForm
+                mode="create"
+                requestTypes={requestTypes}
+                submitLabel="Create Request"
+                cancelLabel="Discard"
+                onSubmit={(p) => handleCreate(p as CreateRequestData)}
+                onCancel={handleCancel}
+                submitIcon={FaPlus as ElementType}
+              />
+            )}
+          </Box>
+        </Container>
+      </AppLayout>
+      <ConfirmDialog {...dialogProps} />
+    </>
   );
 };
