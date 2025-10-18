@@ -8,6 +8,7 @@ import {
   type ProfileFormData,
 } from "../components/profile/ProfileForm";
 import { userService } from "../services/user.service";
+import { useAuth } from "../contexts/useAuth";
 import { toaster } from "../components/ui/toaster";
 import { getAccentColor } from "../theme/backgrounds";
 import type { User } from "../types";
@@ -22,13 +23,9 @@ export const EditProfilePage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const { confirm, dialogProps } = useConfirmDialog();
 
-  // Get current user info from localStorage (mock)
-  // const currentUserId = parseInt(localStorage.getItem("mock_user_id") || "1");
-  // const currentUserIsVolunteer = localStorage.getItem("is_volunteer") === "true";
-  // const isOwnProfile = currentUserId === parseInt(id || "0");
-
-  const currentUserIsVolunteer = false;
-  const isOwnProfile = true;
+  // Get current user from auth context
+  const { user: currentUser, isVolunteer: currentUserIsVolunteer } = useAuth();
+  const isOwnProfile = currentUser?.id === parseInt(id || "0");
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -87,7 +84,8 @@ export const EditProfilePage = () => {
     try {
       // Combine first and last name
       const updateData = {
-        name: `${data.first_name} ${data.last_name}`,
+        first_name: data.first_name,
+        last_name: data.last_name,
         email: data.email,
         date_of_birth: data.date_of_birth,
         about_me: data.about_me,

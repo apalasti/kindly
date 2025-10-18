@@ -4,19 +4,21 @@ import { Container, Stack, Center, Text } from "@chakra-ui/react";
 import { AppLayout } from "../layouts/AppLayout";
 import { RequestDetails } from "../components/requests/RequestDetails";
 import { requestService } from "../services/request.service";
-import type { Request } from "../types";
+import { useAuth } from "../contexts/useAuth";
 import { LoadingState } from "../components/ui/loading-state";
+import type {
+  RequestDetails as RequestDetailsType,
+  HelpSeekerRequestDetails,
+} from "../types";
 
 export const RequestDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [request, setRequest] = useState<Request | null>(null);
+  const [request, setRequest] = useState<RequestDetailsType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Mock user data - in real app, this would come from auth context
-  const isVolunteer = false;
-  const currentUserId = 2;
+  const { isVolunteer } = useAuth();
 
   useEffect(() => {
     const fetchRequestDetails = async () => {
@@ -34,7 +36,6 @@ export const RequestDetailsPage = () => {
           throw new Error("Invalid request ID");
         }
 
-        // Fetch request details (includes applications for help-seekers)
         const requestResponse = await requestService.getRequestDetails(
           requestId,
           isVolunteer
@@ -114,9 +115,8 @@ export const RequestDetailsPage = () => {
       <Container maxW="container.xl" mx="auto">
         <RequestDetails
           request={request}
-          applications={request.applications || []}
+          applications={(request as HelpSeekerRequestDetails).applications || []}
           isVolunteer={isVolunteer}
-          currentUserId={currentUserId}
         />
       </Container>
     </AppLayout>

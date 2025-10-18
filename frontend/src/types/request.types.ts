@@ -5,27 +5,40 @@ export interface RequestType {
   name: string;
 }
 
-export interface Request {
+interface BaseRequest {
   id: number;
   name: string;
   description: string;
   longitude: number;
   latitude: number;
-  location_address?: string; // Address string for display
+  address?: string;
   start: string;
   end: string;
   reward: number;
-  creator_id: number;
-  creator?: User;
   is_completed: boolean;
   request_types: RequestType[];
   applications_count: number;
-  applications?: RequestApplication[]; // Full list for creators
-  accepted_volunteer?: User | null;
-  has_applied?: boolean; // For volunteer view
   created_at: string;
   updated_at: string;
 }
+
+export interface HelpSeekerRequest extends BaseRequest {
+  applications?: RequestApplication[];
+}
+
+export interface VolunteerRequest extends BaseRequest {
+  acceptance_status?: AcceptanceStatus;
+}
+
+export interface VolunteerRequestDetails extends VolunteerRequest {
+  creator: User;
+}
+
+export type HelpSeekerRequestDetails = HelpSeekerRequest;
+
+export type Request = HelpSeekerRequest | VolunteerRequest;
+
+export type RequestDetails = HelpSeekerRequestDetails | VolunteerRequestDetails;
 
 export interface RequestApplication {
   user: {
@@ -34,15 +47,17 @@ export interface RequestApplication {
     last_name: string;
     avg_rating?: number;
   };
-  is_accepted: boolean;
+  acceptance_status?: AcceptanceStatus;
   applied_at: string;
 }
+
+export type AcceptanceStatus = "accepted" | "declined" | "pending";
 
 export type RequestStatus = "open" | "completed" | "all" | "applied";
 
 export interface RequestFilters {
   status?: RequestStatus;
-  type?: number; // Request type ID
+  type?: number;
   location_lat?: number;
   location_lng?: number;
   radius?: number;
@@ -59,7 +74,7 @@ export interface CreateRequestData {
   description: string;
   longitude: number;
   latitude: number;
-  location_address?: string;
+  address?: string;
   start: string;
   end: string;
   reward: number;
@@ -71,7 +86,7 @@ export interface UpdateRequestData {
   description?: string;
   longitude?: number;
   latitude?: number;
-  location_address?: string;
+  address?: string;
   start?: string;
   end?: string;
   reward?: number;

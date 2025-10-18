@@ -52,7 +52,6 @@ export const RequestFilters = ({
   const [selectedTypes, setSelectedTypes] = useState<string[]>(
     filters.type ? [String(filters.type)] : []
   );
-  // Type search and filtering handled within TypeSelector
 
   const handleStatusRadioChange = (value: string) => {
     if (value === "all") {
@@ -72,13 +71,6 @@ export const RequestFilters = ({
     };
     onFiltersChange(newFilters);
   };
-
-  // Filter type options based on search
-  // Type search handled within TypeSelector
-
-  // collection handled within TypeSelector
-
-  // Deprecated checkbox handlers removed in favor of radio approach
 
   // Handle type change
   const handleTypeChange = (details: { value: string[] }) => {

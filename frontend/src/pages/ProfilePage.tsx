@@ -4,6 +4,7 @@ import { Container, Center, Stack, Text } from "@chakra-ui/react";
 import { AppLayout } from "../layouts/AppLayout";
 import { ProfileDetails } from "../components/profile/ProfileDetails";
 import { userService } from "../services/user.service";
+import { useAuth } from "../contexts/useAuth";
 import type { User } from "../types";
 import { LoadingState } from "../components/ui/loading-state";
 
@@ -14,14 +15,9 @@ export const ProfilePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Get current user info from localStorage (mock)
-  // const currentUserId = parseInt(localStorage.getItem("mock_user_id") || "1");
-  // const currentUserIsVolunteer =
-  //   localStorage.getItem("is_volunteer") === "false";
-  // const isOwnProfile = currentUserId === parseInt(id || "0");
-
-  const currentUserIsVolunteer = false;
-  const isOwnProfile = true;
+  // Get current user from auth context
+  const { user: currentUser, isVolunteer: currentUserIsVolunteer } = useAuth();
+  const isOwnProfile = currentUser?.id === parseInt(id || "0");
 
   useEffect(() => {
     const loadProfile = async () => {

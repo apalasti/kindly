@@ -35,7 +35,7 @@ export type RequestFormMode = "create" | "edit";
 export type RequestFormValues = {
   name: string;
   description: string;
-  location_address: string;
+  address: string;
   location_coordinates: { longitude: number; latitude: number };
   start: Date;
   end: Date;
@@ -51,7 +51,7 @@ const formSchema = z
       .string()
       .min(1, "Description is required")
       .max(1000, "Description is too long"),
-    location_address: z.string().min(1, "Location is required"),
+    address: z.string().min(1, "Location is required"),
     location_coordinates: z.object({
       longitude: z.number(),
       latitude: z.number(),
@@ -107,7 +107,7 @@ export function RequestForm({
     () => ({
       name: initialValues?.name ?? "",
       description: initialValues?.description ?? "",
-      location_address: initialValues?.location_address ?? "",
+      address: initialValues?.address ?? "",
       location_coordinates: initialValues?.location_coordinates ?? {
         longitude: initialValues?.location_coordinates?.longitude ?? 0,
         latitude: initialValues?.location_coordinates?.latitude ?? 0,
@@ -186,7 +186,7 @@ export function RequestForm({
           description: data.description,
           longitude: data.location_coordinates.longitude,
           latitude: data.location_coordinates.latitude,
-          location_address: data.location_address,
+          address: data.address,
           start: data.start.toISOString(),
           end: data.end.toISOString(),
           reward: data.reward,
@@ -199,7 +199,7 @@ export function RequestForm({
           description: data.description,
           longitude: data.location_coordinates.longitude,
           latitude: data.location_coordinates.latitude,
-          location_address: data.location_address,
+          address: data.address,
           start: data.start.toISOString(),
           end: data.end.toISOString(),
           reward: data.reward,
@@ -315,10 +315,10 @@ export function RequestForm({
         <Separator />
 
         {/* Location */}
-        <Field.Root invalid={!!errors.location_address}>
+        <Field.Root invalid={!!errors.address}>
           <Field.Label>Location</Field.Label>
           <Controller
-            name="location_address"
+            name="address"
             control={control}
             render={({ field }) => (
               <MapboxLocationPicker
@@ -331,8 +331,8 @@ export function RequestForm({
               />
             )}
           />
-          {errors.location_address && (
-            <Field.ErrorText>{errors.location_address.message}</Field.ErrorText>
+          {errors.address && (
+            <Field.ErrorText>{errors.address.message}</Field.ErrorText>
           )}
         </Field.Root>
 

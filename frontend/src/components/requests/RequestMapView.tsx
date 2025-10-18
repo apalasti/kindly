@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { Request, RequestFilters } from "../../types";
+import type { Request, RequestFilters, VolunteerRequest } from "../../types";
 import { FaChevronDown, FaChevronUp, FaSearch } from "react-icons/fa";
 import type { ElementType } from "react";
 
@@ -187,26 +187,28 @@ export const RequestMapView = ({
 
   // Client-side filter currently loaded requests using UI filters
   const visibleRequests = useMemo(() => {
-    return requests.filter((r: Request) => {
+    return requests.filter((req: Request) => {
       let ok = true;
 
       // Status filter
       const status = uiFilters.status || "all";
       if (status !== "all") {
-        if (status === "completed") ok = ok && r.is_completed;
-        else if (status === "applied") ok = ok && r.has_applied === true;
-        else if (status === "open") ok = ok && !r.is_completed;
+        if (status === "completed") ok = ok && req.is_completed;
+        else if (status === "applied") {
+          const volunteerRequest = req as VolunteerRequest;
+          ok = ok && volunteerRequest.acceptance_status === "pending";
+        } else if (status === "open") ok = ok && !req.is_completed;
       }
 
       // Reward range
       if (typeof uiFilters.min_reward === "number")
-        ok = ok && r.reward >= uiFilters.min_reward;
+        ok = ok && req.reward >= uiFilters.min_reward;
       if (typeof uiFilters.max_reward === "number")
-        ok = ok && r.reward <= uiFilters.max_reward;
+        ok = ok && req.reward <= uiFilters.max_reward;
 
-      // Single type filter (UI stores one type id)
+      // Single type filter
       if (typeof uiFilters.type === "number") {
-        const reqTypeIds = (r.request_types || []).map((t) => t.id);
+        const reqTypeIds = (req.request_types || []).map((t) => t.id);
         ok = ok && reqTypeIds.includes(uiFilters.type);
       }
 

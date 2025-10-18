@@ -17,6 +17,7 @@ import { RequestToolbar } from "../components/requests/RequestToolbar";
 import { RequestsPagination } from "../components/requests/RequestsPagination";
 import { RequestMapView } from "../components/requests/RequestMapView";
 import { requestService } from "../services/request.service";
+import { useAuth } from "../contexts/useAuth";
 import type { Request, RequestFilters as Filters, RequestType } from "../types";
 
 export const RequestsPage = () => {
@@ -29,13 +30,7 @@ export const RequestsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
 
-  // Mock user data - in real app, this would come from auth context
-  // For now, we'll check if the token contains "volunteer" to determine user type
-  //  TODO
-  // const isVolunteer =
-  //   localStorage.getItem("auth_token")?.includes("volunteer");
-
-  const isVolunteer = false;
+  const { isVolunteer } = useAuth();
 
   const pageLimit = 10;
 
@@ -52,7 +47,6 @@ export const RequestsPage = () => {
     type: filters.type,
     min_reward: filters.min_reward,
     max_reward: filters.max_reward,
-    // Location params will be set by the map component
     limit: 100, // Higher limit for map view
   });
 
