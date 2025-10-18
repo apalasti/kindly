@@ -1,18 +1,17 @@
-from cgitb import text
+import os
 from datetime import date, timedelta
 
 from fastapi import APIRouter, Request, Response, status
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
-from sqlalchemy.dialects.postgresql import Insert
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.sql import delete, insert
+from sqlalchemy.sql import delete
 
 from app.db import SessionDep
 from app.internal import auth
 
-from ..models import User, RefreshToken
+from ..models import RefreshToken, User
 
 
 ACCESS_TOKEN_EXPIRY = timedelta(minutes=5)
@@ -156,7 +155,7 @@ def set_refresh_token(response: Response, refresh_token):
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=True,
+        secure=not bool(os.environ.get("DEBUG", False)),
         samesite="lax",
         max_age=REFRESH_TOKEN_EXPIRY.total_seconds(),
     )
@@ -166,6 +165,6 @@ def delete_refresh_token(response: Response):
     response.delete_cookie(
         key="refresh_token",
         httponly=True,
-        secure=True,
+        secure=not bool(os.environ.get("DEBUG", False)),
         samesite="lax",
     )

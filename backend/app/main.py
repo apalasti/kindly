@@ -1,7 +1,10 @@
+import os
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, status
 from fastapi.exceptions import HTTPException, RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .db import create_db_and_tables
@@ -13,9 +16,26 @@ async def lifespan(app: FastAPI):
     await create_db_and_tables()
     yield
 
+
+load_dotenv()
 API_ROUTES_PREFIX = "/api/v1"
 
 app = FastAPI(lifespan=lifespan)
+
+origins = [
+    "http://localhost",
+    "http://localhost:5173",
+]
+
+if os.environ.get("DEBUG", False):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
 app.include_router(auth.router, prefix=API_ROUTES_PREFIX)
 app.include_router(common.router, prefix=API_ROUTES_PREFIX)
 app.include_router(help_seeker.router, prefix=API_ROUTES_PREFIX)

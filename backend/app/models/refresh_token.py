@@ -1,5 +1,6 @@
 from sqlalchemy import Boolean, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
+
 from .base import Base
 
 
