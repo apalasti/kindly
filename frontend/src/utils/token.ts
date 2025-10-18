@@ -61,17 +61,14 @@ export const tokenManager = {
   /**
    * Check if token is expired
    */
-  isTokenExpired: (token: string): boolean => {
+  isTokenExpired: (token: string, options?: { bufferMs?: number }): boolean => {
     const payload = tokenManager.decodeToken(token);
     if (!payload || !payload.exp || typeof payload.exp !== "number") {
       return true;
     }
-
-    // Check if token expires in less than 5 minutes (buffer for refresh)
-    const expirationTime = (payload.exp as number) * 1000; // Convert to milliseconds
+    const expirationTime = (payload.exp as number) * 1000; // ms
     const currentTime = Date.now();
-    const bufferTime = 5 * 60 * 1000; // 5 minutes
-
+    const bufferTime = options?.bufferMs ?? 0; // default no buffer
     return currentTime >= expirationTime - bufferTime;
   },
 
@@ -89,23 +86,31 @@ export const tokenManager = {
     if (!token) return null;
 
     const payload = tokenManager.decodeToken(token);
+    type JwtPayload = {
+      id?: unknown;
+      email?: unknown;
+      is_volunteer?: unknown;
+      first_name?: unknown;
+      last_name?: unknown;
+    };
+    const p = (payload || {}) as JwtPayload;
     if (
       !payload ||
-      typeof payload.id !== "number" ||
-      typeof payload.first_name !== "string" ||
-      typeof payload.last_name !== "string" ||
-      typeof payload.email !== "string" ||
-      typeof payload.is_volunteer !== "boolean"
+      typeof p.id !== "number" ||
+      typeof p.email !== "string" ||
+      typeof p.is_volunteer !== "boolean" ||
+      typeof p.first_name !== "string" ||
+      typeof p.last_name !== "string"
     ) {
       return null;
     }
 
     return {
-      id: payload.id as number,
-      first_name: payload.first_name as string,
-      last_name: payload.last_name as string,
-      email: payload.email as string,
-      is_volunteer: payload.is_volunteer as boolean,
+      id: p.id as number,
+      first_name: p.first_name as string,
+      last_name: p.last_name as string,
+      email: p.email as string,
+      is_volunteer: p.is_volunteer as boolean,
     };
   },
 

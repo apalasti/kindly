@@ -7,6 +7,7 @@ import { RequestEditPage } from "./pages/RequestEditPage";
 import { CreateRequestPage } from "./pages/CreateRequestPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { EditProfilePage } from "./pages/EditProfilePage";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 function App() {
   return (
@@ -16,17 +17,20 @@ function App() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
 
-      {/* Protected routes - Main dashboard */}
-      <Route path="/requests" element={<RequestsPage />} />
+      {/* Protected routes */}
+      <Route element={<ProtectedRoute />}>
+        {/* Main requests */}
+        <Route path="/requests" element={<RequestsPage />} />
 
-      {/* Request management routes */}
-      <Route path="/requests/new" element={<CreateRequestPage />} />
-      <Route path="/requests/:id" element={<RequestDetailsPage />} />
-      <Route path="/requests/:id/edit" element={<RequestEditPage />} />
+        {/* Request management routes */}
+        <Route path="/requests/new" element={<CreateRequestPage />} />
+        <Route path="/requests/:id" element={<RequestDetailsPage />} />
+        <Route path="/requests/:id/edit" element={<RequestEditPage />} />
 
-      {/* Profile routes */}
-      <Route path="/profile/:id" element={<ProfilePage />} />
-      <Route path="/profile/:id/edit" element={<EditProfilePage />} />
+        {/* Profile routes */}
+        <Route path="/profile/:id" element={<ProfilePage />} />
+        <Route path="/profile/:id/edit" element={<EditProfilePage />} />
+      </Route>
 
       {/* Fallback for unknown routes */}
       <Route path="*" element={<Navigate to="/requests" replace />} />

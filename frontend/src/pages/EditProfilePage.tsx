@@ -13,6 +13,7 @@ import { toaster } from "../components/ui/toaster";
 import { getAccentColor } from "../theme/backgrounds";
 import type { User } from "../types";
 import { ConfirmDialog } from "../components/ui/ConfirmDialog";
+import { toDateOnly } from "../utils/date";
 import { useConfirmDialog } from "../hooks/useConfirmDialog";
 
 export const EditProfilePage = () => {
@@ -87,7 +88,7 @@ export const EditProfilePage = () => {
         first_name: data.first_name,
         last_name: data.last_name,
         email: data.email,
-        date_of_birth: data.date_of_birth,
+        date_of_birth: toDateOnly(data.date_of_birth),
         about_me: data.about_me,
         ...(data.new_password && { password: data.new_password }),
       };

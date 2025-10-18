@@ -59,3 +59,26 @@ export const formatDateCompact = (dateString: string | Date): string => {
 export const formatDateFull = (dateString: string | Date): string => {
   return formatDate(dateString, { format: "long", includeTime: true });
 };
+
+/**
+ * Convert a date-like value to YYYY-MM-DD (date-only) string.
+ * Returns empty string when input is falsy or invalid.
+ */
+export function toDateOnly(value?: string | Date | null): string {
+  if (!value) return "";
+  try {
+    // If it's already in YYYY-MM-DD format, return as-is
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value;
+    }
+    const d = typeof value === "string" ? new Date(value) : value;
+    if (isNaN(d.getTime())) return "";
+    // Use local date parts to avoid timezone-related day shifts
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  } catch {
+    return "";
+  }
+}
