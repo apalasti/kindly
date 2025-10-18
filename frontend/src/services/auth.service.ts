@@ -65,20 +65,18 @@ export const authService = {
   },
 
   logout: async (): Promise<void> => {
-    // Update auth context
+    // Best-effort server-side logout to clear HttpOnly refresh cookie
+    try {
+      await api.post("/auth/logout");
+    } catch {
+      // Ignore network/server errors during logout
+    }
+
+    // Update auth context and clear local token regardless of server response
     if (updateAuthContext) {
       updateAuthContext(null);
     }
-
-    // Clear local token
     tokenManager.clearAuth();
-
-    // When backend implements refresh token endpoint, call it here:
-    // try {
-    //   await api.post("/auth/logout");
-    // } catch (error) {
-    //   // Ignore errors during logout
-    // }
   },
 
   getToken: (): string | null => {

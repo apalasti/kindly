@@ -160,24 +160,16 @@ export const requestService = {
   },
 
   suggestRequestTypes: async (
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _data: {
       name: string;
       description: string;
     }
   ): Promise<ApiResponse<SuggestedRequestType[]>> => {
-    // This endpoint will be implemented in the backend later
-    // For now, return empty suggestions
-    return {
-      success: true,
-      data: [],
-    };
-
-    // When backend implements this:
-    // const response = await api.post<ApiResponse<SuggestedRequestType[]>>(
-    //   "/help-seeker/requests/suggest-type",
-    //   _data
-    // );
-    // return response.data;
+    // Calls backend to get suggested request types based on name/description
+    const response = await api.post<ApiResponse<SuggestedRequestType[]>>(
+      "/help-seeker/requests/suggest-type",
+      _data
+    );
+    return response.data;
   },
 };
