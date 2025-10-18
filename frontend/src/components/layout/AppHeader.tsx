@@ -13,6 +13,7 @@ import { Menu } from "@chakra-ui/react/menu";
 import { FaUser, FaSignOutAlt, FaArrowLeft } from "react-icons/fa";
 import { Logo } from "../ui/logo";
 import { authService } from "../../services/auth.service";
+import { useAuth } from "../../contexts/useAuth";
 import { toaster } from "../ui/toaster";
 import type { ElementType } from "react";
 import { useRef, useState } from "react";
@@ -61,11 +62,12 @@ export const AppHeader = ({
     hoverTimer.current = setTimeout(() => setMenuOpen(false), delay);
   };
 
-  // Mock user data - in real app, this would come from auth context
-  const currentUser = {
-    firstName: "John",
-    lastName: "Doe",
-    id: 1,
+  // Get current user from auth context
+  const { user } = useAuth();
+  const currentUser = user ?? {
+    first_name: "User",
+    last_name: "",
+    id: 0,
   };
 
   const handleLogout = async () => {
@@ -206,7 +208,7 @@ export const AppHeader = ({
                 <Text color="gray.700">
                   Welcome,{" "}
                   <Text as="span" fontWeight="bold">
-                    {currentUser.firstName}
+                    {currentUser.first_name}
                   </Text>
                   !{" "}
                 </Text>
@@ -229,14 +231,14 @@ export const AppHeader = ({
                     >
                       <Avatar.Root
                         colorPalette={pickAvatarPalette(
-                          currentUser.firstName,
-                          currentUser.lastName
+                          currentUser.first_name,
+                          currentUser.last_name
                         )}
                       >
                         <Avatar.Fallback
                           name={getFullName(
-                            currentUser.firstName,
-                            currentUser.lastName
+                            currentUser.first_name,
+                            currentUser.last_name
                           )}
                         />
                       </Avatar.Root>

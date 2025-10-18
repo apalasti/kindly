@@ -7,8 +7,9 @@ import {
   FaClock,
   FaEnvelopeOpenText,
   FaUserCheck,
+  FaTimesCircle,
 } from "react-icons/fa";
-import type { Request } from "../../types";
+import type { Request, VolunteerRequest, HelpSeekerRequest } from "../../types";
 import type { ElementType } from "react";
 import { getFullName, pickAvatarPalette } from "../../utils/avatar";
 import { formatDate } from "../../utils/date";
@@ -24,7 +25,6 @@ export const RequestCard = ({
   isVolunteer,
   onClick,
 }: RequestCardProps) => {
-  // Determine status and styling
   const getStatusInfo = () => {
     if (request.is_completed) {
       return {
@@ -33,19 +33,21 @@ export const RequestCard = ({
         icon: FaCheckCircle,
       };
     }
-    if (request.accepted_volunteer) {
-      return {
-        label: "Volunteer Accepted",
-        colorScheme: "success",
-        icon: FaUserCheck,
-      };
-    }
-    if (request.has_applied) {
-      return {
-        label: "Applied",
-        colorScheme: "teal",
-        icon: FaEnvelopeOpenText,
-      };
+    if (isVolunteer) {
+      const volunteerRequest = request as VolunteerRequest;
+      if (volunteerRequest.acceptance_status === "accepted") {
+        return { label: "Accepted", colorScheme: "success", icon: FaUserCheck };
+      }
+      if (volunteerRequest.acceptance_status === "declined") {
+        return { label: "Declined", colorScheme: "red", icon: FaTimesCircle };
+      }
+      if (volunteerRequest.acceptance_status === "pending") {
+        return {
+          label: "Applied",
+          colorScheme: "teal",
+          icon: FaEnvelopeOpenText,
+        };
+      }
     }
     return {
       label: "Open",
@@ -63,6 +65,10 @@ export const RequestCard = ({
   };
 
   const displayedAvatars = 2;
+
+  const helpSeekerRequest: HelpSeekerRequest | null = !isVolunteer
+    ? (request as HelpSeekerRequest)
+    : null;
 
   return (
     <Box
@@ -168,10 +174,12 @@ export const RequestCard = ({
                 <Text>{request.applications_count}</Text>
               </HStack>
             </HStack>
-          ) : request.applications && request.applications.length > 0 ? (
+          ) : helpSeekerRequest &&
+            helpSeekerRequest.applications &&
+            helpSeekerRequest.applications!.length > 0 ? (
             <HStack gap={0} spaceX="-2">
-              {request.applications
-                .slice(0, displayedAvatars)
+              {helpSeekerRequest
+                .applications!.slice(0, displayedAvatars)
                 .map((application) => (
                   <Avatar.Root
                     key={application.user.id}
@@ -191,10 +199,10 @@ export const RequestCard = ({
                     />
                   </Avatar.Root>
                 ))}
-              {request.applications.length > displayedAvatars && (
+              {helpSeekerRequest.applications!.length > displayedAvatars && (
                 <Avatar.Root size="sm" variant="solid" bg="coral.700">
                   <Avatar.Fallback>
-                    +{request.applications.length - displayedAvatars}
+                    +{helpSeekerRequest.applications!.length - displayedAvatars}
                   </Avatar.Fallback>
                 </Avatar.Root>
               )}

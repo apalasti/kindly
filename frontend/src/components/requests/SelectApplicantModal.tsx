@@ -37,9 +37,6 @@ export const SelectApplicantModal = ({
     if (!selectedUserId) return;
     try {
       setIsSaving(true);
-      // In mock mode we don't have endpoint; simulate success
-      // TODO: integrate real accept endpoint when backend ready
-      await new Promise((r) => setTimeout(r, 500));
       onAccepted(selectedUserId);
       toaster.create({
         title: "Success",

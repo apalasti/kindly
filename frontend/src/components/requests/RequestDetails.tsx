@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import {
   Box,
   Stack,
@@ -27,49 +28,244 @@ import { LeaveReviewModal } from "./LeaveReviewModal";
 import { RequestDetailsBadges } from "./RequestDetailsBadges";
 import { ApplicantsSection } from "./ApplicantsSection";
 import { SelectApplicantModal } from "./SelectApplicantModal";
-import type { Request, RequestApplication } from "../../types";
+import type {
+  RequestDetails as RequestDetailsType,
+  RequestApplication,
+  HelpSeekerRequestDetails,
+  VolunteerRequestDetails,
+  AcceptanceStatus,
+} from "../../types";
 import type { ElementType } from "react";
 import { getFullName, pickAvatarPalette } from "../../utils/avatar";
 import { formatDateFull } from "../../utils/date";
+import { requestService } from "../../services/request.service";
+import { toaster } from "../ui/toaster";
+
+type VolunteerActionProps = {
+  request: VolunteerRequestDetails;
+  currentVolunteerAccepted: boolean;
+  otherVolunteerAccepted: boolean;
+  onApply: () => void;
+  isApplying?: boolean;
+  acceptanceStatus?: AcceptanceStatus;
+};
+
+const VolunteerAction = ({
+  request,
+  currentVolunteerAccepted,
+  otherVolunteerAccepted,
+  onApply,
+  isApplying = false,
+  acceptanceStatus,
+}: VolunteerActionProps) => {
+  if (otherVolunteerAccepted) {
+    return (
+      <HStack gap={2} p={4} bg="red.50" borderRadius="lg" justify="center">
+        <Icon as={FaTimesCircle as ElementType} boxSize={5} color="red.600" />
+        <Text color="red.700" fontWeight="semibold" fontSize="lg">
+          You have not been accepted for this request
+        </Text>
+      </HStack>
+    );
+  }
+
+  if (request.is_completed) {
+    return (
+      <HStack gap={2} p={4} bg="gray.100" borderRadius="lg" justify="center">
+        <Icon as={FaCheckCircle as ElementType} boxSize={5} color="gray.600" />
+        <Text color="gray.700" fontWeight="semibold" fontSize="lg">
+          This request has been completed
+        </Text>
+      </HStack>
+    );
+  }
+
+  if (currentVolunteerAccepted) {
+    return (
+      <HStack gap={2} p={4} bg="teal.50" borderRadius="lg" justify="center">
+        <Icon as={FaCheckCircle as ElementType} boxSize={5} color="teal.500" />
+        <Text color="teal.600" fontWeight="semibold" fontSize="lg">
+          You have been accepted for this request
+        </Text>
+      </HStack>
+    );
+  }
+
+  if (acceptanceStatus === "pending") {
+    return (
+      <HStack gap={2} p={4} bg="teal.50" borderRadius="lg" justify="center">
+        <Icon as={FaClock as ElementType} boxSize={5} color="teal.500" />
+        <Text color="teal.600" fontWeight="semibold" fontSize="lg">
+          You have applied to this request
+        </Text>
+      </HStack>
+    );
+  }
+
+  return (
+    <HStack px={4}>
+      <Button
+        onClick={onApply}
+        loading={isApplying}
+        px={4}
+        py={6}
+        borderRadius="2xl"
+        w="full"
+        maxW="xl"
+        mx="auto"
+        bg="teal.400"
+        _hover={{ bg: "teal.500", transform: "translateY(-2px)" }}
+        transition="all 0.3s ease"
+      >
+        <Icon as={FaEnvelopeOpenText as ElementType} mr={2} />
+        <Text color="white" fontWeight="semibold" fontSize="lg">
+          Apply to Help
+        </Text>
+      </Button>
+    </HStack>
+  );
+};
+
+type HelpSeekerActionsProps = {
+  request: HelpSeekerRequestDetails;
+  canSelectApplicant: boolean;
+  canMarkComplete: boolean;
+  onOpenSelect: () => void;
+};
+
+const HelpSeekerActions = ({
+  request,
+  canSelectApplicant,
+  canMarkComplete,
+  onOpenSelect,
+}: HelpSeekerActionsProps) => {
+  const handleMarkComplete = async () => {
+    try {
+      await requestService.completeRequest(request.id);
+      window.location.reload();
+    } catch (e) {
+      console.error("Mark as completed failed", e);
+      toaster.create({
+        title: "Mark as completed failed",
+        description: "Please try again",
+        type: "error",
+        duration: 5000,
+      });
+    }
+  };
+
+  return (
+    <HStack gap={3} justify="center">
+      {canSelectApplicant && (
+        <Button
+          size="md"
+          variant="solid"
+          bg="coral.500"
+          color="white"
+          borderRadius="full"
+          boxShadow="md"
+          onClick={onOpenSelect}
+          px={5}
+          _hover={{
+            boxShadow: "md",
+            transform: "translateY(-1px)",
+            bg: "coral.600",
+          }}
+          _active={{ transform: "translateY(0)" }}
+          transition="all 0.15s ease"
+        >
+          Select applicant
+        </Button>
+      )}
+      {canMarkComplete && (
+        <Button
+          size="md"
+          variant="solid"
+          bg="green.500"
+          color="white"
+          borderRadius="full"
+          boxShadow="md"
+          onClick={handleMarkComplete}
+          px={5}
+          _hover={{
+            boxShadow: "md",
+            transform: "translateY(-1px)",
+            bg: "green.600",
+          }}
+          _active={{ transform: "translateY(0)" }}
+          transition="all 0.15s ease"
+        >
+          Mark as completed
+        </Button>
+      )}
+    </HStack>
+  );
+};
 
 interface RequestDetailsProps {
-  request: Request;
-  applications: RequestApplication[];
+  request: RequestDetailsType;
+  applications?: RequestApplication[];
   isVolunteer: boolean;
-  currentUserId: number;
 }
 
 export const RequestDetails = ({
   request,
   applications,
   isVolunteer,
-  currentUserId,
 }: RequestDetailsProps) => {
   const navigate = useNavigate();
-  // const isCreator = request.creator_id === currentUserId;
+  const isCreator = !isVolunteer;
 
-  const isCreator = true;
+  const apps = applications ?? [];
 
   const acceptedVolunteer =
-    applications.find((app) => app.is_accepted)?.user || null;
+    apps.find((app) => app.acceptance_status === "accepted")?.user || null;
 
-  // const acceptedVolunteer = applications[0].user;
   const canSelectApplicant =
-    !isVolunteer && isCreator && !acceptedVolunteer && applications.length > 0;
+    !isVolunteer && isCreator && !acceptedVolunteer && apps.length > 0;
+
+  const canMarkComplete =
+    !isVolunteer && isCreator && !!acceptedVolunteer && !request.is_completed;
+
   const {
     open: isSelectOpen,
     onOpen: onOpenSelect,
     onClose: onCloseSelect,
   } = useDisclosure();
-  const handleAccepted = (userId: number) => {
-    // Update UI optimistically; in future, refetch or adjust state shape
-    // For now this component relies on acceptedVolunteer stub above
-    console.log("Accepted volunteer user id:", userId);
-  };
+  const handleAccepted = () => {};
 
-  const handleApply = () => {
-    // TODO: Implement apply functionality
-    console.log("Apply to request:", request.id);
+  const volunteerRequest = request as VolunteerRequestDetails;
+  const [volunteerAcceptanceStatus, setVolunteerAcceptanceStatus] = useState<
+    AcceptanceStatus | undefined
+  >(volunteerRequest.acceptance_status);
+  const [isApplying, setIsApplying] = useState(false);
+
+  const handleApply = async () => {
+    try {
+      setIsApplying(true);
+      const res = await requestService.applyToRequest(request.id);
+      if (res.success) {
+        setVolunteerAcceptanceStatus("pending");
+        toaster.create({
+          title: "Application submitted",
+          description: "You've applied to help on this request.",
+          type: "success",
+          duration: 4000,
+        });
+      } else {
+        throw new Error(res.message || "Failed to apply");
+      }
+    } catch (e) {
+      console.error("Apply failed", e);
+      toaster.create({
+        title: "Couldn't apply",
+        description: "Please try again",
+        type: "error",
+        duration: 5000,
+      });
+    } finally {
+      setIsApplying(false);
+    }
   };
 
   const handleEdit = () => {
@@ -77,17 +273,15 @@ export const RequestDetails = ({
   };
 
   const handleCreatorClick = () => {
-    if (request.creator) {
-      navigate(`/profile/${request.creator.id}`);
+    if (isVolunteer && volunteerRequest.creator) {
+      navigate(`/profile/${volunteerRequest.creator.id}`);
     }
   };
 
   const currentVolunteerAccepted =
-    !!request.accepted_volunteer &&
-    request.accepted_volunteer.id === currentUserId;
+    isVolunteer && volunteerAcceptanceStatus === "accepted";
   const otherVolunteerAccepted =
-    !!request.accepted_volunteer &&
-    request.accepted_volunteer.id !== currentUserId;
+    isVolunteer && volunteerAcceptanceStatus === "declined";
 
   const isEditDisabled = request.applications_count > 0;
 
@@ -98,90 +292,12 @@ export const RequestDetails = ({
     onClose: onCloseReview,
   } = useDisclosure();
 
-  // const canLeaveReview =
-  //   request.is_completed &&
-  //   ((isVolunteer && currentVolunteerAccepted) || (!isVolunteer && isCreator));
-
-  const canLeaveReview = true;
+  const [canLeaveReview, setCanLeaveReview] = useState(
+    request.is_completed && (currentVolunteerAccepted || isCreator)
+  );
 
   const handleReviewSubmitted = () => {
-    // TODO: optionally refresh request details or show toast
-  };
-
-  const renderVolunteerAction = () => {
-    if (otherVolunteerAccepted) {
-      return (
-        <HStack gap={2} p={4} bg="red.50" borderRadius="lg" justify="center">
-          <Icon as={FaTimesCircle as ElementType} boxSize={5} color="red.600" />
-          <Text color="red.700" fontWeight="semibold" fontSize="lg">
-            You have not been accepted for this request
-          </Text>
-        </HStack>
-      );
-    }
-
-    if (request.is_completed) {
-      return (
-        <HStack gap={2} p={4} bg="gray.100" borderRadius="lg" justify="center">
-          <Icon
-            as={FaCheckCircle as ElementType}
-            boxSize={5}
-            color="gray.600"
-          />
-          <Text color="gray.700" fontWeight="semibold" fontSize="lg">
-            This request has been completed
-          </Text>
-        </HStack>
-      );
-    }
-
-    if (currentVolunteerAccepted) {
-      return (
-        <HStack gap={2} p={4} bg="teal.50" borderRadius="lg" justify="center">
-          <Icon
-            as={FaCheckCircle as ElementType}
-            boxSize={5}
-            color="teal.500"
-          />
-          <Text color="teal.600" fontWeight="semibold" fontSize="lg">
-            You have been accepted for this request
-          </Text>
-        </HStack>
-      );
-    }
-
-    if (request.has_applied) {
-      return (
-        <HStack gap={2} p={4} bg="teal.50" borderRadius="lg" justify="center">
-          <Icon as={FaClock as ElementType} boxSize={5} color="teal.500" />
-          <Text color="teal.600" fontWeight="semibold" fontSize="lg">
-            You have applied to this request
-          </Text>
-        </HStack>
-      );
-    }
-
-    return (
-      <HStack px={4}>
-        <Button
-          onClick={handleApply}
-          px={4}
-          py={6}
-          borderRadius="2xl"
-          w="full"
-          maxW="xl"
-          mx="auto"
-          bg="teal.400"
-          _hover={{ bg: "teal.500", transform: "translateY(-2px)" }}
-          transition="all 0.3s ease"
-        >
-          <Icon as={FaEnvelopeOpenText as ElementType} mr={2} />
-          <Text color="white" fontWeight="semibold" fontSize="lg">
-            Apply to Help
-          </Text>
-        </Button>
-      </HStack>
-    );
+    setCanLeaveReview(false);
   };
 
   return (
@@ -208,31 +324,9 @@ export const RequestDetails = ({
               wordBreak="break-word"
               pr={10}
             >
-              {/* {request.name} */}
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit
-              fndsfgjsdigjsikgjfdgndfjghnfdjgbnfsjgnsjfgnjsfgnjf
+              {request.name}
             </Text>
-            {canSelectApplicant && (
-              <Button
-                size="md"
-                variant="solid"
-                bg="coral.500"
-                color="white"
-                borderRadius="full"
-                boxShadow="md"
-                onClick={onOpenSelect}
-                px={5}
-                _hover={{
-                  boxShadow: "md",
-                  transform: "translateY(-1px)",
-                  bg: "coral.600",
-                }}
-                _active={{ transform: "translateY(0)" }}
-                transition="all 0.15s ease"
-              >
-                Select applicant
-              </Button>
-            )}
+            {/* role actions moved below */}
             {canLeaveReview && (
               <Button
                 size="md"
@@ -298,7 +392,7 @@ export const RequestDetails = ({
                 </Tooltip.Positioner>
               </Tooltip.Root>
             )}
-            {isVolunteer && request.creator && (
+            {isVolunteer && volunteerRequest.creator && (
               <Box>
                 <HStack
                   gap={4}
@@ -317,11 +411,11 @@ export const RequestDetails = ({
                       textAlign="right"
                     >
                       {getFullName(
-                        request.creator.first_name,
-                        request.creator.last_name
+                        volunteerRequest.creator.first_name,
+                        volunteerRequest.creator.last_name
                       )}
                     </Text>
-                    {request.creator.avg_rating && (
+                    {volunteerRequest.creator.avg_rating && (
                       <HStack gap={1} color="gray.800" px={2} borderRadius="xl">
                         <Icon as={FaStar as ElementType} boxSize={4} />
                         <Text
@@ -329,7 +423,7 @@ export const RequestDetails = ({
                           fontWeight="semibold"
                           textAlign="right"
                         >
-                          {request.creator.avg_rating.toFixed(1)}
+                          {volunteerRequest.creator.avg_rating.toFixed(1)}
                         </Text>
                       </HStack>
                     )}
@@ -337,14 +431,14 @@ export const RequestDetails = ({
                   <Avatar.Root
                     size="lg"
                     colorPalette={pickAvatarPalette(
-                      request.creator.first_name,
-                      request.creator.last_name
+                      volunteerRequest.creator.first_name,
+                      volunteerRequest.creator.last_name
                     )}
                   >
                     <Avatar.Fallback
                       name={getFullName(
-                        request.creator.first_name,
-                        request.creator.last_name
+                        volunteerRequest.creator.first_name,
+                        volunteerRequest.creator.last_name
                       )}
                     />
                   </Avatar.Root>
@@ -352,7 +446,6 @@ export const RequestDetails = ({
               </Box>
             )}
           </HStack>
-          {/* Accepted volunteer now rendered first in applicants grid */}
         </Stack>
 
         <Separator />
@@ -377,7 +470,7 @@ export const RequestDetails = ({
           <HStack gap={2} color="gray.600">
             <Icon as={FaMapMarkerAlt as ElementType} boxSize={5} />
             <Text fontSize="md">
-              {request.location_address || "Address not provided"}
+              {request.address || "Address not provided"}
             </Text>
           </HStack>
         </Box>
@@ -444,14 +537,14 @@ export const RequestDetails = ({
         ) : (
           <Box>
             <Text fontSize="lg" fontWeight="semibold" color="gray.700" mb={3}>
-              Applicants ({applications.length})
+              Applicants ({apps.length})
             </Text>
-            {applications.length === 0 && !acceptedVolunteer ? (
+            {apps.length === 0 && !acceptedVolunteer ? (
               <Text color="gray.800">No applicants yet</Text>
             ) : (
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
                 {(() => {
-                  let ordered = applications.slice();
+                  let ordered = apps.slice();
                   if (acceptedVolunteer) {
                     const index = ordered.findIndex(
                       (a) => a.user.id === acceptedVolunteer.id
@@ -533,8 +626,28 @@ export const RequestDetails = ({
           </Box>
         )}
 
-        {/* Apply Button for Volunteers */}
-        {isVolunteer && <Box>{renderVolunteerAction()}</Box>}
+        {/* Actions by actor type */}
+        {isVolunteer ? (
+          <Box>
+            <VolunteerAction
+              request={volunteerRequest}
+              currentVolunteerAccepted={currentVolunteerAccepted}
+              otherVolunteerAccepted={otherVolunteerAccepted}
+              onApply={handleApply}
+              isApplying={isApplying}
+              acceptanceStatus={
+                volunteerAcceptanceStatus ?? volunteerRequest.acceptance_status
+              }
+            />
+          </Box>
+        ) : (
+          <HelpSeekerActions
+            request={request as HelpSeekerRequestDetails}
+            canSelectApplicant={canSelectApplicant}
+            canMarkComplete={canMarkComplete}
+            onOpenSelect={onOpenSelect}
+          />
+        )}
       </Stack>
       <LeaveReviewModal
         isOpen={isReviewOpen}
@@ -543,12 +656,14 @@ export const RequestDetails = ({
         isVolunteer={isVolunteer}
         onSubmitted={handleReviewSubmitted}
       />
-      <SelectApplicantModal
-        isOpen={isSelectOpen}
-        onClose={onCloseSelect}
-        applications={applications}
-        onAccepted={handleAccepted}
-      />
+      {!isVolunteer && (
+        <SelectApplicantModal
+          isOpen={isSelectOpen}
+          onClose={onCloseSelect}
+          applications={apps}
+          onAccepted={handleAccepted}
+        />
+      )}
     </Box>
   );
 };

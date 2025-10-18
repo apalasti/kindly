@@ -21,8 +21,6 @@ import type { Request, RequestType, UpdateRequestData } from "../types";
 import { ConfirmDialog } from "../components/ui/ConfirmDialog";
 import { useConfirmDialog } from "../hooks/useConfirmDialog";
 
-// Reuse RequestForm for validation and UI
-
 export const RequestEditPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -33,8 +31,6 @@ export const RequestEditPage = () => {
 
   const [initialValues, setInitialValues] =
     useState<Partial<RequestFormValues> | null>(null);
-
-  // Check if user can edit
 
   // Load request data
   useEffect(() => {
@@ -51,25 +47,6 @@ export const RequestEditPage = () => {
         const requestData = requestResponse.data;
         setRequest(requestData);
 
-        // // Check if user can edit (creator only, and no applications)
-        // const currentUserId = parseInt(localStorage.getItem("user_id") || "-1");
-        // if (
-        //   requestData.creator_id !== currentUserId ||
-        //   requestData.applications_count > 0
-        // ) {
-        //   toaster.create({
-        //     title: "Cannot edit request",
-        //     description:
-        //       requestData.applications_count > 0
-        //         ? "You can't edit a request once applications have been submitted."
-        //         : "You can only edit your own requests.",
-        //     type: "error",
-        //     duration: 5000,
-        //   });
-        //   navigate(`/requests/${id}`);
-        //   return;
-        // }
-
         // Load request types
         const typesResponse = await requestService.getRequestTypes();
         setRequestTypes(typesResponse.data);
@@ -78,7 +55,7 @@ export const RequestEditPage = () => {
         setInitialValues({
           name: requestData.name,
           description: requestData.description,
-          location_address: requestData.location_address || "",
+          address: requestData.address || "",
           location_coordinates: {
             longitude: requestData.longitude,
             latitude: requestData.latitude,
