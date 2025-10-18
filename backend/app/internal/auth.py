@@ -32,13 +32,16 @@ class UserData:
     def from_user(cls, user: User):
         return cls(user.id, user.name, user.email, user.is_volunteer)
 
-    def create_token(self):
-        return create_access_token({
-            "id": self.id,
-            "name": self.name,
-            "email": self.email,
-            "is_volunteer": self.is_volunteer,
-        })
+    def create_token(self, expires_delta: timedelta | None = None):
+        return create_token(
+            {
+                "id": self.id,
+                "name": self.name,
+                "email": self.email,
+                "is_volunteer": self.is_volunteer,
+            },
+            expires_delta,
+        )
 
 
 def verify_password(plain_password, hashed_password):
@@ -49,12 +52,12 @@ def get_password_hash(password):
     return password_hash.hash(password)
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+def create_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(hours=15)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=5)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -62,7 +65,14 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 async def get_user_data_from_token(token: Annotated[str, Depends(oauth2_scheme)]):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+            options={
+                "require": ["exp"],
+            },
+        )
         payload.pop("exp")
         return UserData(**payload)
     except InvalidTokenError:

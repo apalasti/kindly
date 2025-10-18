@@ -10,7 +10,7 @@ from .base import Base
 class User(Base):
     __tablename__ = "user"
 
-    id: Mapped[Optional[int]] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
     name: Mapped[str] = mapped_column(String, nullable=False)
     email: Mapped[str] = mapped_column(String, nullable=False, unique=True)
