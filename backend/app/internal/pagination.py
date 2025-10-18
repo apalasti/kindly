@@ -13,7 +13,7 @@ class PaginationParams(BaseModel):
 
     async def paginate(self, session: AsyncSession, query: Select) -> tuple[list, dict]:
         paginated_query = query.offset((self.page - 1) * self.limit).limit(self.limit)
-        page = (await session.execute(paginated_query)).all()
+        page = (await session.execute(paginated_query)).unique().all()
 
         count_query = select(func.count()).select_from(query.subquery())
         total = (await session.execute(count_query)).scalar_one()

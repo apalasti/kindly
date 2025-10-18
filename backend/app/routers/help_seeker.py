@@ -1,10 +1,11 @@
 from datetime import datetime
 from typing import Literal
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from fastapi.routing import APIRouter
 from geoalchemy2.functions import ST_Point
 from pydantic import BaseModel, Field
+from sqlalchemy import update
 from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.orm import defer, joinedload
 from sqlalchemy.sql import asc, column, desc, func, select, text
@@ -28,6 +29,7 @@ async def get_request(
         await session.execute(
             select(Request)
             .options(joinedload(Request.request_types))
+            # .options(joinedload(Request.applicants))
             .filter(Request.id == request_id)
             .filter(Request.creator_id == user_data.id)
         )
@@ -45,6 +47,7 @@ class CreateRequestBody(BaseModel):
     description: str
     longitude: float
     latitude: float
+    address: str
     start: datetime
     end: datetime
     reward: float = Field(
@@ -60,6 +63,7 @@ async def create_request(
     request = Request(
         name=body.name,
         description=body.description,
+        address=body.address,
         longitude=body.longitude,
         latitude=body.latitude,
         location=ST_Point(body.latitude, body.longitude),
@@ -110,6 +114,7 @@ async def update_request(
     request.start = body.start
     request.end = body.end
     request.reward = body.reward
+    request.address = body.address
     request.latitude = body.latitude
     request.longitude = body.longitude
     request.location = ST_Point(body.latitude, body.longitude)
@@ -155,7 +160,7 @@ async def delete_request(
 
 
 class RequestsPagination(PaginationParams):
-    status: Literal["open", "completed", "all"] = Field(default="all")
+    status: Literal["OPEN", "COMPLETED", "ALL"] = Field(default="ALL")
     sort: Literal["created_at", "start", "reward"] = Field(default="created_at")
     order: Literal["asc", "desc"] = Field(default="desc")
 
@@ -168,20 +173,15 @@ async def get_requests(
         select(
             *(col for col in Request.__table__.columns if col.key not in {"location"}),
             func.count(Application.user_id).label("applications_count"),
-            func.cast(func.max(
-                func.coalesce(func.cast(Application.is_accepted, Integer), 0)
-            ), Boolean).label("has_accepted_volunteer"),
         )
         .join(Application, isouter=True)
         .where(Request.creator_id == user_data.id)
-        .where(
-            (Request.is_completed == False)
-            if body.status == "open"
-            else (Request.is_completed == True) if body.status == "completed" else True
-        )
         .group_by(Request)
         .order_by(asc(body.sort) if body.order == "asc" else desc(body.sort))
     )
+    if body.status != "ALL":
+        query = query.where(Request.status == body.status)
+
     return await body.paginate(session, query)
 
 
@@ -221,14 +221,24 @@ async def get_request_applications(
     request_id: int
 ):
     applications = (
-        await session.execute(
-            select(Application)
-            .options(joinedload(Application.volunteer).load_only(User.id, User.name, User.avg_rating))
-            .join(Request, Request.id == Application.request_id)
-            .filter(Application.request_id == request_id)
-            .filter(Request.creator_id == user_data.id)
+        (
+            await session.execute(
+                select(Application)
+                .options(
+                    joinedload(Application.volunteer).load_only(
+                        User.id, User.first_name, User.last_name, User.avg_rating
+                    ),
+                    defer(Application.user_id),
+                    defer(Application.request_id),
+                )
+                .join(Request, Request.id == Application.request_id)
+                .filter(Application.request_id == request_id)
+                .filter(Request.creator_id == user_data.id)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return {
         "success": True,
         "data": applications,
@@ -242,42 +252,43 @@ async def accept_application(
     request_id: int,
     user_id: int
 ):
-    # TODO: Shouldn't we accept the application id rather then the user id?
-    try:
-        application = (
+    async with session.begin():
+        request = (
             await session.execute(
-                select(Application)
-                .options(joinedload(Application.request))
+                select(Request)
                 .filter(Request.creator_id == user_data.id)
-                .filter(Application.request_id == request_id)
-                .filter(
-                    (Application.user_id == user_id) | (Application.is_accepted == True)
-                )
+                .filter((Application.request_id == request_id) & (Application.user_id == user_id))
+                .with_for_update()
             )
         ).scalar_one_or_none()
-    except MultipleResultsFound as e:
-        raise HTTPException(
-            status_code=400, detail="Already accepted an application for this request"
+        if request is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Request or application not found"
+            )
+
+        if request.status != "OPEN":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot accept application for request"
+            )
+
+        await session.execute(
+            update(Application)
+            .where(Application.request_id == request_id)
+            .values(
+                status=text(
+                    "CASE WHEN user_id = :user_id THEN 'ACCEPTED' ELSE 'DECLINED' END"
+                ).bindparams(user_id=user_id)
+            )
         )
-
-    if application is None:
-        raise HTTPException(status_code=404, detail="Application not found")
-
-    if application.is_accepted:
-        raise HTTPException(
-            status_code=404,
-            detail="This application is already accepted for this request.",
-        )
-
-    application.is_accepted = True
-    await session.commit()
+        request.status = "CLOSED"
 
     return {
         "success": True,
         "data": {
             "request_id": request_id,
             "user_id": user_id,
-            "is_accepted": True,
         },
         "message": "Application accepted successfully"
     }
@@ -302,7 +313,7 @@ async def rate_volunteer(
             .filter(Request.id == request_id)
             .filter(Request.creator_id == user_data.id)
             .filter(Application.is_accepted)
-            .filter(Request.is_completed == True)
+            .filter(Request.status == "COMPLETED")
         )
     ).scalar_one_or_none()
     if application is None:

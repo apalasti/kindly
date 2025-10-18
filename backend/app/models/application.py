@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import TIMESTAMP, Boolean, ForeignKey, Integer, text
+from sqlalchemy import TIMESTAMP, Boolean, ForeignKey, Integer, String, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.schema import UniqueConstraint
 
@@ -19,7 +19,9 @@ class Application(Base):
     request_id: Mapped[int] = mapped_column(Integer, ForeignKey("request.id"), nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
 
-    is_accepted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    # Possible values PENDING, DECLINED, ACCEPTED
+    status: Mapped[str] = mapped_column(String(length=10), nullable=False, default="PENDING")
+
     applied_at: Mapped[Optional[datetime]] = mapped_column(
         TIMESTAMP(timezone=True),
         nullable=False,

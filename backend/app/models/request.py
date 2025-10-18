@@ -19,11 +19,14 @@ class Request(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=False)
     reward: Mapped[int] = mapped_column(Integer, nullable=False)
-    is_completed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
+    # Possible values: OPEN, CLOSED, COMPLETED
+    status: Mapped[str] = mapped_column(String(10), nullable=False, default="OPEN")
 
     start: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
     end: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
 
+    address: Mapped[str] = mapped_column(String, nullable=False)
     longitude: Mapped[Decimal] = mapped_column(Numeric, nullable=False)
     latitude: Mapped[Decimal] = mapped_column(Numeric, nullable=False)
     location: Mapped[Geography] = mapped_column(
@@ -47,6 +50,6 @@ class Request(Base):
     request_types: Mapped[List["RequestType"]] = relationship(
         secondary="type_of", back_populates="requests"
     )
-    applications: Mapped[List["User"]] = relationship(
+    applicants: Mapped[List["User"]] = relationship(
         secondary="application", back_populates="applications"
     )

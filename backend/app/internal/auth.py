@@ -24,19 +24,21 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
 @dataclass()
 class UserData:
     id: int
-    name: str
+    first_name: str
+    last_name: str
     email: str
     is_volunteer: bool
 
     @classmethod
     def from_user(cls, user: User):
-        return cls(user.id, user.name, user.email, user.is_volunteer)
+        return cls(
+            user.id, user.first_name, user.last_name, user.email, user.is_volunteer
+        )
 
     def create_token(self, expires_delta: timedelta | None = None):
         return create_token(
             {
                 "id": self.id,
-                "name": self.name,
                 "email": self.email,
                 "is_volunteer": self.is_volunteer,
             },

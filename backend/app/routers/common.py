@@ -27,7 +27,8 @@ async def get_profile(session: SessionDep, user_data: UserDataDep):
 
 
 class UpdateProfileBody(BaseModel):
-    name: str
+    first_name: str
+    last_name: str
     date_of_birth: date
     about_me: str
 
@@ -38,7 +39,8 @@ async def update_profile(session: SessionDep, user_data: UserDataDep, body: Upda
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    user.name = body.name
+    user.first_name = body.first_name
+    user.last_name = body.last_name
     user.about_me = body.about_me
     user.date_of_birth = body.date_of_birth.isoformat()
     await session.commit()

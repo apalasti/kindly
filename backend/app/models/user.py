@@ -12,7 +12,8 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
-    name: Mapped[str] = mapped_column(String, nullable=False)
+    first_name: Mapped[str] = mapped_column(String, nullable=False)
+    last_name: Mapped[str] = mapped_column(String, nullable=False)
     email: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     password: Mapped[str] = mapped_column(String, nullable=False)
     date_of_birth: Mapped[str] = mapped_column(String, nullable=False)
@@ -36,13 +37,14 @@ class User(Base):
         "Request", back_populates="creator"
     )
     applications: Mapped[List["Request"]] = relationship(
-        secondary="application", back_populates="applications"
+        secondary="application", back_populates="applicants"
     )
 
     def serialize(self):
         return {
             "id": self.id,
-            "name": self.name,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
             "email": self.email,
             "date_of_birth": self.date_of_birth,
             "about_me": self.about_me,

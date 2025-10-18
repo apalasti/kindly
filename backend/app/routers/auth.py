@@ -29,7 +29,8 @@ class LoginBody(BaseModel):
 
 
 class RegisterBody(BaseModel):
-    name: str
+    first_name: str
+    last_name: str
     email: EmailStr
     password: str
     date_of_birth: date
@@ -67,7 +68,8 @@ async def login(session: SessionDep, body: LoginBody, response: Response):
 @router.post("/register")
 async def register(session: SessionDep, body: RegisterBody, response: Response):
     user = User(
-        name=body.name,
+        first_name=body.first_name,
+        last_name=body.last_name,
         email=body.email,
         password=auth.get_password_hash(body.password),
         date_of_birth=body.date_of_birth.isoformat(),
