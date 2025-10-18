@@ -11,7 +11,7 @@ import {
 import { Field } from "@chakra-ui/react/field";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { loginSchema, type LoginFormData } from "../utils/validators";
 import { authService } from "../services/auth.service";
 import { PasswordInput } from "../components/ui/password-input";
@@ -24,6 +24,7 @@ export const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation() as { state?: { from?: string } };
 
   const {
     register,
@@ -44,7 +45,8 @@ export const LoginPage = () => {
         type: "success",
         duration: 5000,
       });
-      navigate("/dashboard");
+      const target = location.state?.from || "/requests";
+      navigate(target, { replace: true });
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error
@@ -173,26 +175,6 @@ export const LoginPage = () => {
                     Create one now
                   </Text>
                 </Text>
-
-                {/* Helper text for testing */}
-                <Box
-                  mt={4}
-                  p={4}
-                  bg="gray.50"
-                  borderRadius="md"
-                  borderLeft="4px solid"
-                  borderColor="blue.400"
-                >
-                  <Text fontSize="sm" color="gray.600" fontWeight="semibold">
-                    Test Credentials:
-                  </Text>
-                  <Text fontSize="sm" color="gray.600" mt={1}>
-                    Email: test@example.com
-                  </Text>
-                  <Text fontSize="sm" color="gray.600">
-                    Password: password123
-                  </Text>
-                </Box>
               </Stack>
             </Box>
           </Box>

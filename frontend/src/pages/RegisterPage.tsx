@@ -1,7 +1,7 @@
 import { useState, type ElementType } from "react";
 import { Box, Container, Stack, Text, HStack, Icon } from "@chakra-ui/react";
 import { useForm, Controller, useWatch } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FaHandHoldingHeart, FaHandsHelping } from "react-icons/fa";
 import type { RegisterFormData } from "../utils/validators";
 import { authService } from "../services/auth.service";
@@ -11,11 +11,13 @@ import { getBackgroundStyle, getAccentColor } from "../theme/backgrounds";
 import { ActorTypeSwitch } from "../components/ui/actor-type-switch";
 import { ProfileForm } from "../components/profile/ProfileForm";
 import { PageLayout } from "../components/layout/PageLayout";
+import { toDateOnly } from "../utils/date";
 
 export const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   // Password visibility managed inside ProfileForm
   const navigate = useNavigate();
+  const location = useLocation() as { state?: { from?: string } };
 
   const { control, setValue } = useForm<RegisterFormData>({
     defaultValues: { is_volunteer: false },
@@ -38,9 +40,7 @@ export const RegisterPage = () => {
   const handleProfileSubmit = async (data: BasicProfilePayload) => {
     setIsLoading(true);
     try {
-      const formattedDate = data.date_of_birth
-        ? new Date(data.date_of_birth).toISOString().split("T")[0]
-        : "";
+      const formattedDate = toDateOnly(data.date_of_birth);
       if (!data.password) {
         throw new Error("Password is required");
       }
@@ -60,7 +60,8 @@ export const RegisterPage = () => {
         type: "success",
         duration: 5000,
       });
-      navigate("/dashboard");
+      const target = location.state?.from || "/requests";
+      navigate(target, { replace: true });
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error

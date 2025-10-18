@@ -64,11 +64,6 @@ export const AppHeader = ({
 
   // Get current user from auth context
   const { user } = useAuth();
-  const currentUser = user ?? {
-    first_name: "User",
-    last_name: "",
-    id: 0,
-  };
 
   const handleLogout = async () => {
     const confirmed = await confirm({
@@ -101,7 +96,8 @@ export const AppHeader = ({
   };
 
   const handleProfileClick = () => {
-    navigate(`/profile/${currentUser.id}`);
+    if (!user) return;
+    navigate(`/profile/${user.id}`);
   };
 
   return (
@@ -203,93 +199,92 @@ export const AppHeader = ({
                 </Heading>
               )}
 
-              {/* User Greeting + Menu - Right side */}
-              <HStack align="center" gap={5}>
-                <Text color="gray.700">
-                  Welcome,{" "}
-                  <Text as="span" fontWeight="bold">
-                    {currentUser.first_name}
+              {/* User Greeting + Menu - Right side (render only if user exists) */}
+              {user && (
+                <HStack align="center" gap={5}>
+                  <Text color="gray.700">
+                    Welcome,{" "}
+                    <Text as="span" fontWeight="bold">
+                      {user.first_name}
+                    </Text>
+                    !{" "}
                   </Text>
-                  !{" "}
-                </Text>
-                <Menu.Root
-                  positioning={{ placement: "bottom-end" }}
-                  open={menuOpen}
-                  onOpenChange={(e: { open: boolean }) => setMenuOpen(e.open)}
-                >
-                  <Menu.Trigger asChild>
-                    <Box
-                      cursor="pointer"
-                      borderRadius="full"
-                      transition="box-shadow 0.2s, background-color 0.2s"
-                      _hover={{
-                        boxShadow: "sm",
-                      }}
-                      onMouseEnter={openMenu}
-                      onMouseLeave={() => closeMenuWithDelay()}
-                      onClick={() => setMenuOpen((v) => !v)}
-                    >
-                      <Avatar.Root
-                        colorPalette={pickAvatarPalette(
-                          currentUser.first_name,
-                          currentUser.last_name
-                        )}
-                      >
-                        <Avatar.Fallback
-                          name={getFullName(
-                            currentUser.first_name,
-                            currentUser.last_name
-                          )}
-                        />
-                      </Avatar.Root>
-                    </Box>
-                  </Menu.Trigger>
-                  <Portal>
-                    <Menu.Positioner>
-                      <Menu.Content
-                        minW="200px"
-                        p={4}
-                        boxShadow={"lg"}
-                        display="flex"
-                        flexDir="column"
-                        gap={3}
-                        onMouseEnter={clearHoverTimer}
+                  <Menu.Root
+                    positioning={{ placement: "bottom-end" }}
+                    open={menuOpen}
+                    onOpenChange={(e: { open: boolean }) => setMenuOpen(e.open)}
+                  >
+                    <Menu.Trigger asChild>
+                      <Box
+                        cursor="pointer"
+                        borderRadius="full"
+                        transition="box-shadow 0.2s, background-color 0.2s"
+                        _hover={{
+                          boxShadow: "sm",
+                        }}
+                        onMouseEnter={openMenu}
                         onMouseLeave={() => closeMenuWithDelay()}
+                        onClick={() => setMenuOpen((v) => !v)}
                       >
-                        <Menu.Item
-                          value="profile"
-                          onClick={() => {
-                            handleProfileClick();
-                            setMenuOpen(false);
-                          }}
-                          cursor="pointer"
-                          py={3}
-                          px={3}
-                          _hover={{ bg: "gray.50" }}
+                        <Avatar.Root
+                          colorPalette={pickAvatarPalette(
+                            user.first_name,
+                            user.last_name
+                          )}
                         >
-                          <Icon as={FaUser as ElementType} mr={3} />
-                          My Profile
-                        </Menu.Item>
-                        <Menu.Item
-                          value="logout"
-                          onClick={() => {
-                            handleLogout();
-                            setMenuOpen(false);
-                          }}
-                          cursor="pointer"
-                          color="red.500"
-                          py={3}
-                          px={3}
-                          _hover={{ bg: "red.50" }}
+                          <Avatar.Fallback
+                            name={getFullName(user.first_name, user.last_name)}
+                          />
+                        </Avatar.Root>
+                      </Box>
+                    </Menu.Trigger>
+                    <Portal>
+                      <Menu.Positioner>
+                        <Menu.Content
+                          minW="200px"
+                          p={4}
+                          boxShadow={"lg"}
+                          display="flex"
+                          flexDir="column"
+                          gap={3}
+                          onMouseEnter={clearHoverTimer}
+                          onMouseLeave={() => closeMenuWithDelay()}
                         >
-                          <Icon as={FaSignOutAlt as ElementType} mr={3} />
-                          Logout
-                        </Menu.Item>
-                      </Menu.Content>
-                    </Menu.Positioner>
-                  </Portal>
-                </Menu.Root>
-              </HStack>
+                          <Menu.Item
+                            value="profile"
+                            onClick={() => {
+                              handleProfileClick();
+                              setMenuOpen(false);
+                            }}
+                            cursor="pointer"
+                            py={3}
+                            px={3}
+                            _hover={{ bg: "gray.50" }}
+                          >
+                            <Icon as={FaUser as ElementType} mr={3} />
+                            My Profile
+                          </Menu.Item>
+                          <Menu.Item
+                            value="logout"
+                            onClick={() => {
+                              handleLogout();
+                              setMenuOpen(false);
+                            }}
+                            cursor="pointer"
+                            color="red.500"
+                            py={3}
+                            px={3}
+                            _hover={{ bg: "red.50" }}
+                          >
+                            <Icon as={FaSignOutAlt as ElementType} mr={3} />
+                            Logout
+                          </Menu.Item>
+                        </Menu.Content>
+                      </Menu.Positioner>
+                    </Portal>
+                  </Menu.Root>
+                </HStack>
+              )}
             </HStack>
           </Box>
         </Container>

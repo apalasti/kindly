@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { PasswordInput, PasswordStrengthMeter } from "../ui/password-input";
 import { DatePicker } from "../ui/date-picker";
+import { toDateOnly } from "../../utils/date";
 import { passwordStrength, type Options } from "check-password-strength";
 import { FaSave, FaTimes } from "react-icons/fa";
 import type { User } from "../../types";
@@ -333,7 +334,7 @@ export const ProfileForm = ({
               <DatePicker
                 selected={field.value ? new Date(field.value) : null}
                 onChange={(date) => {
-                  field.onChange(date ? date.toISOString() : "");
+                  field.onChange(date ? toDateOnly(date) : "");
                 }}
                 size="lg"
               />
