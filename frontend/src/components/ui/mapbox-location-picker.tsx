@@ -23,6 +23,7 @@ export const MapboxLocationPicker = ({
   >([]);
   const [open, setOpen] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   type MapboxFeature = {
@@ -37,7 +38,7 @@ export const MapboxLocationPicker = ({
   }, [value]);
 
   useEffect(() => {
-    if (!token) return; // no suggestions without token
+    if (!token || !hasInteracted) return;
     const q = inputValue.trim();
     if (q.length < 3) {
       setSuggestions([]);
@@ -80,7 +81,7 @@ export const MapboxLocationPicker = ({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [inputValue, token]);
+  }, [inputValue, token, hasInteracted]);
 
   const commitSelection = (item: {
     id: string;
@@ -107,8 +108,12 @@ export const MapboxLocationPicker = ({
         <Input
           value={inputValue}
           placeholder={placeholder}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={(e) => {
+            setHasInteracted(true);
+            setInputValue(e.target.value);
+          }}
           onFocus={() => {
+            setHasInteracted(true);
             if (suggestions.length) setOpen(true);
           }}
           onBlur={() => {

@@ -114,7 +114,8 @@ export const RequestCard = ({
         </Text>
 
         {/* Request types */}
-        {request.request_types.length > 0 &&
+        {request.request_types &&
+          request.request_types.length > 0 &&
           (() => {
             const maxVisible = 3;
             const visible = request.request_types.slice(0, maxVisible);

@@ -15,6 +15,7 @@ export const api = axios.create({
 // --- Refresh token coordination state ---
 let isRefreshing = false;
 let refreshSubscribers: Array<(token: string) => void> = [];
+let proactiveRefreshTimer: ReturnType<typeof setTimeout> | null = null;
 
 type RetryableAxiosRequestConfig = AxiosRequestConfig & { _retry?: boolean };
 
@@ -34,12 +35,65 @@ async function refreshAccessToken(): Promise<string> {
     {},
     { withCredentials: true }
   );
-  const newToken = response.data?.data?.token as string | undefined;
+  const newToken = response.data?.token as string | undefined;
   if (!newToken) {
     throw new Error("No access token returned by refresh endpoint");
   }
   tokenManager.setAccessToken(newToken);
+  scheduleProactiveRefresh(newToken);
   return newToken;
+}
+
+function scheduleProactiveRefresh(token: string) {
+  // Clear any existing timer
+  if (proactiveRefreshTimer) {
+    clearTimeout(proactiveRefreshTimer);
+    proactiveRefreshTimer = null;
+  }
+
+  // Check if token is expired or will expire soon
+  const payload = tokenManager.decodeToken(token);
+  if (!payload || !payload.exp || typeof payload.exp !== "number") {
+    return;
+  }
+
+  const expirationTime = payload.exp * 1000; // Convert to milliseconds
+  const currentTime = Date.now();
+  const timeUntilExpiry = expirationTime - currentTime;
+
+  // Refresh 1 minute before expiry (or immediately if less than 1 minute left)
+  const refreshBuffer = 60 * 1000; // 1 minute in milliseconds
+  const timeUntilRefresh = Math.max(0, timeUntilExpiry - refreshBuffer);
+
+  proactiveRefreshTimer = setTimeout(async () => {
+    try {
+      if (!isRefreshing) {
+        isRefreshing = true;
+        await refreshAccessToken();
+        isRefreshing = false;
+      }
+    } catch (error) {
+      isRefreshing = false;
+      console.error("Proactive token refresh failed:", error);
+      // Don't redirect here - let the next API call handle it
+    }
+  }, timeUntilRefresh);
+}
+
+// Export function to initialize proactive refresh on app load
+export function initializeTokenRefresh() {
+  const token = tokenManager.getAccessToken();
+  if (token && !tokenManager.isTokenExpired(token)) {
+    scheduleProactiveRefresh(token);
+  }
+}
+
+// Export function to stop proactive refresh (e.g., on logout)
+export function stopTokenRefresh() {
+  if (proactiveRefreshTimer) {
+    clearTimeout(proactiveRefreshTimer);
+    proactiveRefreshTimer = null;
+  }
 }
 
 function setAuthHeader(cfg: RetryableAxiosRequestConfig, token: string) {
@@ -47,14 +101,32 @@ function setAuthHeader(cfg: RetryableAxiosRequestConfig, token: string) {
   (cfg.headers as Record<string, string>).Authorization = `Bearer ${token}`;
 }
 
-// Request interceptor to add auth token
+// Request interceptor to add auth token and check expiration
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
     const token = tokenManager.getAccessToken();
     if (token) {
-      (
-        config.headers as Record<string, string>
-      ).Authorization = `Bearer ${token}`;
+      // Check if token is expired or will expire very soon (within 30 seconds)
+      if (tokenManager.isTokenExpired(token, { bufferMs: 30000 })) {
+        // Token is expired or about to expire, refresh it before making the request
+        if (!isRefreshing) {
+          isRefreshing = true;
+          try {
+            const newToken = await refreshAccessToken();
+            isRefreshing = false;
+            (
+              config.headers as Record<string, string>
+            ).Authorization = `Bearer ${newToken}`;
+          } catch (error) {
+            isRefreshing = false;
+            throw error;
+          }
+        }
+      } else {
+        (
+          config.headers as Record<string, string>
+        ).Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },

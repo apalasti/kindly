@@ -111,7 +111,5 @@ export const tokenManager = {
    */
   clearAuth: (): void => {
     tokenManager.removeAccessToken();
-    // When refresh tokens are implemented, they'll be cleared via API call
-    // which will remove the HttpOnly cookie
   },
 };

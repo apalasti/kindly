@@ -240,6 +240,11 @@ export const RequestDetails = ({
   >(volunteerRequest.acceptance_status);
   const [isApplying, setIsApplying] = useState(false);
 
+  const rating: number | undefined = isVolunteer
+    ? volunteerRequest.creator.avg_rating
+    : undefined;
+  const showRating = rating !== undefined && rating > 0;
+
   const handleApply = async () => {
     try {
       setIsApplying(true);
@@ -415,7 +420,7 @@ export const RequestDetails = ({
                         volunteerRequest.creator.last_name
                       )}
                     </Text>
-                    {volunteerRequest.creator.avg_rating && (
+                    {showRating && (
                       <HStack gap={1} color="gray.800" px={2} borderRadius="xl">
                         <Icon as={FaStar as ElementType} boxSize={4} />
                         <Text
@@ -423,7 +428,7 @@ export const RequestDetails = ({
                           fontWeight="semibold"
                           textAlign="right"
                         >
-                          {volunteerRequest.creator.avg_rating.toFixed(1)}
+                          {rating.toFixed(1)}
                         </Text>
                       </HStack>
                     )}

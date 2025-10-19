@@ -26,7 +26,7 @@ export const EditProfilePage = () => {
 
   // Get current user from auth context
   const { user: currentUser, isVolunteer: currentUserIsVolunteer } = useAuth();
-  const isOwnProfile = currentUser?.id === parseInt(id || "0");
+  const isOwnProfile = currentUser?.id === parseInt(id || "-1");
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -192,7 +192,7 @@ export const EditProfilePage = () => {
           </Box>
         </Container>
       </AppLayout>
-      <ConfirmDialog {...dialogProps} />
+      <ConfirmDialog isVolunteer={currentUserIsVolunteer} {...dialogProps} />
     </>
   );
 };

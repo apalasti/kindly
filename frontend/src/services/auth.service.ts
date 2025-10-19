@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api, stopTokenRefresh, initializeTokenRefresh } from "./api";
 import axios from "axios";
 import { tokenManager } from "../utils/token";
 import type { AuthResponse, RegisterRequest, LoginRequest } from "../types";
@@ -53,6 +53,8 @@ export const authService = {
 
       if (response.data.success && response.data.data.token) {
         tokenManager.setAccessToken(response.data.data.token);
+        // Initialize proactive token refresh after login
+        initializeTokenRefresh();
       }
 
       // Update auth context if available
@@ -74,6 +76,9 @@ export const authService = {
   },
 
   logout: async (): Promise<void> => {
+    // Stop proactive token refresh
+    stopTokenRefresh();
+
     // Best-effort server-side logout to clear HttpOnly refresh cookie
     try {
       await api.post("/auth/logout");

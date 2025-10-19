@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { RegisterPage } from "./pages/RegisterPage";
 import { LoginPage } from "./pages/LoginPage";
@@ -8,8 +9,14 @@ import { CreateRequestPage } from "./pages/CreateRequestPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { EditProfilePage } from "./pages/EditProfilePage";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { initializeTokenRefresh } from "./services/api";
 
 function App() {
+  useEffect(() => {
+    // Initialize proactive token refresh on app mount
+    initializeTokenRefresh();
+  }, []);
+
   return (
     <Routes>
       {/* Public routes */}
