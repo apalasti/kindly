@@ -81,6 +81,7 @@ async def get_requests(
         request_obj = row.pop("Request")
         row["application_status"] = row.get("application_status", "NOT_APPLIED")
         row.update(request_obj.__dict__)
+    page["success"] = True
     return page
 
 
@@ -89,8 +90,9 @@ async def get_request(session: SessionDep, user_data: VolunteerDep, request_id: 
     request = (
         await session.execute(
             select(
-                Request, 
-                func.coalesce(Application.status, "NOT_APPLIED").label("application_status")
+                Request,
+                func.coalesce(Application.status, "NOT_APPLIED").label("application_status"),
+                func.count(Application.user_id).label("applications_count")
             )
             .options(defer(Request.location))
             .options(
@@ -101,16 +103,35 @@ async def get_request(session: SessionDep, user_data: VolunteerDep, request_id: 
             .options(joinedload(Request.request_types))
             .join(
                 Application,
-                (Request.id == Application.request_id)
-                & (Application.user_id == user_data.id),
+                Request.id == Application.request_id,
                 isouter=True,
             )
             .where(Request.id == request_id)
+            .group_by(Request.id, Application.status)
         )
     ).unique().one_or_none()
     if request is None:
         raise HTTPException(status_code=404, detail="Request not found")
-    return {**request[0].__dict__, "application_status": request[1]}
+
+    # Get the current user's application status separately
+    user_application_status = (
+        await session.execute(
+            select(func.coalesce(Application.status, "NOT_APPLIED"))
+            .where(
+                (Application.request_id == request_id)
+                & (Application.user_id == user_data.id)
+            )
+        )
+    ).scalar_one_or_none() or "NOT_APPLIED"
+
+    return {
+        "success": True,
+        "data": {
+            **request[0].__dict__,
+            "application_status": user_application_status,
+            "applications_count": request[2]
+        }
+    }
 
 
 @router.post("/{request_id}/application")

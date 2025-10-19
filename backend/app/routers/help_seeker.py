@@ -26,6 +26,7 @@ async def get_request(
     request = (
         await session.execute(
             select(Request)
+            .options(defer(Request.location))
             .options(joinedload(Request.request_types))
             # .options(joinedload(Request.applicants))
             .filter(Request.id == request_id)
@@ -126,7 +127,8 @@ async def update_request(
 
     return {
         "success": True,
-        "data": request
+        "data": request,
+        "message": "Request updated successfully"
     }
 
 
@@ -180,7 +182,9 @@ async def get_requests(
     if body.status != "all":
         query = query.where(Request.status == body.status.upper())
 
-    return await body.paginate(session, query)
+    page = await body.paginate(session, query)
+    page["success"] = True
+    return page
 
 
 @router.patch("/{request_id}/complete")
