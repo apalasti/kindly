@@ -160,7 +160,7 @@ async def delete_request(
 
 
 class RequestsPagination(PaginationParams):
-    status: Literal["OPEN", "COMPLETED", "ALL"] = Field(default="ALL")
+    status: Literal["open", "completed", "all"] = Field(default="all")
     sort: Literal["created_at", "start", "reward"] = Field(default="created_at")
     order: Literal["asc", "desc"] = Field(default="desc")
 
@@ -179,8 +179,8 @@ async def get_requests(
         .group_by(Request)
         .order_by(asc(body.sort) if body.order == "asc" else desc(body.sort))
     )
-    if body.status != "ALL":
-        query = query.where(Request.status == body.status)
+    if body.status != "all":
+        query = query.where(Request.status == body.status.upper())
 
     return await body.paginate(session, query)
 
