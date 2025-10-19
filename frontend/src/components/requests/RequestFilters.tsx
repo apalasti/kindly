@@ -50,7 +50,7 @@ export const RequestFilters = ({
 
   // Initialize selected types
   const [selectedTypes, setSelectedTypes] = useState<string[]>(
-    filters.type ? [String(filters.type)] : []
+    filters.request_type_ids ? filters.request_type_ids.map(String) : []
   );
 
   const handleStatusRadioChange = (value: string) => {
@@ -78,7 +78,8 @@ export const RequestFilters = ({
 
     const newFilters = {
       ...filters,
-      type: details.value.length > 0 ? parseInt(details.value[0]) : undefined,
+      request_type_ids:
+        details.value.length > 0 ? details.value.map(Number) : undefined,
       page: 1,
     };
     onFiltersChange(newFilters);

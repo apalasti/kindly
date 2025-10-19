@@ -34,7 +34,7 @@ interface DateTimePickerProps {
   minDate?: Date;
   maxDate?: Date;
   placeholderText?: string;
-  isVolunteer?: boolean;
+  isVolunteer: boolean;
 }
 
 export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(
@@ -45,7 +45,7 @@ export const DateTimePicker = forwardRef<HTMLDivElement, DateTimePickerProps>(
       minDate,
       maxDate,
       placeholderText = "Select date and time",
-      isVolunteer = false,
+      isVolunteer,
     },
     ref
   ) => {

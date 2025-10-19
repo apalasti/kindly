@@ -69,6 +69,7 @@ export const CreateRequestPage = () => {
         title=""
         headerVariant="navigation"
         onBack={() => navigate(-1)}
+        isVolunteer={false}
       >
         <Container maxW="container.xl" mx="auto">
           <Box
@@ -99,7 +100,7 @@ export const CreateRequestPage = () => {
           </Box>
         </Container>
       </AppLayout>
-      <ConfirmDialog {...dialogProps} />
+      <ConfirmDialog isVolunteer={false} {...dialogProps} />
     </>
   );
 };

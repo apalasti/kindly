@@ -44,6 +44,9 @@ export const ProfileDetails = ({
   // Determine accent color based on user type
   const accentColor = currentUserIsVolunteer ? "teal.400" : "coral.500";
 
+  const rating = Number(user.avg_rating);
+  const showRating = Number.isFinite(rating) && rating > 0;
+
   return (
     <Box
       bg="white"
@@ -110,7 +113,7 @@ export const ProfileDetails = ({
             >
               {user.is_volunteer ? "Volunteer" : "Help Seeker"}
             </Badge>
-            {user.avg_rating && (
+            {showRating && (
               <HStack
                 gap={2}
                 bg="gray.100"
@@ -126,7 +129,7 @@ export const ProfileDetails = ({
                   color="gray.700"
                   lineHeight="1"
                 >
-                  {user.avg_rating.toFixed(1)}
+                  {rating.toFixed(1)}
                 </Text>
               </HStack>
             )}

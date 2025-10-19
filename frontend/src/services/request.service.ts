@@ -40,11 +40,9 @@ export const requestService = {
   getMyRequests: async (
     filters: RequestFilters
   ): Promise<PaginatedResponse<HelpSeekerRequest>> => {
-    const response = await api.get<PaginatedResponse<HelpSeekerRequest>>(
+    const response = await api.post<PaginatedResponse<HelpSeekerRequest>>(
       "/help-seeker/requests",
-      {
-        params: filters,
-      }
+      filters
     );
     return response.data;
   },
@@ -53,7 +51,7 @@ export const requestService = {
     data: CreateRequestData
   ): Promise<ApiResponse<Request>> => {
     const response = await api.post<ApiResponse<Request>>(
-      "/help-seeker/requests",
+      "/help-seeker/requests/new",
       data
     );
     return response.data;
@@ -108,11 +106,9 @@ export const requestService = {
   browseRequests: async (
     filters: RequestFilters
   ): Promise<PaginatedResponse<VolunteerRequest>> => {
-    const response = await api.get<PaginatedResponse<VolunteerRequest>>(
+    const response = await api.post<PaginatedResponse<VolunteerRequest>>(
       "/volunteer/requests",
-      {
-        params: filters,
-      }
+      filters
     );
     return response.data;
   },
@@ -159,12 +155,10 @@ export const requestService = {
     return response.data;
   },
 
-  suggestRequestTypes: async (
-    _data: {
-      name: string;
-      description: string;
-    }
-  ): Promise<ApiResponse<SuggestedRequestType[]>> => {
+  suggestRequestTypes: async (_data: {
+    name: string;
+    description: string;
+  }): Promise<ApiResponse<SuggestedRequestType[]>> => {
     // Calls backend to get suggested request types based on name/description
     const response = await api.post<ApiResponse<SuggestedRequestType[]>>(
       "/help-seeker/requests/suggest-type",

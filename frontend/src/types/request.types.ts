@@ -57,7 +57,7 @@ export type RequestStatus = "open" | "completed" | "all" | "applied";
 
 export interface RequestFilters {
   status?: RequestStatus;
-  type?: number;
+  request_type_ids?: number[];
   location_lat?: number;
   location_lng?: number;
   radius?: number;

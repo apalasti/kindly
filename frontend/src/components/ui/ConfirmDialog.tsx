@@ -14,7 +14,7 @@ export interface ConfirmDialogProps {
   cancelLabel?: string;
   variant?: ConfirmDialogVariant;
   icon?: ElementType;
-  isVolunteer?: boolean;
+  isVolunteer: boolean;
 }
 
 export const ConfirmDialog = ({
@@ -27,7 +27,7 @@ export const ConfirmDialog = ({
   cancelLabel = "Cancel",
   variant = "danger",
   icon,
-  isVolunteer = false,
+  isVolunteer,
 }: ConfirmDialogProps) => {
   const handleConfirm = () => {
     onConfirm();

@@ -24,7 +24,7 @@ import { useConfirmDialog } from "../../hooks/useConfirmDialog";
 
 interface AppHeaderProps {
   title?: string;
-  isVolunteer?: boolean;
+  isVolunteer: boolean;
   variant?: "default" | "navigation";
   onBack?: () => void;
   logoSize?: string;
@@ -33,7 +33,7 @@ interface AppHeaderProps {
 
 export const AppHeader = ({
   title,
-  isVolunteer = false,
+  isVolunteer,
   variant = "default",
   onBack,
   logoSize = "1.3rem",
@@ -64,6 +64,9 @@ export const AppHeader = ({
 
   // Get current user from auth context
   const { user } = useAuth();
+  const firstName = user?.first_name ?? "";
+  const lastName = user?.last_name;
+  const hasFirstName = firstName.trim().length > 0;
 
   const handleLogout = async () => {
     const confirmed = await confirm({
@@ -78,13 +81,13 @@ export const AppHeader = ({
     if (!confirmed) return;
 
     try {
-      await authService.logout();
       toaster.create({
         title: "Logged out successfully",
         type: "success",
         duration: 3000,
       });
       navigate("/login");
+      await authService.logout();
     } catch {
       toaster.create({
         title: "Logout failed",
@@ -203,11 +206,17 @@ export const AppHeader = ({
               {user && (
                 <HStack align="center" gap={5}>
                   <Text color="gray.700">
-                    Welcome,{" "}
-                    <Text as="span" fontWeight="bold">
-                      {user.first_name}
-                    </Text>
-                    !{" "}
+                    {hasFirstName ? (
+                      <>
+                        Welcome,{" "}
+                        <Text as="span" fontWeight="bold">
+                          {user.first_name}
+                        </Text>
+                        !
+                      </>
+                    ) : (
+                      <>Welcome!</>
+                    )}
                   </Text>
                   <Menu.Root
                     positioning={{ placement: "bottom-end" }}
@@ -227,14 +236,24 @@ export const AppHeader = ({
                         onClick={() => setMenuOpen((v) => !v)}
                       >
                         <Avatar.Root
-                          colorPalette={pickAvatarPalette(
-                            user.first_name,
-                            user.last_name
-                          )}
+                          {...(hasFirstName
+                            ? {
+                                colorPalette: pickAvatarPalette(
+                                  firstName,
+                                  lastName
+                                ),
+                              }
+                            : {})}
                         >
-                          <Avatar.Fallback
-                            name={getFullName(user.first_name, user.last_name)}
-                          />
+                          {hasFirstName ? (
+                            <Avatar.Fallback
+                              name={getFullName(firstName, lastName)}
+                            />
+                          ) : (
+                            <Avatar.Fallback>
+                              <Icon as={FaUser as ElementType} />
+                            </Avatar.Fallback>
+                          )}
                         </Avatar.Root>
                       </Box>
                     </Menu.Trigger>
@@ -289,7 +308,7 @@ export const AppHeader = ({
           </Box>
         </Container>
       </Box>
-      <ConfirmDialog {...dialogProps} />
+      <ConfirmDialog isVolunteer={false} {...dialogProps} />
     </>
   );
 };

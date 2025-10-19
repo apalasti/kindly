@@ -171,6 +171,7 @@ export const RequestEditPage = () => {
         title=""
         headerVariant="navigation"
         onBack={() => navigate(-1)}
+        isVolunteer={false}
       >
         <Center py={12}>
           <Stack align="center" gap={4}>
@@ -187,6 +188,7 @@ export const RequestEditPage = () => {
       title=""
       headerVariant="navigation"
       onBack={() => navigate(`/requests/${id}`)}
+      isVolunteer={false}
     >
       <Container maxW="container.xl" mx="auto">
         <Box
@@ -231,7 +233,7 @@ export const RequestEditPage = () => {
           </Stack>
         </Box>
       </Container>
-      <ConfirmDialog {...dialogProps} />
+      <ConfirmDialog isVolunteer={false} {...dialogProps} />
     </AppLayout>
   );
 };

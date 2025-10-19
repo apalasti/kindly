@@ -206,10 +206,14 @@ export const RequestMapView = ({
       if (typeof uiFilters.max_reward === "number")
         ok = ok && req.reward <= uiFilters.max_reward;
 
-      // Single type filter
-      if (typeof uiFilters.type === "number") {
+      // Type filter
+      if (uiFilters.request_type_ids && uiFilters.request_type_ids.length > 0) {
         const reqTypeIds = (req.request_types || []).map((t) => t.id);
-        ok = ok && reqTypeIds.includes(uiFilters.type);
+        ok =
+          ok &&
+          uiFilters.request_type_ids.some((typeId) =>
+            reqTypeIds.includes(typeId)
+          );
       }
 
       return ok;

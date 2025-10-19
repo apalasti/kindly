@@ -77,8 +77,6 @@ export const tokenManager = {
    */
   getUserFromToken: (): {
     id: number;
-    first_name: string;
-    last_name: string;
     email: string;
     is_volunteer: boolean;
   } | null => {
@@ -90,25 +88,19 @@ export const tokenManager = {
       id?: unknown;
       email?: unknown;
       is_volunteer?: unknown;
-      first_name?: unknown;
-      last_name?: unknown;
     };
     const p = (payload || {}) as JwtPayload;
     if (
       !payload ||
       typeof p.id !== "number" ||
       typeof p.email !== "string" ||
-      typeof p.is_volunteer !== "boolean" ||
-      typeof p.first_name !== "string" ||
-      typeof p.last_name !== "string"
+      typeof p.is_volunteer !== "boolean"
     ) {
       return null;
     }
 
     return {
       id: p.id as number,
-      first_name: p.first_name as string,
-      last_name: p.last_name as string,
       email: p.email as string,
       is_volunteer: p.is_volunteer as boolean,
     };

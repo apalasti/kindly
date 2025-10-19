@@ -171,7 +171,7 @@ export const RequestCard = ({
               )}
               <HStack gap={1} color="gray.500" fontSize="sm">
                 <Icon as={FaUsers as ElementType} boxSize={3} />
-                <Text>{request.applications_count}</Text>
+                <Text>{request.applications_count ?? 0}</Text>
               </HStack>
             </HStack>
           ) : helpSeekerRequest &&

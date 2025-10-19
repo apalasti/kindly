@@ -44,10 +44,10 @@ export const RequestsPage = () => {
 
   const [mapFilters, setMapFilters] = useState<Filters>({
     status: filters.status,
-    type: filters.type,
+    request_type_ids: filters.request_type_ids,
     min_reward: filters.min_reward,
     max_reward: filters.max_reward,
-    limit: 100, // Higher limit for map view
+    limit: 40, // Higher limit for map view
   });
 
   const [pagination, setPagination] = useState({
@@ -128,7 +128,7 @@ export const RequestsPage = () => {
     setMapFilters((prev) => ({
       ...prev,
       status: newFilters.status,
-      type: newFilters.type,
+      request_type_ids: newFilters.request_type_ids,
       min_reward: newFilters.min_reward,
       max_reward: newFilters.max_reward,
     }));

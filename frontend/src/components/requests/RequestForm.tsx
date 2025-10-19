@@ -351,6 +351,7 @@ export function RequestForm({
                   onChange={field.onChange}
                   minDate={new Date()}
                   placeholderText="Select start date and time"
+                  isVolunteer={false}
                 />
               )}
             />
@@ -370,6 +371,7 @@ export function RequestForm({
                   onChange={field.onChange}
                   minDate={watch("start") || new Date()}
                   placeholderText="Select end date and time"
+                  isVolunteer={false}
                 />
               )}
             />

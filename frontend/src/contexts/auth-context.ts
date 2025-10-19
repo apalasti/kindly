@@ -2,10 +2,10 @@ import { createContext } from "react";
 
 export interface AuthUser {
   id: number;
-  first_name: string;
-  last_name: string;
   email: string;
   is_volunteer: boolean;
+  first_name?: string;
+  last_name?: string;
 }
 
 export interface AuthContextType {

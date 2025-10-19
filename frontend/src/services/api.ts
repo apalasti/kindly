@@ -52,8 +52,9 @@ api.interceptors.request.use(
   (config) => {
     const token = tokenManager.getAccessToken();
     if (token) {
-      // Prepend bearer token to outgoing requests
-      (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
+      (
+        config.headers as Record<string, string>
+      ).Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -66,7 +67,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-  const originalRequest: RetryableAxiosRequestConfig = (error.config || {}) as RetryableAxiosRequestConfig;
+    const originalRequest: RetryableAxiosRequestConfig = (error.config ||
+      {}) as RetryableAxiosRequestConfig;
 
     // Handle 401 Unauthorized
     if (error.response?.status === 401) {
@@ -129,9 +131,3 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-/**
- * Future function for refreshing access token
- * Will be implemented when backend adds refresh token support
- */
-// Kept above as an actual implementation

@@ -5,7 +5,7 @@ import { getBackgroundStyle } from "../theme/backgrounds";
 
 interface AppLayoutProps {
   title?: string;
-  isVolunteer?: boolean;
+  isVolunteer: boolean;
   children: ReactNode;
   headerVariant?: "default" | "navigation";
   backButtonTitle?: string;
@@ -14,7 +14,7 @@ interface AppLayoutProps {
 
 export const AppLayout = ({
   title,
-  isVolunteer = false,
+  isVolunteer,
   children,
   headerVariant = "default",
   onBack,
