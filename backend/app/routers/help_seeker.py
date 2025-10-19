@@ -1,15 +1,13 @@
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, Query, status
 from fastapi.routing import APIRouter
 from geoalchemy2.functions import ST_Point
 from pydantic import BaseModel, Field
 from sqlalchemy import update
-from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.orm import defer, joinedload
-from sqlalchemy.sql import asc, column, desc, func, select, text
-from sqlalchemy.types import Boolean, Integer
+from sqlalchemy.sql import asc, desc, func, select, text
 
 from ..db import SessionDep
 from ..internal.auth import HelpSeekerDep
@@ -167,7 +165,7 @@ class RequestsPagination(PaginationParams):
 
 @router.get("/")
 async def get_requests(
-    session: SessionDep, user_data: HelpSeekerDep, body: RequestsPagination
+    session: SessionDep, user_data: HelpSeekerDep, body: Annotated[RequestsPagination, Query()]
 ):
     query = (
         select(

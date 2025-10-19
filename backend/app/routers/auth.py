@@ -58,7 +58,11 @@ async def login(session: SessionDep, body: LoginBody, response: Response):
     return {
         "success": True,
         "data": {
-            "user": user_data,
+            "user": {
+                **user_data.__dict__,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+            },
             "token": user_data.create_token(ACCESS_TOKEN_EXPIRY),
         },
     }
@@ -96,10 +100,14 @@ async def register(session: SessionDep, body: RegisterBody, response: Response):
     return {
         "success": True,
         "data": {
-            "user": user_data,
+            "user": {
+                **user_data.__dict__,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+            },
             "token": user_data.create_token(),
         },
-        "message": "User registered successfully"
+        "message": "User registered successfully",
     }
 
 

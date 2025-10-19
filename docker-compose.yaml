@@ -17,7 +17,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/kindly
+      - DB_URL=postgresql+asyncpg://postgres:postgres@db:5432/kindly
+      - DEBUG=1
     depends_on:
       - db
     networks:

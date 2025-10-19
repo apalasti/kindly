@@ -9,7 +9,7 @@ from sqlalchemy.sql import Select, func, select
 
 class PaginationParams(BaseModel):
     page: int = Field(default=1, gt=0)
-    limit: Literal[10, 20, 40] = Field(default=20)
+    limit: int = Field(default=20, gt=0, le=40)
 
     async def paginate(self, session: AsyncSession, query: Select) -> tuple[list, dict]:
         paginated_query = query.offset((self.page - 1) * self.limit).limit(self.limit)

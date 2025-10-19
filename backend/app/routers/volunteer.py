@@ -1,10 +1,9 @@
-from typing import List, Literal, Optional
+from typing import Annotated, List, Literal, Optional
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, Query
 from fastapi.routing import APIRouter
 from geoalchemy2.functions import ST_DWithin, ST_Point
 from pydantic import BaseModel, Field
-from sqlalchemy import Integer, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import defer, joinedload
 from sqlalchemy.sql import asc, desc, func, select
@@ -32,7 +31,7 @@ class VolunteerRequestsInput(PaginationParams):
 
 @router.get("/")
 async def get_requests(
-    session: SessionDep, user_data: VolunteerDep, body: VolunteerRequestsInput
+    session: SessionDep, user_data: VolunteerDep, body: Annotated[VolunteerRequestsInput, Query()]
 ):
     query = (
         select(

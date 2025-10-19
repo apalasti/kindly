@@ -40,9 +40,9 @@ export const requestService = {
   getMyRequests: async (
     filters: RequestFilters
   ): Promise<PaginatedResponse<HelpSeekerRequest>> => {
-    const response = await api.post<PaginatedResponse<HelpSeekerRequest>>(
+    const response = await api.get<PaginatedResponse<HelpSeekerRequest>>(
       "/help-seeker/requests",
-      filters
+      { params: filters }
     );
     return response.data;
   },
@@ -106,9 +106,9 @@ export const requestService = {
   browseRequests: async (
     filters: RequestFilters
   ): Promise<PaginatedResponse<VolunteerRequest>> => {
-    const response = await api.post<PaginatedResponse<VolunteerRequest>>(
+    const response = await api.get<PaginatedResponse<VolunteerRequest>>(
       "/volunteer/requests",
-      filters
+      { params: filters }
     );
     return response.data;
   },
