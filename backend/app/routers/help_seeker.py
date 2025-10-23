@@ -1,9 +1,13 @@
+import os
 from datetime import datetime
+from decimal import Decimal
 from typing import Annotated, Literal
 
+from dotenv import load_dotenv
 from fastapi import HTTPException, Query, status
 from fastapi.routing import APIRouter
 from geoalchemy2.functions import ST_Point
+from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
 from sqlalchemy import update
 from sqlalchemy.orm import defer, joinedload
@@ -14,6 +18,7 @@ from ..internal.auth import HelpSeekerDep
 from ..internal.pagination import PaginationParams
 from ..models import Application, Request, RequestType, User
 
+load_dotenv()
 router = APIRouter(
     prefix="/help-seeker/requests"
 )
@@ -112,17 +117,19 @@ async def update_request(
     request.description = body.description
     request.start = body.start
     request.end = body.end
-    request.reward = body.reward
+
+    request.reward = int(body.reward)
     request.address = body.address
-    request.latitude = body.latitude
-    request.longitude = body.longitude
+    request.latitude = Decimal(body.latitude)
+    request.longitude = Decimal(body.longitude)
     request.location = ST_Point(body.latitude, body.longitude)
 
-    # Update request types
     if body.request_type_ids:
-        request.request_types = (await session.execute(
+        request_types = await session.scalars(
             select(RequestType).where(RequestType.id.in_(body.request_type_ids))
-        )).scalars().all()
+        )
+        request.request_types.clear()
+        request.request_types.extend(request_types)
     await session.commit()
 
     return {
@@ -340,4 +347,55 @@ async def rate_volunteer(
             "volunteer_rating": body.rating,
         },
         "message": "Volunteer rated successfully"
+    }
+
+
+class CategoryGenerationRequest(BaseModel):
+    description: str = Field(min_length=20, max_length=2000)
+
+
+@router.post("/generate-categories")
+async def generate_categories(session: SessionDep, user_data: HelpSeekerDep, body: CategoryGenerationRequest):
+    api_key = os.getenv("GENAI_API_KEY")
+    base_url = os.getenv("GENAI_URL")
+    if api_key is None or base_url is None:
+        raise HTTPException(
+            status.HTTP_503_SERVICE_UNAVAILABLE, detail="AI Service is not enabled."
+        )
+
+    all_request_types = (await session.execute(select(RequestType))).scalars().all()
+    category_names = [rt.name for rt in all_request_types]
+
+    prompt = f"""
+    The user has provided the following description for a request:
+    "{body.description}"
+
+    Please choose the most relevant categories from the following list:
+    {', '.join(category_names)}
+
+    Return a comma-separated list of the chosen category names.
+    """
+
+    client = AsyncOpenAI(api_key=api_key, base_url=base_url)
+    response = await client.chat.completions.create(
+        model="models/gemma-3-27b-it",
+        messages=[
+            { "role": "user", "content": prompt }
+        ]
+    )
+    chosen_category_names = response.choices[0].message.content
+    if chosen_category_names is None:
+        return {
+            "success": True,
+            "data": []
+        }
+
+    chosen_category_names = [
+        name.strip().lower() for name in chosen_category_names.split(",")
+    ]
+    return {
+        "success": True,
+        "data": [
+            rt for rt in all_request_types if rt.name.lower() in chosen_category_names
+        ]
     }

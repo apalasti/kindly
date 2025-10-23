@@ -140,7 +140,7 @@ async def refresh(session: SessionDep, request: Request, response: Response):
 
 
 @router.post("/logout")
-async def refresh(session: SessionDep, request: Request, response: Response):
+async def logout(session: SessionDep, request: Request, response: Response):
     refresh_token = request.cookies.get("refresh_token", "")
     user_data = await auth.get_user_data_from_token(refresh_token)
 
@@ -165,7 +165,7 @@ def set_refresh_token(response: Response, refresh_token):
         httponly=True,
         secure=not bool(os.environ.get("DEBUG", False)),
         samesite="lax",
-        max_age=REFRESH_TOKEN_EXPIRY.total_seconds(),
+        max_age=int(REFRESH_TOKEN_EXPIRY.total_seconds()),
     )
 
 

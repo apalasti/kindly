@@ -9,9 +9,13 @@ from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
 from .models.base import Base
 
 load_dotenv()
+db_url = os.environ.get("DB_URL")
+if db_url is None:
+    raise ValueError("DB_URL environment variable is not set.")
+
 engine = create_async_engine(
-    os.environ.get("DB_URL"),
-    echo=bool(os.environ.get("DEBUG", False)),
+    db_url,
+    echo=os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes"),
     plugins=["geoalchemy2"],
 )
 async_session = async_sessionmaker(engine, expire_on_commit=False)

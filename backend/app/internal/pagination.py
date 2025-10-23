@@ -11,7 +11,7 @@ class PaginationParams(BaseModel):
     page: int = Field(default=1, gt=0)
     limit: int = Field(default=20, gt=0, le=40)
 
-    async def paginate(self, session: AsyncSession, query: Select) -> tuple[list, dict]:
+    async def paginate(self, session: AsyncSession, query: Select) -> dict:
         paginated_query = query.offset((self.page - 1) * self.limit).limit(self.limit)
         page = (await session.execute(paginated_query)).unique().all()
 
@@ -19,7 +19,6 @@ class PaginationParams(BaseModel):
         total = (await session.execute(count_query)).scalar_one()
 
         return {
-            "success": True,
             "data": [row._asdict() for row in page],
             "pagination": {
                 "page": self.page,

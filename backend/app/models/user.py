@@ -1,7 +1,7 @@
-from datetime import datetime
-from typing import List, Optional
+from datetime import date, datetime
+from typing import List
 
-from sqlalchemy import TIMESTAMP, Boolean, Float, Integer, String, text
+from sqlalchemy import TIMESTAMP, Boolean, Date, Float, Integer, String, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -16,7 +16,7 @@ class User(Base):
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     email: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     password: Mapped[str] = mapped_column(String, nullable=False)
-    date_of_birth: Mapped[str] = mapped_column(String, nullable=False)
+    date_of_birth: Mapped[date] = mapped_column(Date, nullable=False)
     about_me: Mapped[str] = mapped_column(String, nullable=False)
     is_volunteer: Mapped[bool] = mapped_column(Boolean, nullable=False)
     avg_rating: Mapped[float] = mapped_column(Float, default=0.0)

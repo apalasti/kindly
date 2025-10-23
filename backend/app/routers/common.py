@@ -42,7 +42,7 @@ async def update_profile(session: SessionDep, user_data: UserDataDep, body: Upda
     user.first_name = body.first_name
     user.last_name = body.last_name
     user.about_me = body.about_me
-    user.date_of_birth = body.date_of_birth.isoformat()
+    user.date_of_birth = body.date_of_birth
     await session.commit()
     await session.refresh(user)
     

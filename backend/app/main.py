@@ -43,7 +43,7 @@ app.include_router(volunteer.router, prefix=API_ROUTES_PREFIX)
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc: RequestValidationError):
+async def request_validation_exception_handler(request, exc: RequestValidationError):
     return JSONResponse(
         {
             "success": False,
