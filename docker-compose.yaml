@@ -14,11 +14,9 @@ services:
 
   backend:
     build: ./backend
+    env_file: "./backend/default.env"
     ports:
       - "8000:8000"
-    environment:
-      - DB_URL=postgresql+asyncpg://postgres:postgres@db:5432/kindly
-      - DEBUG=1
     depends_on:
       - db
     networks:
