@@ -46,7 +46,7 @@ class User(Base):
             "first_name": self.first_name,
             "last_name": self.last_name,
             "email": self.email,
-            "date_of_birth": self.date_of_birth,
+            "date_of_birth": self.date_of_birth.isoformat(),
             "about_me": self.about_me,
             "is_volunteer": self.is_volunteer,
             "avg_rating": self.avg_rating,

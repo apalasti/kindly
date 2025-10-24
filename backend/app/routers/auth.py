@@ -75,7 +75,7 @@ async def register(session: SessionDep, body: RegisterBody, response: Response):
         last_name=body.last_name,
         email=body.email,
         password=auth.get_password_hash(body.password),
-        date_of_birth=body.date_of_birth.isoformat(),
+        date_of_birth=body.date_of_birth,
         about_me=body.about_me,
         is_volunteer=body.is_volunteer
     )
