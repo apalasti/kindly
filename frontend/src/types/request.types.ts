@@ -77,8 +77,8 @@ export interface RequestFilters {
   max_reward?: number;
   page?: number;
   limit?: number;
-  sort?: "CREATED_AT" | "START" | "REWARD";
-  order?: "ASC" | "DESC";
+  sort?: "created_at" | "start" | "reward";
+  order?: "asc" | "desc";
 }
 
 export interface CreateRequestData {

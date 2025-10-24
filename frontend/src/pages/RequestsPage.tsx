@@ -43,8 +43,8 @@ export const RequestsPage = () => {
     status: RequestStatus.ALL,
     page: 1,
     limit: pageLimit,
-    sort: isVolunteer ? "START" : "CREATED_AT",
-    order: isVolunteer ? "ASC" : "DESC",
+    sort: isVolunteer ? "start" : "created_at",
+    order: isVolunteer ? "asc" : "desc",
   });
 
   const [mapFilters, setMapFilters] = useState<Filters>({
