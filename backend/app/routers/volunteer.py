@@ -19,7 +19,7 @@ router = APIRouter(
 
 
 class VolunteerRequestsInput(PaginationParams):
-    status: Literal["open", "completed", "applied", "all"] = Field(default="open")
+    status: Literal["OPEN", "COMPLETED", "APPLIED", "ALL"] = Field(default="OPEN")
     request_type_ids: Optional[List[int]] = None
     location_lat: Optional[float] = None
     location_lng: Optional[float] = None
@@ -60,11 +60,11 @@ async def get_requests(
             .distinct()
         )
 
-    if body.status == "open":
+    if body.status == "OPEN":
         query = query.where(Request.status == "OPEN")
-    elif body.status == "applied":
-        query = query.where(Application.status is not None)
-    elif body.status == "completed":
+    elif body.status == "APPLIED":
+        query = query.where(Application.status == None)
+    elif body.status == "COMPLETED":
         query = query.where(Request.status == "COMPLETED")
 
     if body.radius and body.location_lat and body.location_lng:
@@ -167,7 +167,7 @@ async def create_application(session: SessionDep, user_data: VolunteerDep, reque
             "request_id": application.request_id,
             "user_id": application.user_id,
             "status": application.status,
-            "applied_at": application.applied_at.isoformat()
+            "applied_at": application.applied_at
         },
         "message": "Application submitted successfully"
     }
@@ -219,7 +219,7 @@ async def rate_seeker(session: SessionDep, user_data: VolunteerDep, request_id: 
             .filter(Application.request_id == request_id)
             .filter(Application.user_id == user_data.id)
             .join(Request)
-            .filter(Request.is_completed == True)
+            .filter(Request.status == "COMPLETED")
         )
     ).scalar_one_or_none()
     

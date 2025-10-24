@@ -167,7 +167,7 @@ async def delete_request(
 
 
 class RequestsPagination(PaginationParams):
-    status: Literal["open", "completed", "all"] = Field(default="all")
+    status: Literal["OPEN", "COMPLETED", "ALL"] = Field(default="ALL")
     sort: Literal["created_at", "start", "reward"] = Field(default="created_at")
     order: Literal["asc", "desc"] = Field(default="desc")
 
@@ -186,7 +186,7 @@ async def get_requests(
         .group_by(Request)
         .order_by(asc(body.sort) if body.order == "asc" else desc(body.sort))
     )
-    if body.status != "all":
+    if body.status != "ALL":
         query = query.where(Request.status == body.status.upper())
 
     page = await body.paginate(session, query)
@@ -211,10 +211,10 @@ async def complete_request(
     if request is None:
         raise HTTPException(status_code=404, detail="Request not found")
 
-    if request.is_completed:
+    if request.status == "COMPLETED":
         raise HTTPException(status_code=400, detail="Request is already completed")
 
-    request.is_completed = True
+    request.status = "COMPLETED"
     await session.commit()
 
     return {
