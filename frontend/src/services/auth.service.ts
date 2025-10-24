@@ -27,6 +27,8 @@ export const authService = {
 
       if (response.data.success && response.data.data.token) {
         tokenManager.setAccessToken(response.data.data.token);
+         // Initialize proactive token refresh after successful registration
+         initializeTokenRefresh();
       }
 
       // Update auth context if available

@@ -10,7 +10,13 @@ import {
 } from "@chakra-ui/react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { Request, RequestFilters, VolunteerRequest } from "../../types";
+import {
+  AcceptanceStatus,
+  RequestStatus,
+  type Request,
+  type RequestFilters,
+  type VolunteerRequest,
+} from "../../types";
 import { FaChevronDown, FaChevronUp, FaSearch } from "react-icons/fa";
 import type { ElementType } from "react";
 
@@ -191,13 +197,15 @@ export const RequestMapView = ({
       let ok = true;
 
       // Status filter
-      const status = uiFilters.status || "all";
-      if (status !== "all") {
-        if (status === "completed") ok = ok && req.is_completed;
-        else if (status === "applied") {
+      const status = uiFilters.status || RequestStatus.ALL;
+      if (status !== RequestStatus.ALL) {
+        if (status === RequestStatus.COMPLETED) ok = ok && req.is_completed;
+        else if (status === RequestStatus.APPLIED) {
           const volunteerRequest = req as VolunteerRequest;
-          ok = ok && volunteerRequest.acceptance_status === "pending";
-        } else if (status === "open") ok = ok && !req.is_completed;
+          ok =
+            ok &&
+            volunteerRequest.acceptance_status === AcceptanceStatus.PENDING;
+        } else if (status === RequestStatus.OPEN) ok = ok && !req.is_completed;
       }
 
       // Reward range

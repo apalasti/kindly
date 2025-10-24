@@ -14,14 +14,13 @@ import {
 import type { RequestApplication } from "../../types";
 import type { ElementType } from "react";
 import { FaCheckCircle, FaStar } from "react-icons/fa";
-import { toaster } from "../ui/toaster";
 import { getFullName, pickAvatarPalette } from "../../utils/avatar";
 
 interface SelectApplicantModalProps {
   isOpen: boolean;
   onClose: () => void;
   applications: RequestApplication[];
-  onAccepted: (userId: number) => void;
+  onAccepted: (userId: number) => Promise<void> | void;
 }
 
 export const SelectApplicantModal = ({
@@ -37,13 +36,7 @@ export const SelectApplicantModal = ({
     if (!selectedUserId) return;
     try {
       setIsSaving(true);
-      onAccepted(selectedUserId);
-      toaster.create({
-        title: "Success",
-        description: "Volunteer selected successfully",
-        type: "success",
-        duration: 5000,
-      });
+      await Promise.resolve(onAccepted(selectedUserId));
       onClose();
     } finally {
       setIsSaving(false);
@@ -88,10 +81,10 @@ export const SelectApplicantModal = ({
                   <ScrollArea.Viewport pr={5}>
                     <Stack gap={2}>
                       {applications.map((app) => {
-                        const isSelected = selectedUserId === app.user.id;
+                        const isSelected = selectedUserId === app.volunteer.id;
                         return (
                           <HStack
-                            key={app.user.id}
+                            key={app.volunteer.id}
                             p={3}
                             borderRadius="md"
                             bg={isSelected ? "green.50" : "gray.50"}
@@ -102,34 +95,40 @@ export const SelectApplicantModal = ({
                             _hover={{
                               bg: isSelected ? "green.100" : "gray.100",
                             }}
-                            onClick={() => setSelectedUserId(app.user.id)}
+                            onClick={() => setSelectedUserId(app.volunteer.id)}
                           >
                             <Avatar.Root
                               size="sm"
                               colorPalette={pickAvatarPalette(
-                                app.user.first_name,
-                                app.user.last_name
+                                app.volunteer.first_name,
+                                app.volunteer.last_name
                               )}
                             >
                               <Avatar.Fallback
                                 name={getFullName(
-                                  app.user.first_name,
-                                  app.user.last_name
+                                  app.volunteer.first_name,
+                                  app.volunteer.last_name
                                 )}
                               />
                             </Avatar.Root>
                             <Stack flex={1} gap={0}>
                               <Text fontWeight="semibold" color="gray.800">
                                 {getFullName(
-                                  app.user.first_name,
-                                  app.user.last_name
+                                  app.volunteer.first_name,
+                                  app.volunteer.last_name
                                 )}
                               </Text>
-                              {app.user.avg_rating && (
+                              {app.volunteer.avg_rating ? (
                                 <HStack gap={1} fontSize="xs" color="gray.600">
                                   <Icon as={FaStar as ElementType} />
-                                  <Text>{app.user.avg_rating.toFixed(1)}</Text>
+                                  <Text>
+                                    {app.volunteer.avg_rating.toFixed(1)}
+                                  </Text>
                                 </HStack>
+                              ) : (
+                                <Text fontSize="xs" color="gray.500">
+                                  No ratings yet
+                                </Text>
                               )}
                             </Stack>
                             {isSelected && (

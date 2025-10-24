@@ -28,11 +28,11 @@ import { LeaveReviewModal } from "./LeaveReviewModal";
 import { RequestDetailsBadges } from "./RequestDetailsBadges";
 import { ApplicantsSection } from "./ApplicantsSection";
 import { SelectApplicantModal } from "./SelectApplicantModal";
-import type {
-  RequestDetails as RequestDetailsType,
-  RequestApplication,
-  HelpSeekerRequestDetails,
-  VolunteerRequestDetails,
+import {
+  type RequestDetails as RequestDetailsType,
+  type RequestApplication,
+  type HelpSeekerRequestDetails,
+  type VolunteerRequestDetails,
   AcceptanceStatus,
 } from "../../types";
 import type { ElementType } from "react";
@@ -91,7 +91,7 @@ const VolunteerAction = ({
     );
   }
 
-  if (acceptanceStatus === "pending") {
+  if (acceptanceStatus === AcceptanceStatus.PENDING) {
     return (
       <HStack gap={2} p={4} bg="teal.50" borderRadius="lg" justify="center">
         <Icon as={FaClock as ElementType} boxSize={5} color="teal.500" />
@@ -219,7 +219,8 @@ export const RequestDetails = ({
   const apps = applications ?? [];
 
   const acceptedVolunteer =
-    apps.find((app) => app.acceptance_status === "accepted")?.user || null;
+    apps.find((app) => app.acceptance_status === AcceptanceStatus.ACCEPTED)
+      ?.volunteer || null;
 
   const canSelectApplicant =
     !isVolunteer && isCreator && !acceptedVolunteer && apps.length > 0;
@@ -232,7 +233,30 @@ export const RequestDetails = ({
     onOpen: onOpenSelect,
     onClose: onCloseSelect,
   } = useDisclosure();
-  const handleAccepted = () => {};
+  const handleAccepted = async (userId: number) => {
+    try {
+      const res = await requestService.acceptApplication(request.id, userId);
+      if (res.success) {
+        toaster.create({
+          title: "Success",
+          description: "Volunteer selected successfully",
+          type: "success",
+          duration: 5000,
+        });
+        onCloseSelect();
+        window.location.reload();
+      } else {
+        throw new Error(res.message || "Failed to accept application");
+      }
+    } catch {
+      toaster.create({
+        title: "Couldn't select volunteer",
+        description: "Please try again",
+        type: "error",
+        duration: 5000,
+      });
+    }
+  };
 
   const volunteerRequest = request as VolunteerRequestDetails;
   const [volunteerAcceptanceStatus, setVolunteerAcceptanceStatus] = useState<
@@ -245,12 +269,14 @@ export const RequestDetails = ({
     : undefined;
   const showRating = rating !== undefined && rating > 0;
 
+  const isEditDisabled = apps.length > 0;
+
   const handleApply = async () => {
     try {
       setIsApplying(true);
       const res = await requestService.applyToRequest(request.id);
       if (res.success) {
-        setVolunteerAcceptanceStatus("pending");
+        setVolunteerAcceptanceStatus(AcceptanceStatus.PENDING);
         toaster.create({
           title: "Application submitted",
           description: "You've applied to help on this request.",
@@ -274,7 +300,9 @@ export const RequestDetails = ({
   };
 
   const handleEdit = () => {
-    navigate(`/requests/${request.id}/edit`);
+    if (!isEditDisabled) {
+      navigate(`/requests/${request.id}/edit`);
+    }
   };
 
   const handleCreatorClick = () => {
@@ -284,11 +312,9 @@ export const RequestDetails = ({
   };
 
   const currentVolunteerAccepted =
-    isVolunteer && volunteerAcceptanceStatus === "accepted";
+    isVolunteer && volunteerAcceptanceStatus === AcceptanceStatus.ACCEPTED;
   const otherVolunteerAccepted =
-    isVolunteer && volunteerAcceptanceStatus === "declined";
-
-  const isEditDisabled = request.applications_count > 0;
+    isVolunteer && volunteerAcceptanceStatus === AcceptanceStatus.DECLINED;
 
   // Review modal state
   const {
@@ -331,7 +357,6 @@ export const RequestDetails = ({
             >
               {request.name}
             </Text>
-            {/* role actions moved below */}
             {canLeaveReview && (
               <Button
                 size="md"
@@ -552,7 +577,7 @@ export const RequestDetails = ({
                   let ordered = apps.slice();
                   if (acceptedVolunteer) {
                     const index = ordered.findIndex(
-                      (a) => a.user.id === acceptedVolunteer.id
+                      (a) => a.volunteer.id === acceptedVolunteer.id
                     );
                     const [acceptedApp] = ordered.splice(index, 1);
                     ordered = [acceptedApp, ...ordered];
@@ -560,16 +585,16 @@ export const RequestDetails = ({
                   return ordered.map((application) => {
                     const isAccepted =
                       !!acceptedVolunteer &&
-                      application.user.id === acceptedVolunteer.id;
+                      application.volunteer.id === acceptedVolunteer.id;
                     return (
                       <Box
-                        key={application.user.id}
+                        key={application.volunteer.id}
                         p={3}
                         bg={isAccepted ? "green.50" : "gray.50"}
                         borderRadius="lg"
                         cursor="pointer"
                         onClick={() =>
-                          navigate(`/profile/${application.user.id}`)
+                          navigate(`/profile/${application.volunteer.id}`)
                         }
                         transition="all 0.2s"
                         _hover={{
@@ -583,14 +608,14 @@ export const RequestDetails = ({
                           <Avatar.Root
                             size="md"
                             colorPalette={pickAvatarPalette(
-                              application.user.first_name,
-                              application.user.last_name
+                              application.volunteer.first_name,
+                              application.volunteer.last_name
                             )}
                           >
                             <Avatar.Fallback
                               name={getFullName(
-                                application.user.first_name,
-                                application.user.last_name
+                                application.volunteer.first_name,
+                                application.volunteer.last_name
                               )}
                             />
                           </Avatar.Root>
@@ -601,17 +626,21 @@ export const RequestDetails = ({
                               color="gray.800"
                             >
                               {getFullName(
-                                application.user.first_name,
-                                application.user.last_name
+                                application.volunteer.first_name,
+                                application.volunteer.last_name
                               )}
                             </Text>
-                            {application.user.avg_rating && (
+                            {application.volunteer.avg_rating ? (
                               <HStack gap={1} color="gray.800">
                                 <Icon as={FaStar as ElementType} boxSize={3} />
                                 <Text fontSize="sm">
-                                  {application.user.avg_rating.toFixed(1)}
+                                  {application.volunteer.avg_rating.toFixed(1)}
                                 </Text>
                               </HStack>
+                            ) : (
+                              <Text fontSize="sm" color="gray.600">
+                                No ratings yet
+                              </Text>
                             )}
                           </VStack>
                           {isAccepted && (

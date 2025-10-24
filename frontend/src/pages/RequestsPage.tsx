@@ -18,7 +18,12 @@ import { RequestsPagination } from "../components/requests/RequestsPagination";
 import { RequestMapView } from "../components/requests/RequestMapView";
 import { requestService } from "../services/request.service";
 import { useAuth } from "../contexts/useAuth";
-import type { Request, RequestFilters as Filters, RequestType } from "../types";
+import {
+  type Request,
+  type RequestFilters as Filters,
+  type RequestType,
+  RequestStatus,
+} from "../types";
 
 export const RequestsPage = () => {
   const navigate = useNavigate();
@@ -35,11 +40,11 @@ export const RequestsPage = () => {
   const pageLimit = 10;
 
   const [filters, setFilters] = useState<Filters>({
-    status: "all",
+    status: RequestStatus.ALL,
     page: 1,
     limit: pageLimit,
-    sort: isVolunteer ? "start" : "created_at",
-    order: isVolunteer ? "asc" : "desc",
+    sort: isVolunteer ? "START" : "CREATED_AT",
+    order: isVolunteer ? "ASC" : "DESC",
   });
 
   const [mapFilters, setMapFilters] = useState<Filters>({
@@ -218,7 +223,7 @@ export const RequestsPage = () => {
                         No requests found
                       </Text>
                       <Text color="gray.500" fontSize="sm">
-                        {filters.status === "all"
+                        {filters.status === RequestStatus.ALL
                           ? "There are no requests to display."
                           : `There are no ${filters.status} requests.`}
                       </Text>

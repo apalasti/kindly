@@ -3,7 +3,11 @@ import { Stack, Text, Box, Separator, Wrap } from "@chakra-ui/react";
 import { Tag } from "@chakra-ui/react/tag";
 import { RadioGroup } from "@chakra-ui/react/radio-group";
 import { Slider } from "@chakra-ui/react/slider";
-import type { RequestFilters as Filters, RequestType } from "../../types";
+import {
+  RequestStatus,
+  type RequestFilters as Filters,
+  type RequestType,
+} from "../../types";
 import { TypeSelector } from "../ui/type-selector";
 
 interface RequestFiltersProps {
@@ -32,19 +36,20 @@ export const RequestFilters = ({
 
   const baseStatusOptions = isVolunteer
     ? [
-        { value: "open", label: "Open" },
-        { value: "completed", label: "Completed" },
-        { value: "applied", label: "Applied" },
+        { value: RequestStatus.OPEN, label: "Open" },
+        { value: RequestStatus.COMPLETED, label: "Completed" },
+        { value: RequestStatus.APPLIED, label: "Applied" },
       ]
     : [
-        { value: "open", label: "Open" },
-        { value: "completed", label: "Completed" },
+        { value: RequestStatus.OPEN, label: "Open" },
+        { value: RequestStatus.COMPLETED, label: "Completed" },
       ];
 
   const [statusOptions, setStatusOptions] = useState<StatusOption[]>(
     baseStatusOptions.map((opt) => ({
       ...opt,
-      checked: filters.status === "all" || filters.status === opt.value,
+      checked:
+        filters.status === RequestStatus.ALL || filters.status === opt.value,
     }))
   );
 
@@ -54,7 +59,7 @@ export const RequestFilters = ({
   );
 
   const handleStatusRadioChange = (value: string) => {
-    if (value === "all") {
+    if (value === RequestStatus.ALL) {
       setStatusOptions((current) =>
         current.map((o) => ({ ...o, checked: true }))
       );
@@ -66,7 +71,7 @@ export const RequestFilters = ({
 
     const newFilters = {
       ...filters,
-      status: (value as Filters["status"]) || "all",
+      status: (value as Filters["status"]) || RequestStatus.ALL,
       page: 1,
     };
     onFiltersChange(newFilters);
@@ -112,13 +117,13 @@ export const RequestFilters = ({
       };
       onFiltersChange(newFilters);
     } else if (filterType === "status" && value) {
-      // With radio, removing a specific status reverts to "all"
+      // With radio, removing a specific status reverts to "ALL"
       setStatusOptions((current) =>
         current.map((o) => ({ ...o, checked: true }))
       );
       const newFilters = {
         ...filters,
-        status: "all" as Filters["status"],
+        status: RequestStatus.ALL as Filters["status"],
         page: 1,
       };
       onFiltersChange(newFilters);
@@ -266,14 +271,14 @@ export const RequestFilters = ({
             Status
           </Text>
           <RadioGroup.Root
-            value={filters.status || "all"}
+            value={filters.status || RequestStatus.ALL}
             onValueChange={(e: { value: string | null }) =>
-              handleStatusRadioChange(e.value ?? "all")
+              handleStatusRadioChange(e.value ?? RequestStatus.ALL)
             }
             colorPalette={colorPalette}
           >
             <Stack gap={2} align="flex-start">
-              <RadioGroup.Item value="all">
+              <RadioGroup.Item value={RequestStatus.ALL}>
                 <RadioGroup.ItemHiddenInput />
                 <RadioGroup.ItemIndicator />
                 <RadioGroup.ItemText>All</RadioGroup.ItemText>

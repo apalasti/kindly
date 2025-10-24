@@ -115,9 +115,7 @@ export const RequestDetailsPage = () => {
       <Container maxW="container.xl" mx="auto">
         <RequestDetails
           request={request}
-          applications={
-            (request as HelpSeekerRequestDetails).applications || []
-          }
+          applications={(request as HelpSeekerRequestDetails).applicants || []}
           isVolunteer={isVolunteer}
         />
       </Container>

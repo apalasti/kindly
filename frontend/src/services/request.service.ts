@@ -9,6 +9,7 @@ import type {
   CreateRequestData,
   UpdateRequestData,
   RequestApplication,
+  HelpSeekerRequestDetails,
   SuggestedRequestType,
   ApiResponse,
   PaginatedResponse,
@@ -122,7 +123,30 @@ export const requestService = {
       : `/help-seeker/requests/${id}`;
 
     const response = await api.get<ApiResponse<RequestDetails>>(endpoint);
-    return response.data;
+    const base = response.data;
+
+    // If the actor is a help-seeker, also fetch applications and merge them
+    if (base?.success && !is_volunteer) {
+      try {
+        const appsResponse = await api.get<ApiResponse<RequestApplication[]>>(
+          `/help-seeker/requests/${id}/applications`
+        );
+
+        if (appsResponse.data?.success) {
+          // Merge applicants into the help-seeker request details
+          const merged: HelpSeekerRequestDetails = {
+            ...(base.data as HelpSeekerRequestDetails),
+            applicants: appsResponse.data.data,
+          };
+
+          return { ...base, data: merged };
+        }
+      } catch (e) {
+        console.error("Failed to fetch applications for request", id, e);
+      }
+    }
+
+    return base;
   },
 
   applyToRequest: async (
@@ -146,20 +170,10 @@ export const requestService = {
     return response.data;
   },
 
-  withdrawApplication: async (
-    requestId: number
-  ): Promise<ApiResponse<void>> => {
-    const response = await api.delete<ApiResponse<void>>(
-      `/volunteer/requests/${requestId}/application`
-    );
-    return response.data;
-  },
-
   suggestRequestTypes: async (_data: {
     name: string;
     description: string;
   }): Promise<ApiResponse<SuggestedRequestType[]>> => {
-    // Calls backend to get suggested request types based on name/description
     const response = await api.post<ApiResponse<SuggestedRequestType[]>>(
       "/help-seeker/requests/suggest-type",
       _data

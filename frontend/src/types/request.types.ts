@@ -23,7 +23,7 @@ interface BaseRequest {
 }
 
 export interface HelpSeekerRequest extends BaseRequest {
-  applications?: RequestApplication[];
+  applicants?: RequestApplication[];
 }
 
 export interface VolunteerRequest extends BaseRequest {
@@ -41,7 +41,7 @@ export type Request = HelpSeekerRequest | VolunteerRequest;
 export type RequestDetails = HelpSeekerRequestDetails | VolunteerRequestDetails;
 
 export interface RequestApplication {
-  user: {
+  volunteer: {
     id: number;
     first_name: string;
     last_name: string;
@@ -51,9 +51,21 @@ export interface RequestApplication {
   applied_at: string;
 }
 
-export type AcceptanceStatus = "accepted" | "declined" | "pending";
+export const AcceptanceStatus = {
+  ACCEPTED: "ACCEPTED",
+  DECLINED: "DECLINED",
+  PENDING: "PENDING",
+} as const;
+export type AcceptanceStatus =
+  (typeof AcceptanceStatus)[keyof typeof AcceptanceStatus];
 
-export type RequestStatus = "open" | "completed" | "all" | "applied";
+export const RequestStatus = {
+  OPEN: "OPEN",
+  COMPLETED: "COMPLETED",
+  ALL: "ALL",
+  APPLIED: "APPLIED",
+} as const;
+export type RequestStatus = (typeof RequestStatus)[keyof typeof RequestStatus];
 
 export interface RequestFilters {
   status?: RequestStatus;
@@ -65,8 +77,8 @@ export interface RequestFilters {
   max_reward?: number;
   page?: number;
   limit?: number;
-  sort?: "created_at" | "start" | "reward";
-  order?: "asc" | "desc";
+  sort?: "CREATED_AT" | "START" | "REWARD";
+  order?: "ASC" | "DESC";
 }
 
 export interface CreateRequestData {

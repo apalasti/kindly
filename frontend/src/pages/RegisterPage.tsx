@@ -15,7 +15,6 @@ import { toDateOnly } from "../utils/date";
 
 export const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  // Password visibility managed inside ProfileForm
   const navigate = useNavigate();
   const location = useLocation() as { state?: { from?: string } };
 

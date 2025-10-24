@@ -104,6 +104,18 @@ function setAuthHeader(cfg: RetryableAxiosRequestConfig, token: string) {
 // Request interceptor to add auth token and check expiration
 api.interceptors.request.use(
   async (config) => {
+    // Skip auth endpoints entirely
+    const reqUrl: string = (config?.url as string) || "";
+    const isAuthEndpoint =
+      reqUrl.includes("/auth/login") ||
+      reqUrl.includes("/auth/register") ||
+      reqUrl.includes("/auth/refresh") ||
+      reqUrl.includes("/auth/logout");
+
+    if (isAuthEndpoint) {
+      return config;
+    }
+
     const token = tokenManager.getAccessToken();
     if (token) {
       // Check if token is expired or will expire very soon (within 30 seconds)

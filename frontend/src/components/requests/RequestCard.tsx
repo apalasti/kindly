@@ -9,7 +9,12 @@ import {
   FaUserCheck,
   FaTimesCircle,
 } from "react-icons/fa";
-import type { Request, VolunteerRequest, HelpSeekerRequest } from "../../types";
+import {
+  type Request,
+  type VolunteerRequest,
+  type HelpSeekerRequest,
+  AcceptanceStatus,
+} from "../../types";
 import type { ElementType } from "react";
 import { getFullName, pickAvatarPalette } from "../../utils/avatar";
 import { formatDate } from "../../utils/date";
@@ -35,13 +40,13 @@ export const RequestCard = ({
     }
     if (isVolunteer) {
       const volunteerRequest = request as VolunteerRequest;
-      if (volunteerRequest.acceptance_status === "accepted") {
+      if (volunteerRequest.acceptance_status === AcceptanceStatus.ACCEPTED) {
         return { label: "Accepted", colorScheme: "success", icon: FaUserCheck };
       }
-      if (volunteerRequest.acceptance_status === "declined") {
+      if (volunteerRequest.acceptance_status === AcceptanceStatus.DECLINED) {
         return { label: "Declined", colorScheme: "red", icon: FaTimesCircle };
       }
-      if (volunteerRequest.acceptance_status === "pending") {
+      if (volunteerRequest.acceptance_status === AcceptanceStatus.PENDING) {
         return {
           label: "Applied",
           colorScheme: "teal",
@@ -176,34 +181,34 @@ export const RequestCard = ({
               </HStack>
             </HStack>
           ) : helpSeekerRequest &&
-            helpSeekerRequest.applications &&
-            helpSeekerRequest.applications!.length > 0 ? (
+            helpSeekerRequest.applicants &&
+            helpSeekerRequest.applicants!.length > 0 ? (
             <HStack gap={0} spaceX="-2">
               {helpSeekerRequest
-                .applications!.slice(0, displayedAvatars)
+                .applicants!.slice(0, displayedAvatars)
                 .map((application) => (
                   <Avatar.Root
-                    key={application.user.id}
+                    key={application.volunteer.id}
                     size="sm"
                     colorPalette={pickAvatarPalette(
-                      application.user.first_name,
-                      application.user.last_name
+                      application.volunteer.first_name,
+                      application.volunteer.last_name
                     )}
                     borderWidth="2px"
                     borderColor="white"
                   >
                     <Avatar.Fallback
                       name={getFullName(
-                        application.user.first_name,
-                        application.user.last_name
+                        application.volunteer.first_name,
+                        application.volunteer.last_name
                       )}
                     />
                   </Avatar.Root>
                 ))}
-              {helpSeekerRequest.applications!.length > displayedAvatars && (
+              {helpSeekerRequest.applicants!.length > displayedAvatars && (
                 <Avatar.Root size="sm" variant="solid" bg="coral.700">
                   <Avatar.Fallback>
-                    +{helpSeekerRequest.applications!.length - displayedAvatars}
+                    +{helpSeekerRequest.applicants!.length - displayedAvatars}
                   </Avatar.Fallback>
                 </Avatar.Root>
               )}

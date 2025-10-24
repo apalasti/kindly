@@ -109,19 +109,19 @@ export const ApplicantsSection = (props: ApplicantsSectionProps) => {
           <HStack gap={0} spaceX="-3">
             {visibleApplicants.map((application) => (
               <Avatar.Root
-                key={application.user.id}
+                key={application.volunteer.id}
                 size="lg"
                 colorPalette={pickAvatarPalette(
-                  application.user.first_name,
-                  application.user.last_name
+                  application.volunteer.first_name,
+                  application.volunteer.last_name
                 )}
                 borderWidth="2px"
                 borderColor="white"
               >
                 <Avatar.Fallback
                   name={getFullName(
-                    application.user.first_name,
-                    application.user.last_name
+                    application.volunteer.first_name,
+                    application.volunteer.last_name
                   )}
                 />
               </Avatar.Root>
@@ -151,9 +151,9 @@ export const ApplicantsSection = (props: ApplicantsSectionProps) => {
             <Stack gap={3}>
               {applications.map((application) => (
                 <Button
-                  key={application.user.id}
+                  key={application.volunteer.id}
                   onClick={() => {
-                    navigate(`/profile/${application.user.id}`);
+                    navigate(`/profile/${application.volunteer.id}`);
                     setIsModalOpen(false);
                   }}
                   variant="outline"
@@ -167,21 +167,23 @@ export const ApplicantsSection = (props: ApplicantsSectionProps) => {
                     <Avatar.Root
                       size="md"
                       colorPalette={pickAvatarPalette(
-                        application.user.first_name,
-                        application.user.last_name
+                        application.volunteer.first_name,
+                        application.volunteer.last_name
                       )}
                     >
-                      <Avatar.Fallback name={application.user.first_name} />
+                      <Avatar.Fallback
+                        name={application.volunteer.first_name}
+                      />
                     </Avatar.Root>
                     <VStack align="start" gap={0} flex={1}>
                       <Text fontWeight="semibold" fontSize="md">
-                        {`${application.user.first_name} ${application.user.last_name}`}
+                        {`${application.volunteer.first_name} ${application.volunteer.last_name}`}
                       </Text>
-                      {application.user.avg_rating && (
+                      {application.volunteer.avg_rating && (
                         <HStack gap={1} color="grey.700">
                           <Icon as={FaStar as ElementType} boxSize={3} />
                           <Text fontSize="sm">
-                            {application.user.avg_rating.toFixed(1)}
+                            {application.volunteer.avg_rating.toFixed(1)}
                           </Text>
                         </HStack>
                       )}
