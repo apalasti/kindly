@@ -61,9 +61,7 @@ const formSchema = z
     }),
     end: z.date(),
     reward: z.number().min(0, "Reward must be 0 or positive"),
-    request_type_ids: z
-      .array(z.number())
-      .min(1, "At least one type is required"),
+    request_type_ids: z.array(z.number()),
   })
   .refine((data) => data.end > data.start, {
     message: "End date must be after start date",
