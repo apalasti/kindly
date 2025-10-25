@@ -1,10 +1,8 @@
 import os
-from typing import Annotated
 
 from dotenv import load_dotenv
-from fastapi import Depends
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
+from sqlalchemy import inspect
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from .models.base import Base
 
@@ -15,7 +13,7 @@ if db_url is None:
 
 engine = create_async_engine(
     db_url,
-    echo=os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes"),
+    echo=os.environ.get("DEV", "False").lower() in ("true", "1", "yes"),
     plugins=["geoalchemy2"],
 )
 async_session = async_sessionmaker(engine, expire_on_commit=False)
@@ -23,12 +21,17 @@ async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 async def create_db_and_tables():
     async with engine.begin() as conn:
+        our_table_names = set(Base.metadata.tables.keys())
+        existing_tables = await conn.run_sync(
+            lambda sync_conn: [
+                t for t in inspect(sync_conn).get_table_names()
+                if t in our_table_names
+            ]
+        )
         await conn.run_sync(Base.metadata.create_all)
+        return len(existing_tables) != 0
 
 
 async def get_session():
     async with async_session() as session:
         yield session
-
-
-SessionDep = Annotated[AsyncSession, Depends(get_session)]

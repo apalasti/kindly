@@ -1,13 +1,10 @@
-from datetime import date
+from typing import List
 
-from fastapi import HTTPException
 from fastapi.routing import APIRouter
-from pydantic import BaseModel
-from sqlalchemy.sql import select
 
-from ..db import SessionDep
-from ..internal.auth import UserDataDep
-from ..models import RequestType, User
+from ..interfaces.auth_service import UserInfo
+from ..interfaces.common_service import RequestTypeInfo, UpdateProfileData
+from ..dependencies import CommonServiceDep, SuccessResponse, UserDataDep
 
 router = APIRouter(
     prefix="/common",
@@ -15,59 +12,35 @@ router = APIRouter(
 
 
 @router.get("/profile")
-async def get_profile(session: SessionDep, user_data: UserDataDep):
-    user = await session.get(User, user_data.id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return {
-        "success": True,
-        "data": user.serialize(),
-    }
-
-
-class UpdateProfileBody(BaseModel):
-    first_name: str
-    last_name: str
-    date_of_birth: date
-    about_me: str
+async def get_profile(
+    common_service: CommonServiceDep, user_data: UserDataDep
+) -> SuccessResponse[UserInfo]:
+    user_info = await common_service.get_user(user_data["id"])
+    return SuccessResponse(
+        data=user_info
+    )
 
 
 @router.put("/profile")
-async def update_profile(session: SessionDep, user_data: UserDataDep, body: UpdateProfileBody):
-    user = await session.get(User, user_data.id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    user.first_name = body.first_name
-    user.last_name = body.last_name
-    user.about_me = body.about_me
-    user.date_of_birth = body.date_of_birth
-    await session.commit()
-    await session.refresh(user)
-    
-    return {
-        "success": True,
-        "data": user.serialize(),
-    }
+async def update_profile(
+    common_service: CommonServiceDep, user_data: UserDataDep, body: UpdateProfileData
+) -> SuccessResponse[UserInfo]:
+    user_info =  await common_service.update_profile(user_data, body)
+    return SuccessResponse(
+        data=user_info
+    )
 
 
 @router.get("/users/{user_id}")
-async def get_user(session: SessionDep, user_id: int, _: UserDataDep):
-    user = await session.get(User, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return {
-        "success": True,
-        "data": user.serialize(),
-    }
+async def get_user(common_service: CommonServiceDep, _: UserDataDep, user_id: int):
+    user_info = await common_service.get_user(user_id)
+    return SuccessResponse(
+        data=user_info
+    )
 
 
 @router.get("/request-types")
-async def list_request_types(session: SessionDep, _: UserDataDep):
-    request_types = await session.scalars(select(RequestType))
-    return {
-        "success": True,
-        "data": [rt for rt in request_types],
-    }
+async def list_request_types(
+    common_service: CommonServiceDep, user_data: UserDataDep
+) -> SuccessResponse[List[RequestTypeInfo]]:
+    return SuccessResponse(data=await common_service.list_request_types())

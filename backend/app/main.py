@@ -27,7 +27,7 @@ origins = [
     "http://localhost:5173",
 ]
 
-if os.environ.get("DEBUG", False):
+if os.environ.get("DEV", False):
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,

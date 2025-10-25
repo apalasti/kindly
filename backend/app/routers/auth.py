@@ -1,20 +1,13 @@
 import os
-from datetime import date, timedelta
+from datetime import timedelta
 
-from fastapi import APIRouter, Request, Response, status
-from fastapi.exceptions import HTTPException
-from pydantic import BaseModel, EmailStr
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.sql import delete
+from fastapi import APIRouter, Request, Response
+from pydantic import BaseModel
 
-from app.db import SessionDep
-from app.internal import auth
+from ..dependencies import AuthServiceDep, SuccessResponse
+from ..interfaces.auth_service import LoginData, RegistrationData, UserInfo
 
-from ..models import RefreshToken, User
-
-
-ACCESS_TOKEN_EXPIRY = timedelta(minutes=5)
+ACCESS_TOKEN_EXPIRY = timedelta(hours=5)
 REFRESH_TOKEN_EXPIRY = timedelta(hours=2)
 
 router = APIRouter(
@@ -22,148 +15,72 @@ router = APIRouter(
 )
 
 
-class LoginBody(BaseModel):
-    email: EmailStr
-    password: str
+class LoginOrRegisterResponse(BaseModel):
+    user: UserInfo
+    token: str
 
 
-class RegisterBody(BaseModel):
-    first_name: str
-    last_name: str
-    email: EmailStr
-    password: str
-    date_of_birth: date
-    about_me: str
-    is_volunteer: bool
+class RefreshResponse(BaseModel):
+    success: bool
+    token: str
 
 
 @router.post("/login")
-async def login(session: SessionDep, body: LoginBody, response: Response):
-    user = (
-        await session.execute(select(User).filter(User.email == body.email))
-    ).scalars().first()
-    if not user or not auth.verify_password(body.password, user.password):
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid email or password"
+async def login(
+    auth_service: AuthServiceDep,
+    body: LoginData,
+    response: Response,
+) -> SuccessResponse[LoginOrRegisterResponse]:
+    auth_result = await auth_service.login(body) 
+    set_refresh_token(response, auth_result.tokens.refresh_token)
+    return SuccessResponse(
+        data=LoginOrRegisterResponse(
+            user=auth_result.user,
+            token=auth_result.tokens.access_token
         )
-
-    user_data = auth.UserData.from_user(user)
-    refresh_token = user_data.create_token(REFRESH_TOKEN_EXPIRY)
-
-    session.add(RefreshToken(user_id=user_data.id, token=refresh_token))
-    await session.commit()
-
-    set_refresh_token(response, refresh_token)
-    return {
-        "success": True,
-        "data": {
-            "user": {
-                **user_data.__dict__,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-            },
-            "token": user_data.create_token(ACCESS_TOKEN_EXPIRY),
-        },
-    }
+    )
 
 
 @router.post("/register")
-async def register(session: SessionDep, body: RegisterBody, response: Response):
-    user = User(
-        first_name=body.first_name,
-        last_name=body.last_name,
-        email=body.email,
-        password=auth.get_password_hash(body.password),
-        date_of_birth=body.date_of_birth,
-        about_me=body.about_me,
-        is_volunteer=body.is_volunteer
-    )
-
-    try:
-        session.add(user)
-        await session.commit()
-    except IntegrityError as e:
-        raise HTTPException(
-            status_code=400,
-            detail="User with this email already exists"
+async def register(
+    auth_service: AuthServiceDep, body: RegistrationData, response: Response
+):
+    auth_result = await auth_service.register(body)
+    set_refresh_token(response, auth_result.tokens.refresh_token)
+    return SuccessResponse(
+        data=LoginOrRegisterResponse(
+            user=auth_result.user,
+            token=auth_result.tokens.access_token
         )
-
-    await session.refresh(user)
-    user_data = auth.UserData.from_user(user)
-
-    refresh_token = user_data.create_token(REFRESH_TOKEN_EXPIRY)
-    session.add(RefreshToken(user_id=user_data.id, token=refresh_token))
-    await session.commit()
-
-    set_refresh_token(response, refresh_token)
-    return {
-        "success": True,
-        "data": {
-            "user": {
-                **user_data.__dict__,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-            },
-            "token": user_data.create_token(),
-        },
-        "message": "User registered successfully",
-    }
+    )
 
 
 @router.post("/refresh")
-async def refresh(session: SessionDep, request: Request, response: Response):
+async def refresh(auth_service: AuthServiceDep, request: Request, response: Response):
     refresh_token = request.cookies.get("refresh_token", "")
-    user_data = await auth.get_user_data_from_token(refresh_token)
-
-    refresh_token = (
-        await session.execute(
-            select(RefreshToken).where(
-                (RefreshToken.user_id == user_data.id)
-                & (RefreshToken.token == refresh_token)
-            )
-        )
-    ).scalar_one_or_none()
-    if refresh_token is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
-        )
-
-    refresh_token.token = user_data.create_token(REFRESH_TOKEN_EXPIRY)
-    await session.commit()
-
-    set_refresh_token(response, refresh_token.token)
-    return {
-        "success": True,
-        "token": user_data.create_token(ACCESS_TOKEN_EXPIRY),
-    }
+    auth_tokens = await auth_service.refresh(refresh_token, None)
+    set_refresh_token(response, auth_tokens.refresh_token)
+    return RefreshResponse(success=True, token=auth_tokens.access_token)
 
 
 @router.post("/logout")
-async def logout(session: SessionDep, request: Request, response: Response):
+async def logout(
+    auth_service: AuthServiceDep,
+    request: Request,
+    response: Response,
+):
     refresh_token = request.cookies.get("refresh_token", "")
-    user_data = await auth.get_user_data_from_token(refresh_token)
-
-    await session.execute(
-        delete(RefreshToken).where(
-            (RefreshToken.user_id == user_data.id)
-            & (RefreshToken.token == refresh_token)
-        )
-    )
-    await session.commit()
-
+    user_data = auth_service.authenticate(refresh_token)
+    await auth_service.logout(user_data["id"], refresh_token)
     delete_refresh_token(response)
-    return {
-        "success": True,
-    }
-
+    return RefreshResponse(success=True, token="<DELETED>")
 
 def set_refresh_token(response: Response, refresh_token):
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=not bool(os.environ.get("DEBUG", False)),
+        secure=not bool(os.environ.get("DEV", False)),
         samesite="lax",
         max_age=int(REFRESH_TOKEN_EXPIRY.total_seconds()),
     )
@@ -173,6 +90,7 @@ def delete_refresh_token(response: Response):
     response.delete_cookie(
         key="refresh_token",
         httponly=True,
-        secure=not bool(os.environ.get("DEBUG", False)),
+        secure=not bool(os.environ.get("DEV", False)),
         samesite="lax",
     )
+
