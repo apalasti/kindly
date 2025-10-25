@@ -53,6 +53,7 @@ class RequestInfo:
     created_at: datetime
     updated_at: datetime
     request_types: List[RequestTypeInfo]
+    application_count: int
 
 
 @dataclass

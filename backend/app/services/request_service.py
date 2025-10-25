@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from geoalchemy2.functions import ST_DWithin, ST_Point
+from sqlalchemy import String
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import defer, joinedload
 from sqlalchemy.sql import asc, desc, func, select
@@ -158,11 +159,13 @@ class RequestService(RequestServiceInterface):
         query = (
             select(
                 Request,
-                func.coalesce(Application.status, "NOT_APPLIED").label("application_status")
+                func.coalesce(func.cast(Application.status, String), "NOT_APPLIED"),
             )
             .options(defer(Request.location), defer(Request.creator_id))
             .options(
-                joinedload(Request.creator).load_only(User.id, User.first_name, User.last_name, User.avg_rating)
+                joinedload(Request.creator).load_only(
+                    User.id, User.first_name, User.last_name, User.avg_rating
+                )
             )
             .options(joinedload(Request.request_types))
             .join(
@@ -171,7 +174,9 @@ class RequestService(RequestServiceInterface):
                 & (Application.user_id == user["id"]),
                 isouter=True,
             )
-            .order_by(asc(filters.sort) if filters.order == "asc" else desc(filters.sort))
+            .order_by(
+                asc(filters.sort) if filters.order == "asc" else desc(filters.sort)
+            )
         )
         if filters.request_type_ids:
             query = (
@@ -196,7 +201,7 @@ class RequestService(RequestServiceInterface):
                 )
             )
 
-        pagination_result = await filters.paginate(self.session, query)
+        pagination_result = await filters.paginate(self.session, query, scalar=False)
         pagination_result.data = [
             RequestWithApplicationStatus(
                 **self._to_request_info(request_obj).__dict__,
@@ -236,7 +241,7 @@ class RequestService(RequestServiceInterface):
         self.auth_service.authorize_with_role(user, UserRoles.VOLUNTEER)
         result = (
             await self.session.execute(
-                select(Request, func.coalesce(Application.status, "NOT_APPLIED"))
+                select(Request, func.coalesce(func.cast(Application.status, String), "NOT_APPLIED"))
                 .options(
                     joinedload(Request.creator).load_only(
                         User.id, User.first_name, User.last_name, User.avg_rating
@@ -283,6 +288,7 @@ class RequestService(RequestServiceInterface):
             latitude=float(request.latitude),
             created_at=request.created_at,
             updated_at=request.updated_at,
+            application_count=request.application_count,
             request_types=[
                 RequestTypeInfo(id=rt.id, name=rt.name) 
                 for rt in request.request_types

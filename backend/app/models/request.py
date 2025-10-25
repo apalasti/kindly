@@ -25,7 +25,7 @@ class Request(Base):
     description: Mapped[str] = mapped_column(sa.String, nullable=False)
     reward: Mapped[int] = mapped_column(sa.Integer, nullable=False)
 
-    # Possible values: OPEN, CLOSED, COMPLETED
+    application_count: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=0)
     status: Mapped[RequestStatus] = mapped_column(
         sa.Enum(RequestStatus), nullable=False, default=RequestStatus.OPEN
     )

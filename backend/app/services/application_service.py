@@ -1,4 +1,4 @@
-from sqlalchemy import select, text, update
+from sqlalchemy import delete, select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,7 +30,11 @@ class ApplicationService(ApplicationServiceInterface):
         self.auth_service.authorize_with_role(user, UserRoles.VOLUNTEER)
 
         async with self.session.begin():
-            request = await self.session.get(Request, request_id)
+            request = (
+                await self.session.execute(
+                    select(Request).filter(Request.id == request_id).with_for_update()
+                )
+            ).scalar_one_or_none()
             if request is None:
                 raise NoRequestFoundError
 
@@ -38,6 +42,7 @@ class ApplicationService(ApplicationServiceInterface):
                 raise RequestNotOpen
 
             try:
+                request.application_count += 1
                 application = Application(
                     request_id=request_id,
                     user_id=user["id"],
@@ -59,18 +64,27 @@ class ApplicationService(ApplicationServiceInterface):
         self.auth_service.authorize_with_role(user, UserRoles.VOLUNTEER)
 
         async with self.session.begin():
-            application = (await self.session.execute(
-                select(Application)
-                .filter(Application.request_id == request_id)
-                .filter(Application.user_id == user["id"])
-            )).scalar_one_or_none()
-            if application is None:
-                raise NoApplicationFoundError
+            request = (
+                await self.session.execute(
+                    select(Request).filter(Request.id == request_id).with_for_update()
+                )
+            ).scalar_one_or_none()
+            if request is None:
+                raise NoRequestFoundError
 
-            if application.status != ApplicationStatus.PENDING:
+            if request.status != RequestStatus.OPEN:
                 raise CanNotDeleteApplicationError
 
-            await self.session.delete(application)
+            result = await self.session.execute(
+                delete(Application).filter(
+                    (Application.request_id == request_id)
+                    & (Application.user_id == user["id"])
+                ),
+            )
+            rows_affected = result.rowcount  # pyright: ignore[reportAttributeAccessIssue]
+            if rows_affected == 0:
+                raise NoApplicationFoundError
+            request.application_count -= 1
 
     async def accept_application(self, user: UserTokenData, request_id: int, volunteer_id: int) -> None:
         self.auth_service.authorize_with_role(user, UserRoles.HELP_SEEKER)

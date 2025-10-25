@@ -16,13 +16,17 @@ services:
     build: ./backend
     env_file: "./backend/.env"
     environment:
-      - DB_URL="postgresql+asyncpg://postgres:postgres@db:5432/kindly"
+      DEV: 1
+      DB_URL: "postgresql+asyncpg://postgres:postgres@db:5432/kindly"
     ports:
       - "8000:8000"
     depends_on:
       - db
     networks:
       - app-network
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/scripts:/app/scripts
 
 volumes:
   db_data: {}

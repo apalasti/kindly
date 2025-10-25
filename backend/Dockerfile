@@ -16,4 +16,9 @@ COPY . .
 EXPOSE 8000
 
 # Command to run the application
-CMD ["uv", "run", "fastapi", "run", "app/main.py"]
+CMD sh -c '\
+  if [ "$DEV" = "1" ]; then \
+    uv run python -m scripts.insert_data; \
+  fi && \
+  uv run fastapi dev app/main.py --host 0.0.0.0 --port 8000 \
+'
