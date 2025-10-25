@@ -36,20 +36,3 @@ class User(Base):
     requests: Mapped[List["Request"]] = relationship(
         "Request", back_populates="creator"
     )
-    applications: Mapped[List["Request"]] = relationship(
-        secondary="application", back_populates="applicants"
-    )
-
-    def serialize(self):
-        return {
-            "id": self.id,
-            "first_name": self.first_name,
-            "last_name": self.last_name,
-            "email": self.email,
-            "date_of_birth": self.date_of_birth.isoformat(),
-            "about_me": self.about_me,
-            "is_volunteer": self.is_volunteer,
-            "avg_rating": self.avg_rating,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-        }

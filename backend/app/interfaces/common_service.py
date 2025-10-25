@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import date
-from typing import List, TypedDict
+from typing import List
+from typing_extensions import TypedDict
 
 from pydantic import BaseModel, Field
 

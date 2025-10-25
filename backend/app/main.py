@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 
 from .db import create_db_and_tables
 from .routers import auth, common, help_seeker, volunteer
+from .interfaces.exceptions import ServiceException
 
 
 @asynccontextmanager
@@ -40,6 +41,21 @@ app.include_router(auth.router, prefix=API_ROUTES_PREFIX)
 app.include_router(common.router, prefix=API_ROUTES_PREFIX)
 app.include_router(help_seeker.router, prefix=API_ROUTES_PREFIX)
 app.include_router(volunteer.router, prefix=API_ROUTES_PREFIX)
+
+
+@app.exception_handler(ServiceException)
+async def service_exception_handler(request, exc: ServiceException):
+    return JSONResponse(
+        {
+            "success": False,
+            "error": {
+                "code": exc.message.replace(" ", "_").upper(),
+                "message": exc.message,
+                "details": [],
+            },
+        },
+        status_code=exc.status_code,
+    )
 
 
 @app.exception_handler(RequestValidationError)

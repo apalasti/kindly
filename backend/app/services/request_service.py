@@ -1,13 +1,6 @@
-import os
-from datetime import datetime
 from decimal import Decimal
-from typing import List, Optional
 
-from fastapi import HTTPException, status
 from geoalchemy2.functions import ST_DWithin, ST_Point
-from openai import AsyncOpenAI
-from sqlalchemy import update, text
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import defer, joinedload
 from sqlalchemy.sql import asc, desc, func, select
@@ -27,40 +20,9 @@ from ..interfaces.request_service import (
 )
 from ..interfaces.auth_service import AuthServiceInterface, UserRoles, UserTokenData
 from ..interfaces.common_service import RequestTypeInfo
+from ..interfaces.exceptions import RequestCannotBeUpdatedError, RequestNotFoundError
 from ..models import Application, Request, RequestType, User
 from ..models.request import RequestStatus
-
-
-class RequestNotFoundError(Exception):
-    pass
-
-
-class RequestCannotBeUpdatedError(Exception):
-    pass
-
-
-class RequestAlreadyCompletedError(Exception):
-    pass
-
-
-class ApplicationNotFoundError(Exception):
-    pass
-
-
-class ApplicationAlreadyExistsError(Exception):
-    pass
-
-
-class RequestNotOpenError(Exception):
-    pass
-
-
-class VolunteerAlreadyRatedError(Exception):
-    pass
-
-
-class HelpSeekerAlreadyRatedError(Exception):
-    pass
 
 
 class RequestService(RequestServiceInterface):
@@ -251,9 +213,9 @@ class RequestService(RequestServiceInterface):
         result = (
             await self.session.execute(
                 select(Request)
-                .options(defer(Request.location))
                 .options(joinedload(Request.request_types))
-                .options(joinedload(Request.applicants))
+                .options(joinedload(Request.applications))
+                .options(joinedload(Request.applications).joinedload(Application.volunteer))
                 .filter(Request.id == request_id)
                 .filter(Request.creator_id == user["id"])
             )
@@ -262,7 +224,7 @@ class RequestService(RequestServiceInterface):
             raise RequestNotFoundError
 
         request_info = self._to_request_info(result)
-        applications = [self._to_application_info(app) for app in result.applicants]
+        applications = [self._to_application_info(app) for app in result.applications]
         return RequestDetailForHelpSeeker(
             **request_info.__dict__,
             applications=applications
@@ -273,26 +235,22 @@ class RequestService(RequestServiceInterface):
     ) -> RequestDetailForVolunteer:
         self.auth_service.authorize_with_role(user, UserRoles.VOLUNTEER)
         result = (
-            (
-                await self.session.execute(
-                    select(Request, func.coalesce(Application.status, "NOT_APPLIED"))
-                    .options(
-                        joinedload(Request.creator).load_only(
-                            User.id, User.first_name, User.last_name, User.avg_rating
-                        )
+            await self.session.execute(
+                select(Request, func.coalesce(Application.status, "NOT_APPLIED"))
+                .options(
+                    joinedload(Request.creator).load_only(
+                        User.id, User.first_name, User.last_name, User.avg_rating
                     )
-                    .options(joinedload(Request.request_types))
-                    .outerjoin(
-                        Application,
-                        (Application.request_id == Request.id)
-                        & (Application.user_id == user["id"]),
-                    )
-                    .filter(Request.id == request_id)
                 )
+                .options(joinedload(Request.request_types))
+                .outerjoin(
+                    Application,
+                    (Application.request_id == Request.id)
+                    & (Application.user_id == user["id"]),
+                )
+                .filter(Request.id == request_id)
             )
-            .unique()
-            .first()
-        )
+        ).unique().first()
         if result is None:
             raise RequestNotFoundError
 

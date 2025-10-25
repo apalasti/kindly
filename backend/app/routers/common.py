@@ -32,7 +32,9 @@ async def update_profile(
 
 
 @router.get("/users/{user_id}")
-async def get_user(common_service: CommonServiceDep, _: UserDataDep, user_id: int):
+async def get_user(
+    common_service: CommonServiceDep, _: UserDataDep, user_id: int
+) -> SuccessResponse[UserInfo]:
     user_info = await common_service.get_user(user_id)
     return SuccessResponse(
         data=user_info

@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
 from datetime import date, datetime, timedelta
 from enum import Enum
-from typing import Any, Optional, TypedDict
 from dataclasses import dataclass
-from typing_extensions import NotRequired
+from typing_extensions import NotRequired, TypedDict
 
 from pydantic import BaseModel, EmailStr
 

@@ -2,8 +2,8 @@ from typing import Annotated, List
 
 from fastapi import APIRouter, Query
 
-from backend.app.interfaces.ai_service import CategoryGenerationRequest
-from backend.app.interfaces.common_service import RequestTypeInfo
+from ..interfaces.ai_service import CategoryGenerationRequest
+from ..interfaces.common_service import RequestTypeInfo
 
 from ..interfaces.application_service import RateVolunteerData
 from ..interfaces.request_service import CreateOrUpdateRequestData, MyRequestsFilter, RequestDetailForHelpSeeker

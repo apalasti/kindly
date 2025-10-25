@@ -57,6 +57,6 @@ class Request(Base):
     request_types: Mapped[List["RequestType"]] = relationship(
         secondary="type_of", back_populates="requests"
     )
-    applicants: Mapped[List["User"]] = relationship(
-        secondary="application", back_populates="applications"
+    applications: Mapped[List["Application"]] = relationship(
+        "Application", back_populates="request"
     )

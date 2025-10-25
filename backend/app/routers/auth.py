@@ -44,7 +44,7 @@ async def login(
 @router.post("/register")
 async def register(
     auth_service: AuthServiceDep, body: RegistrationData, response: Response
-):
+) -> SuccessResponse[LoginOrRegisterResponse]:
     auth_result = await auth_service.register(body)
     set_refresh_token(response, auth_result.tokens.refresh_token)
     return SuccessResponse(
@@ -56,7 +56,9 @@ async def register(
 
 
 @router.post("/refresh")
-async def refresh(auth_service: AuthServiceDep, request: Request, response: Response):
+async def refresh(
+    auth_service: AuthServiceDep, request: Request, response: Response
+) -> RefreshResponse:
     refresh_token = request.cookies.get("refresh_token", "")
     auth_tokens = await auth_service.refresh(refresh_token, None)
     set_refresh_token(response, auth_tokens.refresh_token)
@@ -68,7 +70,7 @@ async def logout(
     auth_service: AuthServiceDep,
     request: Request,
     response: Response,
-):
+) -> RefreshResponse:
     refresh_token = request.cookies.get("refresh_token", "")
     user_data = auth_service.authenticate(refresh_token)
     await auth_service.logout(user_data["id"], refresh_token)
@@ -93,4 +95,3 @@ def delete_refresh_token(response: Response):
         secure=not bool(os.environ.get("DEV", False)),
         samesite="lax",
     )
-
