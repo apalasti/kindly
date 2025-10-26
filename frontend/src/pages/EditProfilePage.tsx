@@ -63,10 +63,13 @@ export const EditProfilePage = () => {
           throw new Error("Failed to load profile");
         }
       } catch (err) {
-        console.error("Error loading profile:", err);
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Failed to load profile. Please try again.";
         toaster.create({
           title: "Error",
-          description: "Failed to load profile. Please try again.",
+          description: errorMessage,
           type: "error",
           duration: 5000,
         });
@@ -107,13 +110,13 @@ export const EditProfilePage = () => {
         throw new Error(response.message || "Failed to update profile");
       }
     } catch (err) {
-      console.error("Error updating profile:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to update profile. Please try again.";
       toaster.create({
         title: "Update Failed",
-        description:
-          err instanceof Error
-            ? err.message
-            : "Failed to update profile. Please try again.",
+        description: errorMessage,
         type: "error",
         duration: 5000,
       });

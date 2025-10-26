@@ -61,10 +61,10 @@ export const RegisterPage = () => {
       });
       const target = location.state?.from || "/requests";
       navigate(target, { replace: true });
-    } catch (error: unknown) {
+    } catch (err) {
       const errorMessage =
-        error instanceof Error
-          ? error.message
+        err instanceof Error
+          ? err.message
           : "Something went wrong. Please try again.";
       toaster.create({
         title: "Registration failed",

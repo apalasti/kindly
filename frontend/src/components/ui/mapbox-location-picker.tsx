@@ -88,6 +88,18 @@ export const MapboxLocationPicker = ({
     place_name: string;
     center: [number, number];
   }) => {
+    // Prevent any in-flight autocomplete results from reopening the dropdown
+    if (abortRef.current) {
+      try {
+        abortRef.current.abort();
+      } catch {
+        // no-op
+      }
+      abortRef.current = null;
+    }
+
+    setHasInteracted(false);
+    setHighlightIndex(-1);
     setInputValue(item.place_name);
     setOpen(false);
     setSuggestions([]);

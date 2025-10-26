@@ -42,10 +42,13 @@ export const CreateRequestPage = () => {
         navigate(`/requests/${res.data.id}`);
       }
     } catch (err) {
-      console.error("Error creating request:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to create the request. Please try again.";
       toaster.create({
         title: "Create failed",
-        description: "Failed to create the request. Please try again.",
+        description: errorMessage,
         type: "error",
         duration: 5000,
       });

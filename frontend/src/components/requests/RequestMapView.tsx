@@ -11,7 +11,7 @@ import {
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import {
-  AcceptanceStatus,
+  ApplicationStatus,
   RequestStatus,
   type Request,
   type RequestFilters,
@@ -204,7 +204,7 @@ export const RequestMapView = ({
           const volunteerRequest = req as VolunteerRequest;
           ok =
             ok &&
-            volunteerRequest.acceptance_status === AcceptanceStatus.PENDING;
+            volunteerRequest.application_status === AcceptanceStatus.PENDING;
         } else if (status === RequestStatus.OPEN) ok = ok && !req.is_completed;
       }
 

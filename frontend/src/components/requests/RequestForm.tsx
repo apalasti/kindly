@@ -49,7 +49,7 @@ const formSchema = z
     name: z.string().min(1, "Name is required").max(200, "Name is too long"),
     description: z
       .string()
-      .min(1, "Description is required")
+      .min(20, "Description is required")
       .max(1000, "Description is too long"),
     address: z.string().min(1, "Location is required"),
     location_coordinates: z.object({
@@ -82,7 +82,7 @@ type Props = {
   submitIcon?: ElementType;
 };
 
-type AIGeneratedType = { id: number; name: string; confidence: number };
+type AIGeneratedType = { id: number; name: string };
 
 export function RequestForm({
   mode,
@@ -150,7 +150,6 @@ export function RequestForm({
     setIsGeneratingTypes(true);
     try {
       const response = await requestService.suggestRequestTypes({
-        name: watchedName,
         description: watchedDescription,
       });
       setAiGeneratedTypes(response.data);
@@ -163,10 +162,13 @@ export function RequestForm({
         duration: 3000,
       });
     } catch (err) {
-      console.error("Error generating types:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Could not generate types. Please select manually.";
       toaster.create({
         title: "Generation failed",
-        description: "Could not generate types. Please select manually.",
+        description: errorMessage,
         type: "error",
         duration: 5000,
       });
@@ -260,7 +262,7 @@ export function RequestForm({
                   variant="outline"
                   onClick={handleGenerateTypes}
                   loading={isGeneratingTypes}
-                  disabled={!watchedName || !watchedDescription}
+                  disabled={!watchedDescription}
                   px={4}
                   py={2}
                 >
@@ -288,9 +290,6 @@ export function RequestForm({
                       bg="transparent"
                     >
                       {type.name}
-                      <Text as="span" fontWeight="semibold" ml={1}>
-                        ({Math.round(type.confidence * 100)}%)
-                      </Text>
                     </Badge>
                   ))}
                 </Wrap>

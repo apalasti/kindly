@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { handleApiError } from "../utils/error";
 import type { User } from "../types";
 
 interface UserResponse {
@@ -18,17 +19,29 @@ interface UpdateProfileData {
 
 export const userService = {
   getUserProfile: async (userId: number): Promise<UserResponse> => {
-    const response = await api.get<UserResponse>(`/common/users/${userId}`);
-    return response.data;
+    try {
+      const response = await api.get<UserResponse>(`/common/users/${userId}`);
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 
   getCurrentUserProfile: async (): Promise<UserResponse> => {
-    const response = await api.get<UserResponse>("/common/profile");
-    return response.data;
+    try {
+      const response = await api.get<UserResponse>("/common/profile");
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 
   updateProfile: async (data: UpdateProfileData): Promise<UserResponse> => {
-    const response = await api.put<UserResponse>("/common/profile", data);
-    return response.data;
+    try {
+      const response = await api.put<UserResponse>("/common/profile", data);
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 };

@@ -10,7 +10,7 @@ import type { ElementType } from "react";
 import {
   type VolunteerRequestDetails,
   type HelpSeekerRequestDetails,
-  AcceptanceStatus,
+  ApplicationStatus,
 } from "../../types";
 import { requestService } from "../../services/request.service";
 import { toaster } from "../ui/toaster";
@@ -19,25 +19,23 @@ type VolunteerActionProps = {
   request: VolunteerRequestDetails;
   currentVolunteerAccepted: boolean;
   otherVolunteerAccepted: boolean;
-  acceptanceStatus?: AcceptanceStatus;
+  applicationStatus?: ApplicationStatus;
 };
 
 export const VolunteerAction = ({
   request,
   currentVolunteerAccepted,
   otherVolunteerAccepted,
-  acceptanceStatus,
+  applicationStatus,
 }: VolunteerActionProps) => {
   const [isApplying, setIsApplying] = useState(false);
-  const [localAcceptanceStatus, setLocalAcceptanceStatus] =
-    useState(acceptanceStatus);
 
   const handleApply = async () => {
     try {
       setIsApplying(true);
       const res = await requestService.applyToRequest(request.id);
       if (res.success) {
-        setLocalAcceptanceStatus(AcceptanceStatus.PENDING);
+        window.location.reload();
         toaster.create({
           title: "Application submitted",
           description: "You've applied to help on this request.",
@@ -47,11 +45,12 @@ export const VolunteerAction = ({
       } else {
         throw new Error(res.message || "Failed to apply");
       }
-    } catch (e) {
-      console.error("Apply failed", e);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Please try again";
       toaster.create({
         title: "Couldn't apply",
-        description: "Please try again",
+        description: errorMessage,
         type: "error",
         duration: 5000,
       });
@@ -93,7 +92,7 @@ export const VolunteerAction = ({
     );
   }
 
-  if (localAcceptanceStatus === AcceptanceStatus.PENDING) {
+  if (applicationStatus === ApplicationStatus.PENDING) {
     return (
       <HStack gap={2} p={4} bg="teal.50" borderRadius="lg" justify="center">
         <Icon as={FaClock as ElementType} boxSize={5} color="teal.500" />
@@ -145,11 +144,12 @@ export const HelpSeekerActions = ({
     try {
       await requestService.completeRequest(request.id);
       window.location.reload();
-    } catch (e) {
-      console.error("Mark as completed failed", e);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Please try again";
       toaster.create({
         title: "Mark as completed failed",
-        description: "Please try again",
+        description: errorMessage,
         type: "error",
         duration: 5000,
       });

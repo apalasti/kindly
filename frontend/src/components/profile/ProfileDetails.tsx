@@ -193,21 +193,23 @@ export const ProfileDetails = ({
           </Box>
 
           {/* Member Since */}
-          <Box>
-            <HStack gap={2} mb={3}>
-              <Icon
-                as={FaUserClock as ElementType}
-                boxSize={5}
-                color="gray.600"
-              />
-              <Text fontSize="lg" fontWeight="semibold" color="gray.700">
-                Member Since
+          {user.created_at && (
+            <Box>
+              <HStack gap={2} mb={3}>
+                <Icon
+                  as={FaUserClock as ElementType}
+                  boxSize={5}
+                  color="gray.600"
+                />
+                <Text fontSize="lg" fontWeight="semibold" color="gray.700">
+                  Member Since
+                </Text>
+              </HStack>
+              <Text fontSize="md" color="gray.600" pl={7}>
+                {formatDateCompact(user.created_at)}
               </Text>
-            </HStack>
-            <Text fontSize="md" color="gray.600" pl={7}>
-              {formatDateCompact(user.created_at)}
-            </Text>
-          </Box>
+            </Box>
+          )}
         </Stack>
       </Stack>
     </Box>

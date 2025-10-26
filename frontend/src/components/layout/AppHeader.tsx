@@ -88,10 +88,12 @@ export const AppHeader = ({
       });
       navigate("/login");
       await authService.logout();
-    } catch {
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Please try again";
       toaster.create({
         title: "Logout failed",
-        description: "Please try again",
+        description: errorMessage,
         type: "error",
         duration: 5000,
       });

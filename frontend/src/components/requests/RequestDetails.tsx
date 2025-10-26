@@ -31,7 +31,8 @@ import {
   type RequestApplication,
   type HelpSeekerRequestDetails,
   type VolunteerRequestDetails,
-  AcceptanceStatus,
+  RequestStatus,
+  ApplicationStatus,
 } from "../../types";
 import type { ElementType } from "react";
 import { getFullName, pickAvatarPalette } from "../../utils/avatar";
@@ -56,8 +57,8 @@ export const RequestDetails = ({
   const apps = applications ?? [];
 
   const acceptedVolunteer =
-    apps.find((app) => app.acceptance_status === AcceptanceStatus.ACCEPTED)
-      ?.volunteer || null;
+    apps.find((app) => app.status === ApplicationStatus.ACCEPTED)?.volunteer ||
+    null;
 
   const canSelectApplicant =
     !isVolunteer && isCreator && !acceptedVolunteer && apps.length > 0;
@@ -85,10 +86,12 @@ export const RequestDetails = ({
       } else {
         throw new Error(res.message || "Failed to accept application");
       }
-    } catch {
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Please try again";
       toaster.create({
         title: "Couldn't select volunteer",
-        description: "Please try again",
+        description: errorMessage,
         type: "error",
         duration: 5000,
       });
@@ -118,10 +121,12 @@ export const RequestDetails = ({
 
   const currentVolunteerAccepted =
     isVolunteer &&
-    volunteerRequest.acceptance_status === AcceptanceStatus.ACCEPTED;
+    volunteerRequest.application_status === ApplicationStatus.ACCEPTED;
   const otherVolunteerAccepted =
     isVolunteer &&
-    volunteerRequest.acceptance_status === AcceptanceStatus.DECLINED;
+    !currentVolunteerAccepted &&
+    (volunteerRequest.application_status === ApplicationStatus.DECLINED ||
+      volunteerRequest.status === RequestStatus.CLOSED);
 
   // Review modal state
   const {
@@ -369,7 +374,7 @@ export const RequestDetails = ({
         {isVolunteer ? (
           <ApplicantsSection
             variant="volunteer"
-            applicationsCount={request.applications_count}
+            applicationsCount={request.application_count}
           />
         ) : (
           <Box>
@@ -474,7 +479,7 @@ export const RequestDetails = ({
               request={volunteerRequest}
               currentVolunteerAccepted={currentVolunteerAccepted}
               otherVolunteerAccepted={otherVolunteerAccepted}
-              acceptanceStatus={volunteerRequest.acceptance_status}
+              applicationStatus={volunteerRequest.application_status}
             />
           </Box>
         ) : (

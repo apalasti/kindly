@@ -65,11 +65,12 @@ export const RequestEditPage = () => {
           reward: requestData.reward,
           request_type_ids: requestData.request_types.map((t) => t.id),
         });
-      } catch (error) {
-        console.error("Error loading request:", error);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load request details";
         toaster.create({
           title: "Error loading request",
-          description: "Failed to load request details",
+          description: errorMessage,
           type: "error",
           duration: 5000,
         });
@@ -105,11 +106,14 @@ export const RequestEditPage = () => {
         duration: 5000,
       });
       navigate(`/requests/${id}`);
-    } catch (error) {
-      console.error("Error updating request:", error);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to update the request. Please try again.";
       toaster.create({
         title: "Update failed",
-        description: "Failed to update the request. Please try again.",
+        description: errorMessage,
         type: "error",
         duration: 5000,
       });
@@ -152,11 +156,14 @@ export const RequestEditPage = () => {
       });
 
       navigate("/requests");
-    } catch (error) {
-      console.error("Error deleting request:", error);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to delete the request. Please try again.";
       toaster.create({
         title: "Delete failed",
-        description: "Failed to delete the request. Please try again.",
+        description: errorMessage,
         type: "error",
         duration: 5000,
       });

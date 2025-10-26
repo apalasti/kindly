@@ -17,17 +17,18 @@ interface BaseRequest {
   reward: number;
   is_completed: boolean;
   request_types: RequestType[];
-  applications_count: number;
+  application_count: number;
   created_at: string;
   updated_at: string;
+  status: RequestStatus;
 }
 
 export interface HelpSeekerRequest extends BaseRequest {
-  applicants?: RequestApplication[];
+  applications?: RequestApplication[];
 }
 
 export interface VolunteerRequest extends BaseRequest {
-  acceptance_status?: AcceptanceStatus;
+  application_status?: ApplicationStatus;
 }
 
 export interface VolunteerRequestDetails extends VolunteerRequest {
@@ -47,25 +48,23 @@ export interface RequestApplication {
     last_name: string;
     avg_rating?: number;
   };
-  acceptance_status?: AcceptanceStatus;
+  status?: ApplicationStatus;
   applied_at: string;
 }
 
-export const AcceptanceStatus = {
-  ACCEPTED: "ACCEPTED",
-  DECLINED: "DECLINED",
-  PENDING: "PENDING",
-} as const;
-export type AcceptanceStatus =
-  (typeof AcceptanceStatus)[keyof typeof AcceptanceStatus];
+export enum ApplicationStatus {
+  ACCEPTED = "ACCEPTED",
+  DECLINED = "DECLINED",
+  PENDING = "PENDING",
+}
 
-export const RequestStatus = {
-  OPEN: "OPEN",
-  COMPLETED: "COMPLETED",
-  ALL: "ALL",
-  APPLIED: "APPLIED",
-} as const;
-export type RequestStatus = (typeof RequestStatus)[keyof typeof RequestStatus];
+export enum RequestStatus {
+  OPEN = "OPEN",
+  COMPLETED = "COMPLETED",
+  ALL = "ALL",
+  APPLIED = "APPLIED",
+  CLOSED = "CLOSED",
+}
 
 export interface RequestFilters {
   status?: RequestStatus;
@@ -108,6 +107,4 @@ export interface UpdateRequestData {
 export interface SuggestedRequestType {
   id: number;
   name: string;
-  confidence: number;
-  reasoning?: string;
 }

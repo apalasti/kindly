@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { handleApiError } from "../utils/error";
 import type {
   Request,
   HelpSeekerRequest,
@@ -9,7 +10,6 @@ import type {
   CreateRequestData,
   UpdateRequestData,
   RequestApplication,
-  HelpSeekerRequestDetails,
   SuggestedRequestType,
   ApiResponse,
   PaginatedResponse,
@@ -21,75 +21,107 @@ export const requestService = {
     rating: number,
     actor: { is_volunteer: boolean }
   ): Promise<ApiResponse<{ request_id: number; rating: number }>> => {
-    const endpoint = actor.is_volunteer
-      ? `/volunteer/requests/${requestId}/rate-seeker`
-      : `/help-seeker/requests/${requestId}/rate-volunteer`;
+    try {
+      const endpoint = actor.is_volunteer
+        ? `/volunteer/requests/${requestId}/rate-seeker`
+        : `/help-seeker/requests/${requestId}/rate-volunteer`;
 
-    const response = await api.post<
-      ApiResponse<{ request_id: number; rating: number }>
-    >(endpoint, { rating });
-    return response.data;
+      const response = await api.post<
+        ApiResponse<{ request_id: number; rating: number }>
+      >(endpoint, { rating });
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 
   getRequestTypes: async (): Promise<ApiResponse<RequestType[]>> => {
-    const response = await api.get<ApiResponse<RequestType[]>>(
-      "/common/request-types"
-    );
-    return response.data;
+    try {
+      const response = await api.get<ApiResponse<RequestType[]>>(
+        "/common/request-types"
+      );
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 
   getMyRequests: async (
     filters: RequestFilters
   ): Promise<PaginatedResponse<HelpSeekerRequest>> => {
-    const response = await api.get<PaginatedResponse<HelpSeekerRequest>>(
-      "/help-seeker/requests",
-      { params: filters }
-    );
-    return response.data;
+    try {
+      const response = await api.get<PaginatedResponse<HelpSeekerRequest>>(
+        "/help-seeker/requests",
+        { params: filters }
+      );
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 
   createRequest: async (
     data: CreateRequestData
   ): Promise<ApiResponse<Request>> => {
-    const response = await api.post<ApiResponse<Request>>(
-      "/help-seeker/requests/new",
-      data
-    );
-    return response.data;
+    try {
+      const response = await api.post<ApiResponse<Request>>(
+        "/help-seeker/requests",
+        data
+      );
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 
   updateRequest: async (
     id: number,
     data: UpdateRequestData
   ): Promise<ApiResponse<Request>> => {
-    const response = await api.put<ApiResponse<Request>>(
-      `/help-seeker/requests/${id}`,
-      data
-    );
-    return response.data;
+    try {
+      const response = await api.put<ApiResponse<Request>>(
+        `/help-seeker/requests/${id}`,
+        data
+      );
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 
   deleteRequest: async (id: number): Promise<ApiResponse<void>> => {
-    const response = await api.delete<ApiResponse<void>>(
-      `/help-seeker/requests/${id}`
-    );
-    return response.data;
+    try {
+      const response = await api.delete<ApiResponse<void>>(
+        `/help-seeker/requests/${id}`
+      );
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 
   completeRequest: async (id: number): Promise<ApiResponse<void>> => {
-    const response = await api.patch<ApiResponse<void>>(
-      `/help-seeker/requests/${id}/complete`
-    );
-    return response.data;
+    try {
+      const response = await api.patch<ApiResponse<void>>(
+        `/help-seeker/requests/${id}/complete`
+      );
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 
   getApplications: async (
     requestId: number
   ): Promise<ApiResponse<RequestApplication[]>> => {
-    const response = await api.get<ApiResponse<RequestApplication[]>>(
-      `/help-seeker/requests/${requestId}/applications`
-    );
-    return response.data;
+    try {
+      const response = await api.get<ApiResponse<RequestApplication[]>>(
+        `/help-seeker/requests/${requestId}/applications`
+      );
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 
   acceptApplication: async (
@@ -98,55 +130,48 @@ export const requestService = {
   ): Promise<
     ApiResponse<{ request_id: number; user_id: number; is_accepted: boolean }>
   > => {
-    const response = await api.patch<
-      ApiResponse<{ request_id: number; user_id: number; is_accepted: boolean }>
-    >(`/help-seeker/requests/${requestId}/applications/${userId}/accept`);
-    return response.data;
+    try {
+      const response = await api.patch<
+        ApiResponse<{
+          request_id: number;
+          user_id: number;
+          is_accepted: boolean;
+        }>
+      >(`/help-seeker/requests/${requestId}/applications/${userId}/accept`);
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 
   browseRequests: async (
     filters: RequestFilters
   ): Promise<PaginatedResponse<VolunteerRequest>> => {
-    const response = await api.get<PaginatedResponse<VolunteerRequest>>(
-      "/volunteer/requests",
-      { params: filters }
-    );
-    return response.data;
+    try {
+      const response = await api.get<PaginatedResponse<VolunteerRequest>>(
+        "/volunteer/requests",
+        { params: filters }
+      );
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 
   getRequestDetails: async (
     id: number,
     is_volunteer: boolean
   ): Promise<ApiResponse<RequestDetails>> => {
-    const endpoint = is_volunteer
-      ? `/volunteer/requests/${id}`
-      : `/help-seeker/requests/${id}`;
+    try {
+      const endpoint = is_volunteer
+        ? `/volunteer/requests/${id}`
+        : `/help-seeker/requests/${id}`;
 
-    const response = await api.get<ApiResponse<RequestDetails>>(endpoint);
-    const base = response.data;
-
-    // If the actor is a help-seeker, also fetch applications and merge them
-    if (base?.success && !is_volunteer) {
-      try {
-        const appsResponse = await api.get<ApiResponse<RequestApplication[]>>(
-          `/help-seeker/requests/${id}/applications`
-        );
-
-        if (appsResponse.data?.success) {
-          // Merge applicants into the help-seeker request details
-          const merged: HelpSeekerRequestDetails = {
-            ...(base.data as HelpSeekerRequestDetails),
-            applicants: appsResponse.data.data,
-          };
-
-          return { ...base, data: merged };
-        }
-      } catch (e) {
-        console.error("Failed to fetch applications for request", id, e);
-      }
+      const response = await api.get<ApiResponse<RequestDetails>>(endpoint);
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
     }
-
-    return base;
   },
 
   applyToRequest: async (
@@ -159,25 +184,32 @@ export const requestService = {
       applied_at: string;
     }>
   > => {
-    const response = await api.post<
-      ApiResponse<{
-        request_id: number;
-        user_id: number;
-        is_accepted: boolean;
-        applied_at: string;
-      }>
-    >(`/volunteer/requests/${requestId}/application`);
-    return response.data;
+    try {
+      const response = await api.post<
+        ApiResponse<{
+          request_id: number;
+          user_id: number;
+          is_accepted: boolean;
+          applied_at: string;
+        }>
+      >(`/volunteer/requests/${requestId}/application`);
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 
   suggestRequestTypes: async (_data: {
-    name: string;
     description: string;
   }): Promise<ApiResponse<SuggestedRequestType[]>> => {
-    const response = await api.post<ApiResponse<SuggestedRequestType[]>>(
-      "/help-seeker/requests/suggest-type",
-      _data
-    );
-    return response.data;
+    try {
+      const response = await api.post<ApiResponse<SuggestedRequestType[]>>(
+        "/help-seeker/requests/generate-categories",
+        _data
+      );
+      return response.data;
+    } catch (err: unknown) {
+      throw new Error(handleApiError(err));
+    }
   },
 };

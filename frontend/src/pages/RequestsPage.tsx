@@ -89,10 +89,13 @@ export const RequestsPage = () => {
         ? await requestService.browseRequests(filters)
         : await requestService.getMyRequests(filters);
 
-      if (response.success) {
-        setRequests(response.data);
-        setPagination(response.pagination);
-      }
+      setRequests(response.data);
+      setPagination({
+        page: response.page,
+        limit: response.limit,
+        total: response.total,
+        totalPages: response.totalPages,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch requests");
       console.error("Failed to fetch requests:", err);
@@ -115,9 +118,7 @@ export const RequestsPage = () => {
           ? await requestService.browseRequests(locationFilters)
           : await requestService.getMyRequests(locationFilters);
 
-        if (response.success) {
-          setMapRequests(response.data);
-        }
+        setMapRequests(response.data);
       } catch (err) {
         console.error("Failed to fetch map requests:", err);
       } finally {

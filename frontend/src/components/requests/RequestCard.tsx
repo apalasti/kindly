@@ -13,7 +13,8 @@ import {
   type Request,
   type VolunteerRequest,
   type HelpSeekerRequest,
-  AcceptanceStatus,
+  ApplicationStatus,
+  RequestStatus,
 } from "../../types";
 import type { ElementType } from "react";
 import { getFullName, pickAvatarPalette } from "../../utils/avatar";
@@ -32,33 +33,47 @@ export const RequestCard = ({
 }: RequestCardProps) => {
   const getStatusInfo = () => {
     if (request.is_completed) {
-      return {
-        label: "Completed",
-        colorScheme: "gray",
-        icon: FaCheckCircle,
-      };
+      return { label: "Completed", colorScheme: "gray", icon: FaCheckCircle };
     }
+
     if (isVolunteer) {
-      const volunteerRequest = request as VolunteerRequest;
-      if (volunteerRequest.acceptance_status === AcceptanceStatus.ACCEPTED) {
-        return { label: "Accepted", colorScheme: "success", icon: FaUserCheck };
+      const { application_status, status } = request as VolunteerRequest;
+
+      if (application_status === ApplicationStatus.ACCEPTED) {
+        return {
+          label: "Accepted",
+          colorScheme: "success",
+          icon: FaUserCheck,
+        };
       }
-      if (volunteerRequest.acceptance_status === AcceptanceStatus.DECLINED) {
-        return { label: "Declined", colorScheme: "red", icon: FaTimesCircle };
-      }
-      if (volunteerRequest.acceptance_status === AcceptanceStatus.PENDING) {
+
+      if (application_status === ApplicationStatus.PENDING) {
         return {
           label: "Applied",
           colorScheme: "teal",
           icon: FaEnvelopeOpenText,
         };
       }
+
+      if (
+        application_status === ApplicationStatus.DECLINED ||
+        status === RequestStatus.CLOSED
+      ) {
+        return {
+          label: "Declined",
+          colorScheme: "red",
+          icon: FaTimesCircle,
+        };
+      }
+    } else if (request.status === RequestStatus.CLOSED) {
+      return {
+        label: "Volunteer Accepted",
+        colorScheme: "success",
+        icon: FaUserCheck,
+      };
     }
-    return {
-      label: "Open",
-      colorScheme: "coral",
-      icon: FaClock,
-    };
+
+    return { label: "Open", colorScheme: "coral", icon: FaClock };
   };
 
   const statusInfo = getStatusInfo();
@@ -100,7 +115,6 @@ export const RequestCard = ({
             {request.name}
           </Text>
           <Badge
-            colorScheme={statusInfo.colorScheme}
             px={2}
             py={1}
             borderRadius="full"
@@ -177,15 +191,15 @@ export const RequestCard = ({
               )}
               <HStack gap={1} color="gray.500" fontSize="sm">
                 <Icon as={FaUsers as ElementType} boxSize={3} />
-                <Text>{request.applications_count ?? 0}</Text>
+                <Text>{request.application_count ?? 0}</Text>
               </HStack>
             </HStack>
           ) : helpSeekerRequest &&
-            helpSeekerRequest.applicants &&
-            helpSeekerRequest.applicants!.length > 0 ? (
+            helpSeekerRequest.applications &&
+            helpSeekerRequest.applications!.length > 0 ? (
             <HStack gap={0} spaceX="-2">
               {helpSeekerRequest
-                .applicants!.slice(0, displayedAvatars)
+                .applications!.slice(0, displayedAvatars)
                 .map((application) => (
                   <Avatar.Root
                     key={application.volunteer.id}
@@ -205,10 +219,10 @@ export const RequestCard = ({
                     />
                   </Avatar.Root>
                 ))}
-              {helpSeekerRequest.applicants!.length > displayedAvatars && (
+              {helpSeekerRequest.applications!.length > displayedAvatars && (
                 <Avatar.Root size="sm" variant="solid" bg="coral.700">
                   <Avatar.Fallback>
-                    +{helpSeekerRequest.applicants!.length - displayedAvatars}
+                    +{helpSeekerRequest.applications!.length - displayedAvatars}
                   </Avatar.Fallback>
                 </Avatar.Root>
               )}
