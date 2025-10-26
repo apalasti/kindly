@@ -4,22 +4,22 @@ from enum import Enum
 from dataclasses import dataclass
 from typing_extensions import NotRequired, TypedDict
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class RegistrationData(BaseModel):
-    first_name: str
-    last_name: str
+    first_name: str = Field(min_length=1)
+    last_name: str = Field(min_length=1)
     email: EmailStr
-    password: str
+    password: str = Field(min_length=8)
     date_of_birth: date
-    about_me: str
+    about_me: str = Field(min_length=10)
     is_volunteer: bool
 
 
 class LoginData(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(min_length=1)
 
 
 @dataclass

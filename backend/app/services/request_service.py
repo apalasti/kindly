@@ -1,9 +1,9 @@
 from decimal import Decimal
 
 from geoalchemy2.functions import ST_DWithin, ST_Point
-from sqlalchemy import String
+from sqlalchemy import String, text
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import defer, joinedload
+from sqlalchemy.orm import defer, joinedload, session
 from sqlalchemy.sql import asc, desc, func, select
 
 from ..interfaces.request_service import (
@@ -22,7 +22,7 @@ from ..interfaces.request_service import (
 from ..interfaces.auth_service import AuthServiceInterface, UserRoles, UserTokenData
 from ..interfaces.common_service import RequestTypeInfo
 from ..interfaces.exceptions import RequestCannotBeUpdatedError, RequestNotFoundError
-from ..models import Application, Request, RequestType, User
+from ..models import Application, Request, RequestType, User, TypeOf
 from ..models.request import RequestStatus
 
 
@@ -61,38 +61,37 @@ class RequestService(RequestServiceInterface):
         self, user: UserTokenData, request_id: int, request_data: CreateOrUpdateRequestData
     ) -> RequestInfo:
         self.auth_service.authorize_with_role(user, UserRoles.HELP_SEEKER)
-        request = (
-            await self.session.execute(
-                select(Request)
-                .options(joinedload(Request.request_types))
-                .filter(Request.id == request_id)
-                .filter(Request.creator_id == user["id"])
-                .join(Application, Request.id == Application.request_id, isouter=True)
-                .filter(Application.id == None)
-            )
-        ).unique().scalar_one_or_none()
-        if request is None:
-            raise RequestCannotBeUpdatedError
+        async with self.session.begin():
+            request = (
+                await self.session.execute(
+                    select(Request)
+                    .options(joinedload(Request.request_types))
+                    .filter(Request.id == request_id)
+                    .filter(Request.creator_id == user["id"])
+                    .with_for_update()
+                )
+            ).unique().scalar_one_or_none()
+            if request is None or request.application_count > 0:
+                raise RequestCannotBeUpdatedError
 
-        # Update request fields
-        request.name = request_data.name
-        request.description = request_data.description
-        request.start = request_data.start
-        request.end = request_data.end
-        request.reward = int(request_data.reward)
-        request.address = request_data.address
-        request.latitude = Decimal(str(request_data.latitude))
-        request.longitude = Decimal(str(request_data.longitude))
-        request.location = ST_Point(request_data.latitude, request_data.longitude)
+            if 0 < len(request_data.request_type_ids):
+                request_types = await self.session.scalars(
+                    select(RequestType).where(RequestType.id.in_(request_data.request_type_ids))
+                )
+                request.request_types.clear()
+                request.request_types.extend(request_types)
 
-        if 0 < len(request_data.request_type_ids):
-            request_types = await self.session.scalars(
-                select(RequestType).where(RequestType.id.in_(request_data.request_type_ids))
-            )
-            request.request_types.clear()
-            request.request_types.extend(request_types)
+            # Update request fields
+            request.name = request_data.name
+            request.description = request_data.description
+            request.start = request_data.start
+            request.end = request_data.end
+            request.reward = int(request_data.reward)
+            request.address = request_data.address
+            request.latitude = Decimal(str(request_data.latitude))
+            request.longitude = Decimal(str(request_data.longitude))
+            request.location = ST_Point(request_data.latitude, request_data.longitude)
 
-        await self.session.commit()
         return self._to_request_info(request)
 
     async def delete_request(self, user: UserTokenData, request_id: int) -> None:
@@ -159,9 +158,10 @@ class RequestService(RequestServiceInterface):
         query = (
             select(
                 Request,
-                func.coalesce(func.cast(Application.status, String), "NOT_APPLIED"),
+                func.coalesce(
+                    func.cast(Application.status, String), "NOT_APPLIED"
+                ).label("application_status"),
             )
-            .options(defer(Request.location), defer(Request.creator_id))
             .options(
                 joinedload(Request.creator).load_only(
                     User.id, User.first_name, User.last_name, User.avg_rating
@@ -178,27 +178,28 @@ class RequestService(RequestServiceInterface):
                 asc(filters.sort) if filters.order == "asc" else desc(filters.sort)
             )
         )
-        if filters.request_type_ids:
-            query = (
-                query.join(Request.request_types)
-                .filter(RequestType.id.in_(filters.request_type_ids))
-                .distinct()
-            )
-
         if filters.status == "OPEN":
-            query = query.where(Request.status == "OPEN")
+            query = query.filter(Request.status == "OPEN")
         elif filters.status == "APPLIED":
-            query = query.where(Application.status == None)
+            query = query.filter(text("application_status = 'PENDING'"))
         elif filters.status == "COMPLETED":
-            query = query.where(Request.status == "COMPLETED")
+            query = query.filter(Request.status == "COMPLETED")
 
         if filters.location_lat and filters.location_lng:
-            query = query.where(
+            query = query.filter(
                 ST_DWithin(
                     Request.location,
                     ST_Point(filters.location_lat, filters.location_lng),
                     filters.radius * 1000,
                 )
+            )
+
+        if 0 < len(filters.request_type_ids):
+            query = (
+                query
+                .join(TypeOf, isouter=True)
+                .filter(TypeOf.request_type_id.in_(filters.request_type_ids))
+                .distinct()
             )
 
         pagination_result = await filters.paginate(self.session, query, scalar=False)
@@ -287,7 +288,6 @@ class RequestService(RequestServiceInterface):
             longitude=float(request.longitude),
             latitude=float(request.latitude),
             created_at=request.created_at,
-            updated_at=request.updated_at,
             application_count=request.application_count,
             request_types=[
                 RequestTypeInfo(id=rt.id, name=rt.name) 
