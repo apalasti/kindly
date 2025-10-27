@@ -2,7 +2,7 @@ import { HStack, Button, Icon, Box, Text, Portal } from "@chakra-ui/react";
 import { Tabs } from "@chakra-ui/react/tabs";
 import { Select } from "@chakra-ui/react/select";
 import { createListCollection } from "@chakra-ui/react/collection";
-import { FaList, FaMap, FaPlusCircle } from "react-icons/fa";
+import { FaList, FaMap, FaPlusCircle, FaFilter } from "react-icons/fa";
 import type { RequestFilters } from "../../types";
 import type { ElementType } from "react";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +13,7 @@ interface RequestToolbarProps {
   isVolunteer: boolean;
   viewMode: "list" | "map";
   onViewModeChange: (mode: "list" | "map") => void;
+  onOpenFilters?: () => void;
 }
 
 export const RequestToolbar = ({
@@ -21,6 +22,7 @@ export const RequestToolbar = ({
   isVolunteer,
   viewMode,
   onViewModeChange,
+  onOpenFilters,
 }: RequestToolbarProps) => {
   const navigate = useNavigate();
   const handleSortChange = (sort: string) => {
@@ -53,6 +55,20 @@ export const RequestToolbar = ({
   return (
     <Box bg="white" p={4} borderRadius="lg" boxShadow="sm" mb={6}>
       <HStack justify="space-between" flexWrap="wrap" gap={3}>
+        {/* Filters Button - Mobile only */}
+        <Button
+          display={{ base: "flex", lg: "none" }}
+          onClick={onOpenFilters}
+          variant="outline"
+          borderRadius="md"
+          px="4"
+          py="2"
+          gap={2}
+        >
+          <Icon as={FaFilter as ElementType} />
+          Filters
+        </Button>
+
         {/* View Mode Toggle (Volunteers only) */}
         {isVolunteer && (
           <Tabs.Root

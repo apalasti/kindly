@@ -207,7 +207,10 @@ export const AppHeader = ({
               {/* User Greeting + Menu - Right side (render only if user exists) */}
               {user && (
                 <HStack align="center" gap={5}>
-                  <Text color="gray.700">
+                  <Text
+                    color="gray.700"
+                    display={{ base: "none", md: "block" }}
+                  >
                     {hasFirstName ? (
                       <>
                         Welcome,{" "}

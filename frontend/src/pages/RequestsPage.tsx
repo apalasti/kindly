@@ -9,7 +9,9 @@ import {
   Center,
   Grid,
   Box,
+  Portal,
 } from "@chakra-ui/react";
+import { Drawer } from "@chakra-ui/react/drawer";
 import { AppLayout } from "../layouts/AppLayout";
 import { RequestCard } from "../components/requests/RequestCard";
 import { RequestFilters } from "../components/requests/RequestFilters";
@@ -34,6 +36,7 @@ export const RequestsPage = () => {
   const [isMapLoading, setIsMapLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false);
 
   const { isVolunteer } = useAuth();
 
@@ -180,6 +183,7 @@ export const RequestsPage = () => {
               isVolunteer={isVolunteer}
               viewMode={viewMode}
               onViewModeChange={setViewMode}
+              onOpenFilters={() => setIsFiltersDrawerOpen(true)}
             />
 
             {/* Map View - Always mounted to persist map instance */}
@@ -262,6 +266,34 @@ export const RequestsPage = () => {
           </Stack>
         </Grid>
       </Container>
+
+      {/* Mobile Filters Drawer */}
+      <Portal>
+        <Drawer.Root
+          open={isFiltersDrawerOpen}
+          onOpenChange={(e) => setIsFiltersDrawerOpen(e.open)}
+          placement="start"
+          size="sm"
+        >
+          <Drawer.Backdrop />
+          <Drawer.Positioner>
+            <Drawer.Content>
+              <Drawer.Body>
+                <RequestFilters
+                  filters={filters}
+                  onFiltersChange={(newFilters) => {
+                    handleFiltersChange(newFilters);
+                    setIsFiltersDrawerOpen(false);
+                  }}
+                  isVolunteer={isVolunteer}
+                  requestTypes={requestTypes}
+                  inDrawer={true}
+                />
+              </Drawer.Body>
+            </Drawer.Content>
+          </Drawer.Positioner>
+        </Drawer.Root>
+      </Portal>
     </AppLayout>
   );
 };
