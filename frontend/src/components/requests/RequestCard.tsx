@@ -1,5 +1,4 @@
 import { Box, HStack, Stack, Text, Badge, Icon } from "@chakra-ui/react";
-import { Avatar } from "@chakra-ui/react/avatar";
 import {
   FaUsers,
   FaCalendarAlt,
@@ -12,12 +11,10 @@ import {
 import {
   type Request,
   type VolunteerRequest,
-  type HelpSeekerRequest,
   ApplicationStatus,
   RequestStatus,
 } from "../../types";
 import type { ElementType } from "react";
-import { getFullName, pickAvatarPalette } from "../../utils/avatar";
 import { formatDate } from "../../utils/date";
 
 interface RequestCardProps {
@@ -83,12 +80,6 @@ export const RequestCard = ({
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
   };
-
-  const displayedAvatars = 2;
-
-  const helpSeekerRequest: HelpSeekerRequest | null = !isVolunteer
-    ? (request as HelpSeekerRequest)
-    : null;
 
   return (
     <Box
@@ -181,7 +172,7 @@ export const RequestCard = ({
             <Text>{formatDate(request.start, { format: "short" })}</Text>
           </HStack>
 
-          {/* Reward (for volunteers) or Avatar group (for help seekers) */}
+          {/* Reward (for volunteers) or Application count (for help seekers) */}
           {isVolunteer ? (
             <HStack gap={3}>
               {request.reward > 0 && (
@@ -194,43 +185,14 @@ export const RequestCard = ({
                 <Text>{request.application_count ?? 0}</Text>
               </HStack>
             </HStack>
-          ) : helpSeekerRequest &&
-            helpSeekerRequest.applications &&
-            helpSeekerRequest.applications!.length > 0 ? (
-            <HStack gap={0} spaceX="-2">
-              {helpSeekerRequest
-                .applications!.slice(0, displayedAvatars)
-                .map((application) => (
-                  <Avatar.Root
-                    key={application.volunteer.id}
-                    size="sm"
-                    colorPalette={pickAvatarPalette(
-                      application.volunteer.first_name,
-                      application.volunteer.last_name
-                    )}
-                    borderWidth="2px"
-                    borderColor="white"
-                  >
-                    <Avatar.Fallback
-                      name={getFullName(
-                        application.volunteer.first_name,
-                        application.volunteer.last_name
-                      )}
-                    />
-                  </Avatar.Root>
-                ))}
-              {helpSeekerRequest.applications!.length > displayedAvatars && (
-                <Avatar.Root size="sm" variant="solid" bg="coral.700">
-                  <Avatar.Fallback>
-                    +{helpSeekerRequest.applications!.length - displayedAvatars}
-                  </Avatar.Fallback>
-                </Avatar.Root>
-              )}
-            </HStack>
           ) : (
             <HStack gap={1} color="gray.500" fontSize="sm">
               <Icon as={FaUsers as ElementType} boxSize={3} />
-              <Text>No applicants</Text>
+              <Text>
+                {request.application_count > 0
+                  ? request.application_count
+                  : "No applicants"}
+              </Text>
             </HStack>
           )}
         </HStack>

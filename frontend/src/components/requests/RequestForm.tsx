@@ -46,10 +46,10 @@ export type RequestFormValues = {
 
 const formSchema = z
   .object({
-    name: z.string().min(1, "Name is required").max(200, "Name is too long"),
+    name: z.string().min(5, "Name is too short").max(200, "Name is too long"),
     description: z
       .string()
-      .min(20, "Description is required")
+      .min(20, "Description is too short")
       .max(1000, "Description is too long"),
     address: z.string().min(1, "Location is required"),
     location_coordinates: z.object({
