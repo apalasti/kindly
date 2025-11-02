@@ -15,6 +15,7 @@ engine = create_async_engine(
     db_url,
     echo=os.environ.get("DEV", "False").lower() in ("true", "1", "yes"),
     plugins=["geoalchemy2"],
+    connect_args={"timeout": 10},
 )
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 
