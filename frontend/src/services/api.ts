@@ -10,6 +10,9 @@ export const api = axios.create({
     "Content-Type": "application/json",
   },
   withCredentials: true,
+  paramsSerializer: {
+    indexes: null,
+  },
 });
 
 // --- Refresh token coordination state ---
