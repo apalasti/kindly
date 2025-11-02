@@ -86,14 +86,12 @@ export const EditProfilePage = () => {
     setIsSaving(true);
 
     try {
-      // Combine first and last name
       const updateData = {
         first_name: data.first_name,
         last_name: data.last_name,
         email: data.email,
         date_of_birth: toDateOnly(data.date_of_birth),
         about_me: data.about_me,
-        ...(data.new_password && { password: data.new_password }),
       };
 
       const response = await userService.updateProfile(updateData);

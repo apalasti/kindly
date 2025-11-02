@@ -5,7 +5,6 @@ import {
   Input,
   Textarea,
   Stack,
-  Text,
   HStack,
   Icon,
 } from "@chakra-ui/react";
@@ -40,8 +39,6 @@ const buildSchema = (mode: "edit" | "register") => {
             10,
             "Please tell us a bit about yourself (at least 10 characters)"
           ),
-        // For compatibility with edit mode fields (not used here)
-        new_password: z.string().optional(),
       })
       .refine((data) => data.password === data.repeat_password, {
         message: "Passwords don't match",
@@ -49,34 +46,15 @@ const buildSchema = (mode: "edit" | "register") => {
       });
   }
   // edit mode schema
-  return z
-    .object({
-      first_name: z.string().min(1, "First name is required"),
-      last_name: z.string().min(1, "Last name is required"),
-      email: z.string().email("Invalid email address"),
-      password: z.string().optional(), // current password
-      new_password: z.string().optional(),
-      repeat_password: z.string().optional(),
-      date_of_birth: z.string().min(1, "Date of birth is required"),
-      about_me: z
-        .string()
-        .min(
-          10,
-          "Please tell us a bit about yourself (at least 10 characters)"
-        ),
-    })
-    .refine(
-      (data) => {
-        if (data.new_password && data.new_password !== data.repeat_password) {
-          return false;
-        }
-        return true;
-      },
-      {
-        message: "Passwords don't match",
-        path: ["repeat_password"],
-      }
-    );
+  return z.object({
+    first_name: z.string().min(1, "First name is required"),
+    last_name: z.string().min(1, "Last name is required"),
+    email: z.string().email("Invalid email address"),
+    date_of_birth: z.string().min(1, "Date of birth is required"),
+    about_me: z
+      .string()
+      .min(10, "Please tell us a bit about yourself (at least 10 characters)"),
+  });
 };
 
 export type ProfileFormData = {
@@ -219,70 +197,8 @@ export const ProfileForm = ({
           )}
         </Field.Root>
 
-        {/* Password Fields */}
-        {mode === "edit" ? (
-          <>
-            <Text fontSize="lg" fontWeight="semibold" color="gray.700" mt={2}>
-              Change Password (optional)
-            </Text>
-            <Field.Root invalid={!!errors.password}>
-              <Field.Label>Current Password</Field.Label>
-              <PasswordInput
-                {...register("password")}
-                placeholder="Enter current password"
-                visible={isPasswordVisible}
-                onVisibleChange={setIsPasswordVisible}
-                borderRadius="md"
-                px={5}
-                py={4}
-              />
-              {errors.password?.message && (
-                <Field.ErrorText>{errors.password.message}</Field.ErrorText>
-              )}
-            </Field.Root>
-            <HStack w="full" gap={4} align="start">
-              <Field.Root invalid={!!errors.new_password} flex={1}>
-                <Field.Label>New Password</Field.Label>
-                <Stack gap="3" w="full">
-                  <PasswordInput
-                    {...register("new_password")}
-                    placeholder="Create a new password"
-                    visible={isPasswordVisible}
-                    onVisibleChange={setIsPasswordVisible}
-                    borderRadius="md"
-                    px={5}
-                    py={4}
-                  />
-                  {passwordStrengthField && (
-                    <PasswordStrengthMeter value={strength} />
-                  )}
-                </Stack>
-                {errors.new_password?.message && (
-                  <Field.ErrorText>
-                    {errors.new_password.message}
-                  </Field.ErrorText>
-                )}
-              </Field.Root>
-              <Field.Root invalid={!!errors.repeat_password} flex={1}>
-                <Field.Label>Repeat New Password</Field.Label>
-                <PasswordInput
-                  {...register("repeat_password")}
-                  placeholder="Re-enter new password"
-                  visible={isPasswordVisible}
-                  onVisibleChange={setIsPasswordVisible}
-                  borderRadius="md"
-                  px={5}
-                  py={4}
-                />
-                {errors.repeat_password?.message && (
-                  <Field.ErrorText>
-                    {errors.repeat_password.message}
-                  </Field.ErrorText>
-                )}
-              </Field.Root>
-            </HStack>
-          </>
-        ) : (
+        {/* Password Fields - Only for registration */}
+        {mode === "register" && (
           <>
             <Field.Root invalid={!!errors.password}>
               <Field.Label>Password</Field.Label>

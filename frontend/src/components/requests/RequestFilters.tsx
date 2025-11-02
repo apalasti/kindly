@@ -15,7 +15,6 @@ interface RequestFiltersProps {
   onFiltersChange: (filters: Filters) => void;
   isVolunteer: boolean;
   requestTypes?: RequestType[];
-  inDrawer?: boolean;
 }
 
 interface StatusOption {
@@ -29,7 +28,6 @@ export const RequestFilters = ({
   onFiltersChange,
   isVolunteer,
   requestTypes = [],
-  inDrawer = false,
 }: RequestFiltersProps) => {
   const [priceRange, setPriceRange] = useState<number[]>([
     filters.min_reward || 0,
@@ -189,9 +187,9 @@ export const RequestFilters = ({
       bg="white"
       p={6}
       borderRadius="lg"
-      boxShadow={inDrawer ? "none" : "md"}
-      position={inDrawer ? "relative" : "sticky"}
-      top={inDrawer ? "0" : "100px"}
+      boxShadow="md"
+      position="sticky"
+      top="100px"
       h="fit-content"
     >
       <Stack gap={6}>

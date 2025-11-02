@@ -204,7 +204,7 @@ export const RequestMapView = ({
           const volunteerRequest = req as VolunteerRequest;
           ok =
             ok &&
-            volunteerRequest.application_status === AcceptanceStatus.PENDING;
+            volunteerRequest.application_status === ApplicationStatus.PENDING;
         } else if (status === RequestStatus.OPEN) ok = ok && !req.is_completed;
       }
 

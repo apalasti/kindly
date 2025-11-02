@@ -10,8 +10,8 @@ import {
   Grid,
   Box,
   Portal,
+  Dialog,
 } from "@chakra-ui/react";
-import { Drawer } from "@chakra-ui/react/drawer";
 import { AppLayout } from "../layouts/AppLayout";
 import { RequestCard } from "../components/requests/RequestCard";
 import { RequestFilters } from "../components/requests/RequestFilters";
@@ -36,7 +36,7 @@ export const RequestsPage = () => {
   const [isMapLoading, setIsMapLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
-  const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false);
+  const [isFiltersDialogOpen, setIsFiltersDialogOpen] = useState(false);
 
   const { isVolunteer } = useAuth();
 
@@ -183,20 +183,22 @@ export const RequestsPage = () => {
               isVolunteer={isVolunteer}
               viewMode={viewMode}
               onViewModeChange={setViewMode}
-              onOpenFilters={() => setIsFiltersDrawerOpen(true)}
+              onOpenFilters={() => setIsFiltersDialogOpen(true)}
             />
 
             {/* Map View - Always mounted to persist map instance */}
-            <Box display={viewMode === "map" ? "block" : "none"}>
-              <RequestMapView
-                requests={mapRequests}
-                isVolunteer={isVolunteer}
-                onRequestClick={handleRequestClick}
-                isLoading={isMapLoading}
-                uiFilters={mapFilters}
-                onLocationChange={fetchMapRequests}
-              />
-            </Box>
+            {isVolunteer && (
+              <Box display={viewMode === "map" ? "block" : "none"}>
+                <RequestMapView
+                  requests={mapRequests}
+                  isVolunteer={isVolunteer}
+                  onRequestClick={handleRequestClick}
+                  isLoading={isMapLoading}
+                  uiFilters={mapFilters}
+                  onLocationChange={fetchMapRequests}
+                />
+              </Box>
+            )}
 
             {/* List View */}
             {viewMode === "list" && (
@@ -228,9 +230,7 @@ export const RequestsPage = () => {
                         No requests found
                       </Text>
                       <Text color="gray.500" fontSize="sm">
-                        {filters.status === RequestStatus.ALL
-                          ? "There are no requests to display."
-                          : `There are no ${filters.status} requests.`}
+                        There are no requests matching the filters.
                       </Text>
                     </Stack>
                   </Center>
@@ -267,32 +267,41 @@ export const RequestsPage = () => {
         </Grid>
       </Container>
 
-      {/* Mobile Filters Drawer */}
+      {/* Mobile Filters Dialog */}
       <Portal>
-        <Drawer.Root
-          open={isFiltersDrawerOpen}
-          onOpenChange={(e) => setIsFiltersDrawerOpen(e.open)}
-          placement="start"
-          size="sm"
+        <Dialog.Root
+          open={isFiltersDialogOpen}
+          onOpenChange={(e) => setIsFiltersDialogOpen(e.open)}
+          placement="center"
+          size="lg"
         >
-          <Drawer.Backdrop />
-          <Drawer.Positioner>
-            <Drawer.Content>
-              <Drawer.Body>
-                <RequestFilters
-                  filters={filters}
-                  onFiltersChange={(newFilters) => {
-                    handleFiltersChange(newFilters);
-                    setIsFiltersDrawerOpen(false);
-                  }}
-                  isVolunteer={isVolunteer}
-                  requestTypes={requestTypes}
-                  inDrawer={true}
-                />
-              </Drawer.Body>
-            </Drawer.Content>
-          </Drawer.Positioner>
-        </Drawer.Root>
+          <Dialog.Backdrop
+            bg="blackAlpha.600"
+            backdropFilter="blur(4px)"
+            transition="all 0.2s"
+          />
+          <Dialog.Positioner>
+            <Dialog.Content
+              bg="white"
+              borderRadius="2xl"
+              boxShadow="2xl"
+              maxW="500px"
+              mx={4}
+              maxH="90vh"
+              overflowY="auto"
+            >
+              <RequestFilters
+                filters={filters}
+                onFiltersChange={(newFilters) => {
+                  handleFiltersChange(newFilters);
+                  setIsFiltersDialogOpen(false);
+                }}
+                isVolunteer={isVolunteer}
+                requestTypes={requestTypes}
+              />
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Dialog.Root>
       </Portal>
     </AppLayout>
   );
