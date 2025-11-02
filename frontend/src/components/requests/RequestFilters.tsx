@@ -10,6 +10,10 @@ import {
 } from "../../types";
 import { TypeSelector } from "../ui/type-selector";
 
+// Max value used only for the UI slider range. When the upper thumb equals this
+// value it is treated as "unlimited" and omitted from the API filters.
+const PRICE_MAX_UI = 1000;
+
 interface RequestFiltersProps {
   filters: Filters;
   onFiltersChange: (filters: Filters) => void;
@@ -30,8 +34,8 @@ export const RequestFilters = ({
   requestTypes = [],
 }: RequestFiltersProps) => {
   const [priceRange, setPriceRange] = useState<number[]>([
-    filters.min_reward || 0,
-    filters.max_reward || 500,
+    filters.min_reward ?? 0,
+    filters.max_reward ?? PRICE_MAX_UI,
   ]);
 
   const baseStatusOptions = isVolunteer
@@ -96,10 +100,14 @@ export const RequestFilters = ({
   };
 
   const handlePriceChangeEnd = (details: { value: number[] }) => {
+    const min = details.value[0] > 0 ? details.value[0] : undefined;
+    const max =
+      details.value[1] === PRICE_MAX_UI ? undefined : details.value[1];
+
     const newFilters = {
       ...filters,
-      min_reward: details.value[0],
-      max_reward: details.value[1],
+      min_reward: min,
+      max_reward: max,
       page: 1,
     };
     onFiltersChange(newFilters);
@@ -108,11 +116,11 @@ export const RequestFilters = ({
   // Remove individual filter
   const removeFilter = (filterType: string, value?: string) => {
     if (filterType === "price") {
-      setPriceRange([0, 500]);
+      setPriceRange([0, PRICE_MAX_UI]);
       const newFilters = {
         ...filters,
-        min_reward: 0,
-        max_reward: 500,
+        min_reward: undefined,
+        max_reward: undefined,
         page: 1,
       };
       onFiltersChange(newFilters);
@@ -139,11 +147,19 @@ export const RequestFilters = ({
     const tags: Array<{ type: string; label: string; value?: string }> = [];
 
     // Price tag
-    if (priceRange[0] !== 0 || priceRange[1] !== 500) {
-      tags.push({
-        type: "price",
-        label: `$${priceRange[0]} - $${priceRange[1]}`,
-      });
+    const hasMin =
+      typeof filters.min_reward === "number" && filters.min_reward > 0;
+    const hasMax = typeof filters.max_reward === "number";
+    if (hasMin || hasMax) {
+      let label = "";
+      if (hasMin && hasMax) {
+        label = `$${filters.min_reward} - $${filters.max_reward}`;
+      } else if (hasMin && !hasMax) {
+        label = `$${filters.min_reward}+`;
+      } else if (!hasMin && hasMax) {
+        label = `Up to $${filters.max_reward}`;
+      }
+      tags.push({ type: "price", label });
     }
 
     // Status tags
@@ -247,7 +263,7 @@ export const RequestFilters = ({
               onValueChange={handlePriceChange}
               onValueChangeEnd={handlePriceChangeEnd}
               min={0}
-              max={500}
+              max={PRICE_MAX_UI}
               step={5}
               colorPalette={colorPalette}
             >
@@ -259,7 +275,11 @@ export const RequestFilters = ({
                 <Slider.Thumb index={1} />
               </Slider.Control>
               <Slider.ValueText>
-                ${priceRange[0]} - ${priceRange[1]}
+                {priceRange[0] === 0 && priceRange[1] === PRICE_MAX_UI
+                  ? "All prices"
+                  : priceRange[1] === PRICE_MAX_UI
+                  ? `$${priceRange[0]}+`
+                  : `$${priceRange[0]} - $${priceRange[1]}`}
               </Slider.ValueText>
             </Slider.Root>
           </Stack>
