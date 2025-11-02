@@ -68,7 +68,6 @@ class RequestService(RequestServiceInterface):
                     .options(joinedload(Request.request_types))
                     .filter(Request.id == request_id)
                     .filter(Request.creator_id == user["id"])
-                    .with_for_update()
                 )
             ).unique().scalar_one_or_none()
             if request is None or request.application_count > 0:
@@ -123,7 +122,7 @@ class RequestService(RequestServiceInterface):
         if request is None:
             raise RequestNotFoundError
 
-        if request.status != RequestStatus.OPEN:
+        if request.status != RequestStatus.CLOSED:
             raise RequestCannotBeUpdatedError
 
         request.status = RequestStatus.COMPLETED
@@ -181,11 +180,16 @@ class RequestService(RequestServiceInterface):
             )
         )
         if filters.status == "OPEN":
-            query = query.filter(Request.status == "OPEN")
+            query = query.filter(Request.status == RequestStatus.OPEN)
         elif filters.status == "APPLIED":
             query = query.filter(application_status == "PENDING")
         elif filters.status == "COMPLETED":
-            query = query.filter(Request.status == "COMPLETED")
+            query = query.filter(Request.status == RequestStatus.COMPLETED)
+        elif filters.status == "ALL":
+            query = query.filter(
+                (Request.status == RequestStatus.OPEN)
+                | (application_status is not None)
+            )
 
         if filters.max_reward is not None:
             query = query.filter(Request.reward < filters.max_reward)
