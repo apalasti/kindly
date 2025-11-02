@@ -34,6 +34,8 @@ class RequestsFilter(PaginationParams):
     location_lat: Optional[float] = Field(default=None)
     location_lng: Optional[float] = Field(default=None)
     radius: int = Field(default=10)
+    min_reward: Optional[int] = Field(default=None) 
+    max_reward: Optional[int] = Field(default=None)
     sort: Literal["start", "reward"] = Field(default="start")
     order: Literal["asc", "desc"] = Field(default="desc")
 

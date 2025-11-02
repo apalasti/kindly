@@ -155,12 +155,14 @@ class RequestService(RequestServiceInterface):
         self, user: UserTokenData, filters: RequestsFilter
     ) -> Pagination[RequestWithApplicationStatus]:
         self.auth_service.authorize_with_role(user, UserRoles.VOLUNTEER)
+
+        application_status = func.coalesce(
+            func.cast(Application.status, String), "NOT_APPLIED"
+        )
         query = (
             select(
                 Request,
-                func.coalesce(
-                    func.cast(Application.status, String), "NOT_APPLIED"
-                ).label("application_status"),
+                application_status.label("application_status"),
             )
             .options(
                 joinedload(Request.creator).load_only(
@@ -181,9 +183,14 @@ class RequestService(RequestServiceInterface):
         if filters.status == "OPEN":
             query = query.filter(Request.status == "OPEN")
         elif filters.status == "APPLIED":
-            query = query.filter(text("application_status = 'PENDING'"))
+            query = query.filter(application_status == "PENDING")
         elif filters.status == "COMPLETED":
             query = query.filter(Request.status == "COMPLETED")
+
+        if filters.max_reward is not None:
+            query = query.filter(Request.reward < filters.max_reward)
+        if filters.min_reward is not None:
+            query = query.filter(filters.min_reward < Request.reward)
 
         if filters.location_lat and filters.location_lng:
             query = query.filter(
