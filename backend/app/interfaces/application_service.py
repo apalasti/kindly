@@ -47,5 +47,5 @@ class ApplicationServiceInterface(ABC):
 
     @abstractmethod
     async def rate_seeker(
-        self, volunteer_id: int, request_id: int, rating_data: RateSeekerData
+        self, user: UserTokenData, request_id: int, rating_data: RateSeekerData
     ) -> None: ...

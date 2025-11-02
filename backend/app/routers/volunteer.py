@@ -59,7 +59,7 @@ async def rate_seeker(
     request_id: int, 
     body: RateSeekerData
 ):
-    await application_service.rate_seeker(user["id"], request_id, body)
+    await application_service.rate_seeker(user, request_id, body)
     return SuccessResponse(
         data=None,
         message="Rating submitted successfully"
