@@ -29,7 +29,7 @@ export const RequestCard = ({
   onClick,
 }: RequestCardProps) => {
   const getStatusInfo = () => {
-    if (request.is_completed) {
+    if (request.status === RequestStatus.COMPLETED) {
       return { label: "Completed", colorScheme: "gray", icon: FaCheckCircle };
     }
 
@@ -52,13 +52,21 @@ export const RequestCard = ({
         };
       }
 
-      if (
-        application_status === ApplicationStatus.DECLINED ||
-        status === RequestStatus.CLOSED
-      ) {
+      if (application_status === ApplicationStatus.DECLINED) {
         return {
           label: "Declined",
           colorScheme: "red",
+          icon: FaTimesCircle,
+        };
+      }
+
+      if (
+        application_status === ApplicationStatus.NOT_APPLIED &&
+        status === RequestStatus.CLOSED
+      ) {
+        return {
+          label: "Closed",
+          colorScheme: "gray",
           icon: FaTimesCircle,
         };
       }

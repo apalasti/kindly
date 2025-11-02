@@ -11,6 +11,7 @@ import {
   type VolunteerRequestDetails,
   type HelpSeekerRequestDetails,
   ApplicationStatus,
+  RequestStatus,
 } from "../../types";
 import { requestService } from "../../services/request.service";
 import { toaster } from "../ui/toaster";
@@ -70,7 +71,7 @@ export const VolunteerAction = ({
     );
   }
 
-  if (request.is_completed) {
+  if (request.status === RequestStatus.COMPLETED) {
     return (
       <HStack gap={2} p={4} bg="gray.100" borderRadius="lg" justify="center">
         <Icon as={FaCheckCircle as ElementType} boxSize={5} color="gray.600" />

@@ -15,7 +15,6 @@ interface BaseRequest {
   start: string;
   end: string;
   reward: number;
-  is_completed: boolean;
   request_types: RequestType[];
   application_count: number;
   created_at: string;
@@ -56,6 +55,7 @@ export enum ApplicationStatus {
   ACCEPTED = "ACCEPTED",
   DECLINED = "DECLINED",
   PENDING = "PENDING",
+  NOT_APPLIED = "NOT_APPLIED",
 }
 
 export enum RequestStatus {

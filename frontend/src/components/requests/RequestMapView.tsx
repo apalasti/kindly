@@ -199,13 +199,15 @@ export const RequestMapView = ({
       // Status filter
       const status = uiFilters.status || RequestStatus.ALL;
       if (status !== RequestStatus.ALL) {
-        if (status === RequestStatus.COMPLETED) ok = ok && req.is_completed;
+        if (status === RequestStatus.COMPLETED)
+          ok = ok && req.status === RequestStatus.COMPLETED;
         else if (status === RequestStatus.APPLIED) {
           const volunteerRequest = req as VolunteerRequest;
           ok =
             ok &&
             volunteerRequest.application_status === ApplicationStatus.PENDING;
-        } else if (status === RequestStatus.OPEN) ok = ok && !req.is_completed;
+        } else if (status === RequestStatus.OPEN)
+          ok = ok && req.status === RequestStatus.OPEN;
       }
 
       // Reward range
@@ -254,7 +256,7 @@ export const RequestMapView = ({
 
       // Determine marker color based on status
       let markerColor: string;
-      if (request.is_completed) {
+      if (request.status === RequestStatus.COMPLETED) {
         markerColor = "gray"; // Gray for completed
       } else if (isVolunteer) {
         markerColor = "teal"; // Teal for volunteer view

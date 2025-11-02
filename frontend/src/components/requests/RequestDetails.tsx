@@ -64,7 +64,10 @@ export const RequestDetails = ({
     !isVolunteer && isCreator && !acceptedVolunteer && apps.length > 0;
 
   const canMarkComplete =
-    !isVolunteer && isCreator && !!acceptedVolunteer && !request.is_completed;
+    !isVolunteer &&
+    isCreator &&
+    !!acceptedVolunteer &&
+    request.status !== RequestStatus.COMPLETED;
 
   const {
     open: isSelectOpen,
@@ -136,7 +139,8 @@ export const RequestDetails = ({
   } = useDisclosure();
 
   const [canLeaveReview, setCanLeaveReview] = useState(
-    request.is_completed && (currentVolunteerAccepted || isCreator)
+    request.status === RequestStatus.COMPLETED &&
+      (currentVolunteerAccepted || isCreator)
   );
 
   const handleReviewSubmitted = () => {
