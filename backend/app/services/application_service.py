@@ -113,7 +113,7 @@ class ApplicationService(ApplicationServiceInterface):
                 .where(Application.request_id == request_id)
                 .values(
                     status=text(
-                        "CASE WHEN user_id = :user_id THEN 'ACCEPTED'::applicationstatus ELSE 'ACCEPTED'::applicationstatus END"
+                        "CASE WHEN user_id = :user_id THEN 'ACCEPTED'::applicationstatus ELSE 'DECLINED'::applicationstatus END"
                     ).bindparams(user_id=volunteer_id)
                 )
             )
@@ -155,4 +155,4 @@ class ApplicationService(ApplicationServiceInterface):
             if application is None:
                 raise ApplicationCannotBeRated
 
-            application.volunteer_rating = rating_data.rating
+            application.help_seeker_rating = rating_data.rating
