@@ -40,7 +40,7 @@ export const RequestsPage = () => {
 
   const { isVolunteer } = useAuth();
 
-  const pageLimit = 10;
+  const pageLimit = 9;
 
   const [filters, setFilters] = useState<Filters>({
     status: RequestStatus.ALL,

@@ -28,6 +28,16 @@ services:
       - ./backend/app:/app/app
       - ./backend/scripts:/app/scripts
 
+  frontend:
+    build: ./frontend
+    env_file: "./frontend/.env.local"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
 volumes:
   db_data: {}
 
