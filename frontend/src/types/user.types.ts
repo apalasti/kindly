@@ -38,9 +38,6 @@ export interface LoginRequest {
 
 export interface AuthResponse {
   success: boolean;
-  data: {
-    user: User;
-    token: string;
-  };
-  message: string;
+  user: User;
+  access_token: string;
 }

@@ -25,15 +25,15 @@ export const authService = {
     try {
       const response = await api.post<AuthResponse>("/auth/register", data);
 
-      if (response.data.success && response.data.data.token) {
-        tokenManager.setAccessToken(response.data.data.token);
+      if (response.data.success && response.data.access_token) {
+        tokenManager.setAccessToken(response.data.access_token);
         // Initialize proactive token refresh after successful registration
         initializeTokenRefresh();
       }
 
       // Update auth context if available
       if (updateAuthContext) {
-        const user = response.data.data.user;
+        const user = response.data.user;
         updateAuthContext({
           id: user.id,
           first_name: user.first_name,
@@ -53,15 +53,15 @@ export const authService = {
     try {
       const response = await api.post<AuthResponse>("/auth/login", data);
 
-      if (response.data.success && response.data.data.token) {
-        tokenManager.setAccessToken(response.data.data.token);
+      if (response.data.success && response.data.access_token) {
+        tokenManager.setAccessToken(response.data.access_token);
         // Initialize proactive token refresh after login
         initializeTokenRefresh();
       }
 
       // Update auth context if available
       if (updateAuthContext) {
-        const user = response.data.data.user;
+        const user = response.data.user;
         updateAuthContext({
           id: user.id,
           first_name: user.first_name,

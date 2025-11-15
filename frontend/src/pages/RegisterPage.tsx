@@ -52,10 +52,10 @@ export const RegisterPage = () => {
         about_me: data.about_me,
         is_volunteer: isVolunteer,
       };
-      const response = await authService.register(registerData);
+      await authService.register(registerData);
       toaster.create({
         title: "Registration successful!",
-        description: response.message,
+        description: "Welcome to Kindly!",
         type: "success",
         duration: 5000,
       });

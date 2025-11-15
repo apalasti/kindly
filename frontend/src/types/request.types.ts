@@ -24,10 +24,12 @@ interface BaseRequest {
 
 export interface HelpSeekerRequest extends BaseRequest {
   applications?: RequestApplication[];
+  has_rated_helper: boolean;
 }
 
 export interface VolunteerRequest extends BaseRequest {
   application_status?: ApplicationStatus;
+  has_rated_seeker: boolean;
 }
 
 export interface VolunteerRequestDetails extends VolunteerRequest {

@@ -140,7 +140,8 @@ export const RequestDetails = ({
 
   const [canLeaveReview, setCanLeaveReview] = useState(
     request.status === RequestStatus.COMPLETED &&
-      (currentVolunteerAccepted || isCreator)
+      ((currentVolunteerAccepted && !volunteerRequest.has_rated_seeker) ||
+        (isCreator && !(request as HelpSeekerRequestDetails).has_rated_helper))
   );
 
   const handleReviewSubmitted = () => {

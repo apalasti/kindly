@@ -38,10 +38,10 @@ export const LoginPage = () => {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      const response = await authService.login(data);
+      await authService.login(data);
       toaster.create({
         title: "Login successful!",
-        description: response.message,
+        description: "Welcome back!",
         type: "success",
         duration: 5000,
       });
