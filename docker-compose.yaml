@@ -9,6 +9,11 @@ services:
       POSTGRES_DB: kindly
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "kindly"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - app-network
 
