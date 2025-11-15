@@ -21,15 +21,14 @@ from ..interfaces.auth_service import (
     RegistrationData,
     UserRoles,
     UserTokenData,
+    ACCESS_TOKEN_EXPIRY,
+    REFRESH_TOKEN_EXPIRY,
 )
 from ..models import RefreshToken, User
 from .common_service import CommonService
 
 JWT_ALGORITHM = "HS256"
 JWT_SECRET_KEY = os.getenv("JWT_SECRET")
-
-ACCESS_TOKEN_DEFAULT_EXPIRY = timedelta(hours=5)
-REFRESH_TOKEN_DEFAULT_EXPIRY = timedelta(hours=2)
 
 password_hash = PasswordHash.recommended()
 
@@ -45,11 +44,11 @@ class AuthService(AuthServiceInterface):
         if not user or not password_hash.verify(login_data.password, user.password):
             raise InvalidEmailOrPasswordError
 
-        refresh_token = self._create_token(user, REFRESH_TOKEN_DEFAULT_EXPIRY)
+        refresh_token = self._create_token(user, REFRESH_TOKEN_EXPIRY)
         self.session.add(RefreshToken(user_id=user.id, token=refresh_token))
         await self.session.commit()
 
-        access_token = self._create_token(user, ACCESS_TOKEN_DEFAULT_EXPIRY)
+        access_token = self._create_token(user, ACCESS_TOKEN_EXPIRY)
         return AuthResult(
             user=CommonService.to_user_info(user),
             tokens=AuthTokens(access_token=access_token, refresh_token=refresh_token),
@@ -73,18 +72,18 @@ class AuthService(AuthServiceInterface):
             await self.session.rollback()
             raise UserAlreadyExistsError
 
-        refresh_token = self._create_token(user, REFRESH_TOKEN_DEFAULT_EXPIRY)
+        refresh_token = self._create_token(user, REFRESH_TOKEN_EXPIRY)
         self.session.add(RefreshToken(user_id=user.id, token=refresh_token))
         await self.session.commit()
 
-        access_token = self._create_token(user, ACCESS_TOKEN_DEFAULT_EXPIRY)
+        access_token = self._create_token(user, ACCESS_TOKEN_EXPIRY)
         return AuthResult(
             user=CommonService.to_user_info(user),
             tokens=AuthTokens(access_token=access_token, refresh_token=refresh_token),
         )
 
     async def refresh(
-        self, refresh_token: str, access_expires: timedelta = ACCESS_TOKEN_DEFAULT_EXPIRY
+        self, refresh_token: str, access_expires: timedelta = ACCESS_TOKEN_EXPIRY
     ) -> AuthTokens:
         user_data = self.authenticate(refresh_token)
         stored = (
@@ -98,11 +97,11 @@ class AuthService(AuthServiceInterface):
         if stored is None:
             raise InvalidTokenError
 
-        new_refresh = self._recreate_token(refresh_token, REFRESH_TOKEN_DEFAULT_EXPIRY)
+        new_refresh = self._recreate_token(refresh_token, REFRESH_TOKEN_EXPIRY)
         stored.token = new_refresh
         await self.session.commit()
 
-        new_access = self._recreate_token(refresh_token, ACCESS_TOKEN_DEFAULT_EXPIRY)
+        new_access = self._recreate_token(refresh_token, ACCESS_TOKEN_EXPIRY)
         return AuthTokens(access_token=new_access, refresh_token=new_refresh)
 
     async def logout(self, user_id: int, refresh_token: str) -> None:

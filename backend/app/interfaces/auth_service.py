@@ -1,10 +1,20 @@
+import os
 from abc import ABC, abstractmethod
 from datetime import date, datetime, timedelta
 from enum import Enum
 from dataclasses import dataclass
 from typing_extensions import NotRequired, TypedDict
 
+from dotenv import load_dotenv
 from pydantic import BaseModel, EmailStr, Field
+
+
+load_dotenv()
+
+ACCESS_TOKEN_EXPIRY = (
+    timedelta(hours=5) if os.getenv("DEBUG", False) else timedelta(minutes=5)
+)
+REFRESH_TOKEN_EXPIRY = timedelta(hours=2)
 
 
 class RegistrationData(BaseModel):

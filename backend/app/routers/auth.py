@@ -1,14 +1,13 @@
 import os
-from datetime import timedelta
+from typing import Annotated
 
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Depends, Request, Response
+from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
-from ..dependencies import AuthServiceDep, SuccessResponse
-from ..interfaces.auth_service import LoginData, RegistrationData, UserInfo
+from ..dependencies import AuthServiceDep
+from ..interfaces.auth_service import LoginData, RegistrationData, UserInfo, REFRESH_TOKEN_EXPIRY
 
-ACCESS_TOKEN_EXPIRY = timedelta(hours=5)
-REFRESH_TOKEN_EXPIRY = timedelta(hours=2)
 
 router = APIRouter(
     prefix="/auth",
@@ -16,8 +15,9 @@ router = APIRouter(
 
 
 class LoginOrRegisterResponse(BaseModel):
+    success: bool
     user: UserInfo
-    token: str
+    access_token: str
 
 
 class RefreshResponse(BaseModel):
@@ -26,32 +26,47 @@ class RefreshResponse(BaseModel):
 
 
 @router.post("/login")
+async def login_form(
+    auth_service: AuthServiceDep,
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    response: Response,
+) -> LoginOrRegisterResponse:
+    auth_result = await auth_service.login(
+        LoginData(email=form_data.username, password=form_data.password)
+    )
+    set_refresh_token(response, auth_result.tokens.refresh_token)
+    return LoginOrRegisterResponse(
+        success=True,
+        user=auth_result.user,
+        access_token=auth_result.tokens.access_token
+    )
+
+
+@router.post("/login")
 async def login(
     auth_service: AuthServiceDep,
     body: LoginData,
     response: Response,
-) -> SuccessResponse[LoginOrRegisterResponse]:
-    auth_result = await auth_service.login(body) 
+) -> LoginOrRegisterResponse:
+    auth_result = await auth_service.login(body)
     set_refresh_token(response, auth_result.tokens.refresh_token)
-    return SuccessResponse(
-        data=LoginOrRegisterResponse(
-            user=auth_result.user,
-            token=auth_result.tokens.access_token
-        )
+    return LoginOrRegisterResponse(
+        success=True,
+        user=auth_result.user,
+        access_token=auth_result.tokens.access_token
     )
 
 
 @router.post("/register")
 async def register(
     auth_service: AuthServiceDep, body: RegistrationData, response: Response
-) -> SuccessResponse[LoginOrRegisterResponse]:
+) -> LoginOrRegisterResponse:
     auth_result = await auth_service.register(body)
     set_refresh_token(response, auth_result.tokens.refresh_token)
-    return SuccessResponse(
-        data=LoginOrRegisterResponse(
-            user=auth_result.user,
-            token=auth_result.tokens.access_token
-        )
+    return LoginOrRegisterResponse(
+        success=True,
+        user=auth_result.user,
+        access_token=auth_result.tokens.access_token
     )
 
 
