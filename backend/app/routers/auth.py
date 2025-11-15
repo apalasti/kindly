@@ -9,9 +9,7 @@ from ..dependencies import AuthServiceDep
 from ..interfaces.auth_service import LoginData, RegistrationData, UserInfo, REFRESH_TOKEN_EXPIRY
 
 
-router = APIRouter(
-    prefix="/auth",
-)
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 class LoginOrRegisterResponse(BaseModel):
@@ -25,7 +23,7 @@ class RefreshResponse(BaseModel):
     token: str
 
 
-@router.post("/login")
+@router.post("/login-form")
 async def login_form(
     auth_service: AuthServiceDep,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],

@@ -24,7 +24,7 @@ from .services import (
 
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="api/v1/auth/login",
+    tokenUrl="api/v1/auth/login-form",
     refreshUrl="api/v1/auth/refresh"
 )
 

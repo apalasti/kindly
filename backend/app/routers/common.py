@@ -6,9 +6,7 @@ from ..interfaces.auth_service import UserInfo
 from ..interfaces.common_service import RequestTypeInfo, UpdateProfileData
 from ..dependencies import CommonServiceDep, SuccessResponse, UserDataDep
 
-router = APIRouter(
-    prefix="/common",
-)
+router = APIRouter(prefix="/common", tags=["common"])
 
 
 @router.get("/profile")
