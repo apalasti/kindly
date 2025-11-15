@@ -158,8 +158,8 @@ async def insert_dummy_data():
                     start=datetime.now() + timedelta(days=day),
                     end=datetime.now() + timedelta(days=day, hours=2),
                     address="123 Main St, Anytown",
-                    longitude=19.0402,
-                    latitude=47.4979,
+                    longitude=19.0402 + random.uniform(-0.01, 0.01),
+                    latitude=47.4979 + random.uniform(-0.01, 0.01),
                 ),
             )
             created_requests.append(request.id)
