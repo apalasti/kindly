@@ -76,19 +76,19 @@ class ApplicationInfo:
     status: str
     volunteer: UserInfo
     applied_at: datetime
-    volunteer_rating: Optional[int] = None
-    help_seeker_rating: Optional[int] = None
 
 
 @dataclass
 class RequestDetailForHelpSeeker(RequestInfo):
     applications: List[ApplicationInfo]
+    has_rated_helper: bool
 
 
 @dataclass
 class RequestDetailForVolunteer(RequestInfo):
     application_status: str
     creator: UserInfo
+    has_rated_seeker: bool
 
 
 class RequestServiceInterface(ABC):

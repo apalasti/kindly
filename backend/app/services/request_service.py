@@ -1,9 +1,9 @@
 from decimal import Decimal
 
 from geoalchemy2.functions import ST_DWithin, ST_Point
-from sqlalchemy import String, text
+from sqlalchemy import String
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import defer, joinedload, session
+from sqlalchemy.orm import defer, joinedload
 from sqlalchemy.sql import asc, desc, func, select
 
 from ..interfaces.request_service import (
@@ -157,12 +157,9 @@ class RequestService(RequestServiceInterface):
 
         application_status = func.coalesce(
             func.cast(Application.status, String), "NOT_APPLIED"
-        )
+        ).label("application_status")
         query = (
-            select(
-                Request,
-                application_status.label("application_status"),
-            )
+            select(Request, application_status)
             .options(
                 joinedload(Request.creator).load_only(
                     User.id, User.first_name, User.last_name, User.avg_rating
@@ -244,34 +241,41 @@ class RequestService(RequestServiceInterface):
         applications = [self._to_application_info(app) for app in result.applications]
         return RequestDetailForHelpSeeker(
             **request_info.__dict__,
-            applications=applications
+            applications=applications,
+            has_rated_helper=any(
+                application.volunteer_rating is not None
+                for application in result.applications
+            )
         )
 
     async def get_request_for_volunteer(
         self, user: UserTokenData, request_id: int
     ) -> RequestDetailForVolunteer:
         self.auth_service.authorize_with_role(user, UserRoles.VOLUNTEER)
-        result = (
-            await self.session.execute(
-                select(Request, func.coalesce(func.cast(Application.status, String), "NOT_APPLIED"))
-                .options(
-                    joinedload(Request.creator).load_only(
-                        User.id, User.first_name, User.last_name, User.avg_rating
-                    )
-                )
-                .options(joinedload(Request.request_types))
-                .outerjoin(
-                    Application,
-                    (Application.request_id == Request.id)
-                    & (Application.user_id == user["id"]),
-                )
-                .filter(Request.id == request_id)
+        result = await self.session.execute(
+            select(
+                Request,
+                func.coalesce(func.cast(Application.status, String), "NOT_APPLIED"),
+                Application.help_seeker_rating,
             )
-        ).unique().first()
+            .options(
+                joinedload(Request.creator).load_only(
+                    User.id, User.first_name, User.last_name, User.avg_rating
+                )
+            )
+            .options(joinedload(Request.request_types))
+            .outerjoin(
+                Application,
+                (Application.request_id == Request.id)
+                & (Application.user_id == user["id"]),
+            )
+            .filter(Request.id == request_id)
+        )
+        result = result.unique().first()
         if result is None:
             raise RequestNotFoundError
 
-        request, user_application_status = result
+        request, user_application_status, seeker_rating = result
         request_info = self._to_request_info(request)
         creator_info = UserInfo(
             id=request.creator.id,
@@ -283,7 +287,8 @@ class RequestService(RequestServiceInterface):
         return RequestDetailForVolunteer(
             **request_info.__dict__,
             application_status=str(user_application_status),
-            creator=creator_info
+            creator=creator_info,
+            has_rated_seeker=seeker_rating is not None,
         )
 
     def _to_request_info(self, request: Request) -> RequestInfo:
@@ -317,6 +322,4 @@ class RequestService(RequestServiceInterface):
                 avg_rating=application.volunteer.avg_rating
             ),
             applied_at=application.applied_at,
-            volunteer_rating=application.volunteer_rating,
-            help_seeker_rating=application.help_seeker_rating
         )
