@@ -20,6 +20,7 @@ import {
   FaInfoCircle,
   FaUserClock,
 } from "react-icons/fa";
+import { VOLUNTEER_LEVELS, HELP_SEEKER_LEVELS } from "../../types/levels";
 import type { User } from "../../types";
 import { getFullName, pickAvatarPalette } from "../../utils/avatar";
 import { formatDateCompact } from "../../utils/date";
@@ -46,6 +47,24 @@ export const ProfileDetails = ({
 
   const rating = Number(user.avg_rating);
   const showRating = Number.isFinite(rating) && rating > 0;
+
+  const currentLevel = user.level;
+
+  const progressPercent = Math.min(
+    100,
+    Math.round((user.experience / user.experience_to_next_level) * 100)
+  );
+
+  const levelMap = user.is_volunteer ? VOLUNTEER_LEVELS : HELP_SEEKER_LEVELS;
+
+  const levelMeta = levelMap[currentLevel] || {
+    name: `Level ${currentLevel}`,
+    icon: FaStar,
+    color: accentColor,
+  };
+  const nextLevelMeta = levelMap[currentLevel + 1] || {
+    name: `Level ${currentLevel + 1}`,
+  };
 
   return (
     <Box
@@ -134,6 +153,67 @@ export const ProfileDetails = ({
               </HStack>
             )}
           </HStack>
+
+          {/* Level progress bar with icon and next level name */}
+          <Box w="full" maxW="560px" mx="auto">
+            <HStack align="center" justify="center" gap={4} mt={2}>
+              <Box
+                bg={`${levelMeta.color}.50`}
+                color={levelMeta.color}
+                borderRadius="full"
+                p={3}
+                boxShadow="md"
+                minW="48px"
+                minH="48px"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Icon as={levelMeta.icon as ElementType} boxSize={6} />
+              </Box>
+
+              <VStack gap={1} align="stretch" flex={1}>
+                <HStack justify="space-between">
+                  <HStack gap={2}>
+                    <Text fontSize="md" fontWeight="semibold" color="gray.800">
+                      {levelMeta.name}
+                    </Text>
+                    <Badge
+                      bg={levelMeta.color}
+                      color="white"
+                      borderRadius="full"
+                      px={2}
+                      fontSize="xs"
+                    >
+                      Lvl {currentLevel}
+                    </Badge>
+                  </HStack>
+                  <Text fontSize="sm" color="gray.500">
+                    Next: {nextLevelMeta.name}
+                  </Text>
+                </HStack>
+
+                <Box>
+                  <Box
+                    bg="gray.100"
+                    borderRadius="999px"
+                    h="8px"
+                    overflow="hidden"
+                  >
+                    <Box
+                      bg={currentUserIsVolunteer ? "teal.400" : "coral.500"}
+                      w={`${progressPercent}%`}
+                      h="8px"
+                      transition="width 0.25s ease"
+                    />
+                  </Box>
+                  <Text fontSize="xs" color="gray.500" mt={2}>
+                    {user.experience} / {user.experience_to_next_level} XP
+                  </Text>
+                </Box>
+              </VStack>
+            </HStack>
+          </Box>
         </VStack>
 
         <Separator />

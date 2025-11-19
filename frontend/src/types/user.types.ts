@@ -9,6 +9,9 @@ export interface User {
   avg_rating?: number;
   created_at: string;
   updated_at: string;
+  level: number;
+  experience: number;
+  experience_to_next_level: number;
 }
 
 export interface RegisterRequest {
