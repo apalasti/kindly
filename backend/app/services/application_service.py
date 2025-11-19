@@ -2,7 +2,7 @@ from sqlalchemy import delete, select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import Application, Request, RequestStatus, ApplicationStatus
+from ..models import Application, Request, RequestStatus, ApplicationStatus, User
 from ..interfaces import AuthServiceInterface, ApplicationServiceInterface
 from ..interfaces.auth_service import UserRoles, UserTokenData
 from ..interfaces.application_service import (
@@ -138,6 +138,11 @@ class ApplicationService(ApplicationServiceInterface):
 
             application.volunteer_rating = rating_data.rating
 
+            xp = self._xp_for_rating(rating_data.rating)
+            volunteer = await self.session.get(User, application.user_id)
+            if volunteer is not None:
+                volunteer.add_experience(xp)
+
     async def rate_seeker(self, user: UserTokenData, request_id: int, rating_data: RateSeekerData) -> None:
         self.auth_service.authorize_with_role(user, UserRoles.VOLUNTEER)
 
@@ -156,3 +161,18 @@ class ApplicationService(ApplicationServiceInterface):
                 raise ApplicationCannotBeRated
 
             application.help_seeker_rating = rating_data.rating
+
+            xp = self._xp_for_rating(rating_data.rating)
+            if xp > 0:
+                request = (
+                    await self.session.execute(
+                        select(Request).filter(Request.id == request_id)
+                    )
+                ).scalar_one_or_none()
+                if request is not None:
+                    seeker = await self.session.get(User, request.creator_id)
+                    if seeker is not None:
+                        seeker.add_experience(xp)
+
+    def _xp_for_rating(self, rating: int) -> int:
+        return rating * 10
