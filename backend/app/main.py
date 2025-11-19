@@ -26,6 +26,7 @@ app = FastAPI(lifespan=lifespan)
 origins = [
     "http://localhost",
     "http://localhost:5173",
+    "http://localhost:5174",
 ]
 
 if os.environ.get("DEV", False):

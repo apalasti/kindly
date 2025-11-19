@@ -22,7 +22,7 @@ from ..interfaces.request_service import (
 from ..interfaces.auth_service import AuthServiceInterface, UserRoles, UserTokenData
 from ..interfaces.common_service import RequestTypeInfo
 from ..interfaces.exceptions import RequestCannotBeUpdatedError, RequestNotFoundError
-from ..models import Application, Request, RequestType, User, TypeOf
+from ..models import Application, ApplicationStatus, Request, RequestType, User, TypeOf
 from ..models.request import RequestStatus
 
 
@@ -126,6 +126,24 @@ class RequestService(RequestServiceInterface):
             raise RequestCannotBeUpdatedError
 
         request.status = RequestStatus.COMPLETED
+
+        experience_gain = request.calculate_experience()
+        caretaker = await self.session.get(User, user["id"])
+        if caretaker is not None:
+            caretaker.add_experience(experience_gain)
+
+        accepted_application = (
+            await self.session.execute(
+                select(Application)
+                .filter(Application.request_id == request.id)
+                .filter(Application.status == ApplicationStatus.ACCEPTED)
+            )
+        ).scalar_one_or_none()
+        if accepted_application is not None:
+            volunteer = await self.session.get(User, accepted_application.user_id)
+            if volunteer is not None:
+                volunteer.add_experience(experience_gain)
+
         await self.session.commit()
 
     async def get_my_requests(

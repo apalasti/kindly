@@ -42,6 +42,9 @@ class UserInfo:
     about_me: str
     is_volunteer: bool
     avg_rating: float
+    level: int
+    experience: int
+    experience_to_next_level: int
 
 
 @dataclass

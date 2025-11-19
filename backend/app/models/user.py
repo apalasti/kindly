@@ -20,6 +20,8 @@ class User(Base):
     about_me: Mapped[str] = mapped_column(sa.String, nullable=False)
     is_volunteer: Mapped[bool] = mapped_column(sa.Boolean, nullable=False)
     avg_rating: Mapped[float] = mapped_column(sa.Float, default=0.0)
+    level: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=1)
+    experience: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=0)
 
     created_at: Mapped[datetime] = mapped_column(
         sa.TIMESTAMP(timezone=True),
@@ -36,3 +38,16 @@ class User(Base):
     requests: Mapped[List["Request"]] = relationship(
         "Request", back_populates="creator"
     )
+
+    def experience_to_next_level(self) -> int:
+        return 100 * self.level 
+
+    def add_experience(self, xp: int) -> None:
+        if xp <= 0:
+            return
+
+        self.experience += xp
+
+        while self.experience >= self.experience_to_next_level():
+            self.experience -= self.experience_to_next_level()
+            self.level += 1

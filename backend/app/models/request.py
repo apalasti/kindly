@@ -60,3 +60,6 @@ class Request(Base):
     applications: Mapped[List["Application"]] = relationship(
         "Application", back_populates="request"
     )
+
+    def calculate_experience(self) -> int:
+        return self.reward / 10
